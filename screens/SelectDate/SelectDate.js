@@ -29,7 +29,11 @@ const SelectDate = ({ navigation, route }) => {
     const [showCookingTime, setShowCookingTime] = useState(true);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState('Appliances');
+    const today = new Date();
+    const minimumDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
+    const twoMinutesLater = new Date();
+    twoMinutesLater.setMinutes(twoMinutesLater.getMinutes() + 2);
     const toggleSelectedTab = (tabName) => {
         setSelectedTab(tabName);
     };
@@ -98,7 +102,8 @@ const SelectDate = ({ navigation, route }) => {
             if (!isDateValid) {
                 setErrorText('Order can be placed at least 24 hours in advance.');
                 return;
-            } else if (!isTimeValid) {
+            }
+            else if (!isTimeValid) {
                 setErrorText('*Order can be placed only between 7:00 AM to 10:00 PM');
                 return;
             } else {
@@ -144,6 +149,17 @@ const SelectDate = ({ navigation, route }) => {
     };
 
     const RenderIngredients = ({ item }) => {
+
+        item.qty = item.qty * peopleCount;
+
+        if (item.qty >= 1000)
+        {
+            item.qty = item.qty / 1000;
+            if (item.unit === 'g')
+                item.unit = 'kg'
+            else if (item.unit === 'ml')
+                item.unit = 'L'
+        }
         return (
             <View style={{ height: 51, paddingEnd: 2, alignItems: 'center', borderRadius: 5, borderColor: '#DADADA', borderWidth: 0.5, flexDirection: 'row', flex: 1, marginRight: 6, marginBottom: 8 }}>
                 <View style={{ marginLeft: 5, width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 3, alignItems: 'center', justifyContent: 'center', marginRight: 5 }}>
@@ -152,13 +168,14 @@ const SelectDate = ({ navigation, route }) => {
 
                 <View style={{ flexDirection: 'column', marginLeft: 1, width: 43 }}>
                     <Text style={{ fontSize: 10, fontWeight: '500', color: '#414141', maxWidth: 120 }} numberOfLines={1}>{item.name}</Text>
-                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#9252AA' }}>{item.qty} KG</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: '#9252AA' }}>{item.qty + ' ' + item.unit}</Text>
                 </View>
             </View>
         );
     };
 
-    const renderPreparationText = ({ items }) => {
+    const renderPreparationText = ({ items
+     }) => {
         if (showAll) {
             return items.map((item, index) => (
                 <Text key={index} style={styles.item}>{`${index + 1}. ${item}`}</Text>
@@ -302,10 +319,13 @@ const SelectDate = ({ navigation, route }) => {
                             qty: 0
                         };
                     }
-                    totalIngredients[ingredient._id].qty += ingredient.qty;
+                    totalIngredients[ingredient._id].qty += parseInt(ingredient.qty);
+                    if (ingredient.unit === 'gram')
+                    totalIngredients[ingredient._id].unit = 'g';
                 });
             }
         }
+
         console.warn(totalIngredients)
         return Object.values(totalIngredients);
     };
@@ -393,7 +413,7 @@ const SelectDate = ({ navigation, route }) => {
             setWarningVisible(true);
         }
         else {
-            console.log("Inside")
+          
             navigation.navigate("ConfirmDishOrder", {
                 "selectedDate": selectedDate, "selectedTime": selectedTime, "peopleCount": peopleCount,
                 "burnerCount": burnerCount,
@@ -490,6 +510,7 @@ const SelectDate = ({ navigation, route }) => {
                                             value={selectedDate}
                                             mode="date"
                                             display="default"
+                                            minimumDate={minimumDate}
                                             onChange={handleDateChange}
                                         />
                                     )}

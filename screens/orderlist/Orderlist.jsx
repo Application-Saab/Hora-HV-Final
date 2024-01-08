@@ -3,6 +3,7 @@ import { ScrollView, Linking, View, StyleSheet, Text, Image, TextInput, Touchabl
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, ORDERLIST_ENDPOINT, GET_USER_DETAIL_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
+// import Share from 'react-native-share';
 
 
 const Orderlist = ({ navigation  }) => {
@@ -12,7 +13,6 @@ const Orderlist = ({ navigation  }) => {
     const [token, setToken] = useState('');
 
     const handleOrderDetails = (e , a) => {
-        console.log("OrderDetails Page order Id" + e + a)
          navigation.navigate('OrderDetails' , {'apiOrderId': e , 'orderId':a} )
     }
 
@@ -20,7 +20,6 @@ const Orderlist = ({ navigation  }) => {
         .then((storedToken) => {
             if (storedToken) {
                 setToken(storedToken)
-                console.log("token===", token)
                 // Do something with the token
             } else {
                 console.log('Token not found in AsyncStorage');
@@ -91,19 +90,36 @@ const Orderlist = ({ navigation  }) => {
     }, [userId, token]);
 
 
-    const sendInvite = () => {
-        alert("invite sent")
-        //  const shareOptions = {
-        //     massage: "text msg1"
-        // }
+    const sendInvite = (dishes) => {
+        // let message = `You are Invited!!!
+        // * * * * * *
+        // Enjoy the gathering with specially cooked by professional chef from hora `;
+
+        // message = message + dishes.order_date.slice(0, 10);
+
+        // message = message + ' ' + dishes.order_time;
+      
+        // dishes.selecteditems.forEach((dish,index) => {
+        //   message += '\n' + (index+1) + '. ' + dish.name;
+        // });
+
+        // if (dishes.addressId != null)
+        // {message = message + '\n At ' + dishes.addressId.address1 + ' ' + dishes.addressId.address2 +   `\nhttps://play.google.com/store/apps/details?id=com.hora`;}
+      
+        // // Add the rest of your message here
+        // // ...
+      
+        // const shareOptions = {
+        //   message: message,
+        // };
+      
         // try {
-        //     const ShareResponse = Share.open(shareOptions)
-        //     alert(ShareResponse)
+        //   const ShareResponse = Share.open(shareOptions);
+        // } catch (error) {
+        //   alert("error" + error);
         // }
-        // catch (error) {
-        //     alert("error" + error)
-        // }
-    }
+      };
+      
 
 
     const getOrderStatus = (orderStatusValue) => {
@@ -255,9 +271,8 @@ const Orderlist = ({ navigation  }) => {
                                     </View>
 
                                     <View>
-                                        {(getOrderStatus(orderData[item].order_status) === 0 || getOrderStatus(orderData[item].order_status) === 2) &&
-                                            getOrderStatus(orderData[item].order_status) !== "Completed" ? (
-                                            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={sendInvite}>
+                                        {getOrderStatus(orderData[item].order_status) === 'Booked' ? (
+                                            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={() => sendInvite(orderData[item])}>
                                                 <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                                                     <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
                                                 </View>

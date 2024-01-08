@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableHighlight ,Pressable, Image, BackHandler, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ImageBackground, TouchableHighlight, Pressable, Image, BackHandler, TouchableOpacity, ScrollView } from 'react-native';
 import CarouselComponent from '../dialog/CarouselComponent';
 import CustomHeader from '../../components/CustomeHeader';
-import Geolocation from '@react-native-community/geolocation';
-import CreateOrder from '../createorder/CreateOrder';
 
 const Home = ({ navigation }) => {
   const [decCat, setDecCat] = useState([
@@ -24,9 +22,11 @@ const Home = ({ navigation }) => {
   const [currentAddress, setCurrentAddress] = useState(null);
 
   const bookNowData = [
-    { id: '1', image: require('../../assets/home-slider.png') },
-    { id: '2', image: require('../../assets/home-slider.png') },
-    { id: '3', image: require('../../assets/home-slider.png') }
+    { id: '1', image: require('../../assets/homebanner1.png'), text: "Book Decorations for your Events" },
+    { id: '2', image: require('../../assets/homebanner2.png'), text: "Chef for party - Food by Top Chef at just ₹80 / Person" },
+    { id: '3', image: require('../../assets/homebanner3.png'), text: "Food Delivery - Starting at just Rs 300 per person with multiple dish options" },
+    { id: '4', image: require('../../assets/homebanner4.png'), text: "Waiter/Cleaner/Helper - at just Rs 650" },
+    { id: '5', image: require('../../assets/homebanner5.png'), text: "Explore Our Various Service" }
   ];
 
   const popularDishes = [
@@ -56,11 +56,13 @@ const Home = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <CustomHeader title={"Home"} navigation={navigation} />
-      <CarouselComponent data={bookNowData} />
+      <View style={{ marginTop: 2 }}>
+        <CarouselComponent data={bookNowData} />
+      </View>
       <View style={{ marginStart: 16, marginTop: 16 }}>
         <Text>
-          <Text style={styles.normalText}>Book Your  </Text>
-          <Text style={styles.dishesText}>Decoration</Text>
+          <Text style={styles.normalText}>Explore Our  </Text>
+          <Text style={styles.dishesText}>Services</Text>
         </Text>
       </View>
       <View style={styles.decContainer}>
@@ -77,44 +79,93 @@ const Home = ({ navigation }) => {
           source={require('../../assets/celebrate.png')}
           style={{ height: 496, width: Dimensions.get('window').width, marginTop: 10 }}
         />
-        <View style={styles.buttonContainer}>
+        {/* <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.customButton} activeOpacity={1} onPress={openCreateOrder}>
             <Text style={styles.buttonText}> Book Now</Text>
           </TouchableOpacity>
+        </View> */}
+      </View>
+
+
+
+      {/* howdoesitworks */}
+      <View style={{ width: "100%", marginVertical: 30 }}>
+        <View>
+          <Image
+            source={require('../../assets/how-work-icon.png')}
+            style={{
+              height: 90,
+              width: 110,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
+          />
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 25 }}>
+          <View style={styles.box}>
+            <ImageBackground
+              source={require('../../assets/hw-bg.png')}
+              style={styles.imageBackground}
+            >
+              <View style={styles.content}>
+                <Image
+                  source={require('../../assets/how1.png')}
+                  style={styles.hwicon}
+                />
+                <Text style={styles.hwheading}>Select Service</Text>
+                <Text style={styles.hwtext}>Select from the wide range of cuisines & dishes</Text>
+              </View>
+            </ImageBackground>
+          </View>
+          <View style={styles.box}>
+            <ImageBackground
+              source={require('../../assets/hw-bg.png')}
+              style={styles.imageBackground}
+            >
+              <View style={styles.content}>
+                <Image
+                  source={require('../../assets/how2.png')}
+                  style={styles.hwicon}
+                />
+                <Text style={styles.hwheading}>Book a slot</Text>
+                <Text style={styles.hwtext}>Pick your preferred date and time for service</Text>
+              </View>
+            </ImageBackground>
+          </View>
+          <View style={styles.box}>
+            <ImageBackground
+              source={require('../../assets/hw-bg.png')}
+              style={styles.imageBackground}
+            >
+              <View style={styles.content}>
+                <Image
+                  source={require('../../assets/how3.png')}
+                  style={styles.hwicon}
+                />
+                <Text style={styles.hwheading}>Confirm Order</Text>
+                <Text style={styles.hwtext}>Confirm your order and rest back we ll take it from here</Text>
+              </View>
+            </ImageBackground>
+          </View>
         </View>
       </View>
 
-      {/* happy customers */}
-      <View style={{ marginTop: 30  , marginBottom:40}}>
-        <CarouselComponent data={reviewData} reviewData={reviewData} />
-      </View>
-
-      {/* popular dishes section */}
-      {/* <View style={{ marginStart: 16, marginTop: 16 }}>
-        <Text>
-          <Text style={styles.normalText}>Most Popular </Text>
-          <Text style={styles.dishesText}>Dishes</Text>
-        </Text>
-      </View> */}
-      {/* <CarouselComponent data={popularDishes} /> */}
-      <View>
-      </View>
 
       {/* why hora */}
-     
+
       <TouchableHighlight onPress={openCreateOrder}>
-      <Image
-        source={require('../../assets/whyHora.png')}
-        style={{
-          height: 500,
-          width: Dimensions.get('window').width - 1,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
-      />
-    </TouchableHighlight>
-        
-     
+        <Image
+          source={require('../../assets/whyHora.png')}
+          style={{
+            height: 500,
+            width: 390,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        />
+      </TouchableHighlight>
+
+
     </ScrollView>
   );
 };
@@ -159,6 +210,45 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 10,
+  },
+  box: {
+    flex: 1,
+    marginHorizontal: 5,
+    marginBottom: 20, // Adjust as needed
+    borderColor: '#E8E7E7',
+    borderRadius: 9,
+    borderWidth: 1,
+    overflow: 'hidden', // Ensure content doesn't overflow the box
+  },
+  imageBackground: {
+    flex: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 5,
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+  },
+  content: {
+    textAlign: 'center',
+  },
+  hwicon: {
+    height: 70,
+    width: 80,
+    marginBottom: 10, // Adjust as needed
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  hwheading: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#000',
+    marginBottom: 5, // Adjust as needed
+    textAlign: 'center',
+  },
+  hwtext: {
+    color: '#8C8C8C',
+    fontSize: 12,
+    fontWeight: '400',
+    textAlign: 'center',
   },
 });
 

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Dimensions } from 'react-native';
 import { BASE_URL, ORDER_INGREDIENTS } from '../utils/ApiConstants';
 
-const OrderDetailsIngre = () => {
+const OrderDetailsIngre = ({ OrderDetail}) => {
   const [orderIngredients, setOrderIngredients] = useState({});
   async function fetchOrderIngredients() {
     try {
-      const response = await fetch(BASE_URL + ORDER_INGREDIENTS + '/252');
+      const response = await fetch(BASE_URL + ORDER_INGREDIENTS + '/' + OrderDetail.order_id);
       const responseData = await response.json();
       setOrderIngredients(responseData.data);
     } catch (error) {
@@ -27,11 +27,12 @@ const OrderDetailsIngre = () => {
         {Object.keys(orderIngredients).map((item, index) => (
           <View key={index} style={styles.foodItem}>
             <View style={styles.foodItemImageContainer}>
-              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            <Image source={{ uri: `https://horaservices.com/api/uploads/${orderIngredients[item].image}` }} 
+                style={{ width: 41, height: 42, borderRadius: 20, marginBottom: 9, marginTop: 9, marginStart: 6 }} />
             </View>
             <View style={styles.foodItemDetails}>
               <Text style={styles.foodItemName}>{item}</Text>
-              <Text>{item.qty}</Text>
+              <Text style={styles.foodItemName}>{orderIngredients[item].qty + " " + orderIngredients[item].unit}</Text>
             </View>
           </View>
         ))}
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 5,
-    marginRight: 3, // Add margin between food items
+    marginRight: 5, // Add margin between food items
     borderWidth: 1,
     borderColor: '#ccc', // Specify the border color
     borderRadius: 10, // Add border radius for rounded corners
@@ -70,9 +71,9 @@ const styles = StyleSheet.create({
     minHeight:70,
   },
   foodItemImageContainer: {
-    width: 30,
+    width: '30%',
     height: 30,
-    borderRadius: 10,
+    borderRadius: 10
   },
   foodItemImage: {
     flex: 1,
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   },
   foodItemDetails: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 30,
   },
   foodItemName: {
     fontSize: 12,

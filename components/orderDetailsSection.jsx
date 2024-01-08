@@ -6,7 +6,6 @@ const OrderDetailsSection = ({ OrderDetail , apiOrderId , orderId }) => {
     const [orderDate , setOrderDate] = useState('')
     
     const getOrderId = (e) => {
-        console.log("e==" , e)
         const orderId1 = 10800 + e
         const updateOrderId = "#" + orderId1
         return updateOrderId;

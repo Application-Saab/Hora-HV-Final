@@ -9,38 +9,71 @@ import {
 import Contact from '../screens/contact/Contact';
 import Profile from '../screens/profile/Profile';
 import Orderlist from '../screens/orderlist/Orderlist';
-import OrderDetails from '../screens/orderdetails/OrderDetails';
+import Faq from '../screens/Faq/Faq';
 import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import Home from '../screens/home/Home';
 import Login from '../screens/login/Login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL, GET_USER_DETAIL_ENDPOINT } from '../utils/ApiConstants';
 
 const Drawer = createDrawerNavigator();
+
+
 
 const UserInfo = () => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [email, setEmail] = useState('');
-  let base_url = 'https://horaservices.com:3000';
+  const [token, setToken] = useState('');
 
-  useEffect(() => {
-    fetchContactDetail();
-  }, []);
+  // Function to fetch the token from AsyncStorage
+  const fetchToken = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('token');
+      if (storedToken) {
+        setToken(storedToken);
+      } else {
+        console.log('Token not found in AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+    }
+  };
 
   
-
-  async function fetchContactDetail() {
+  const fetchUserAccount = async () => {
     try {
-      const response = await fetch(base_url + '/api/setting/details');
-      const responseData = await response.json();
-      const contactData = responseData.data;
-      const phone = '+91' + ' ' + contactData.phone;
-      setEmail(contactData.email);
-      setMobileNumber(phone);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+      const response = await fetch(BASE_URL + GET_USER_DETAIL_ENDPOINT, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: token,
+        },
+      });
 
+      if (response.ok) {
+        const userData = await response.json();
+        // setName(userData.data.name || '');
+        setMobileNumber(userData.data.phone);
+        setEmail(userData.data.email || '');
+      } else {
+        const errorData = await response.json();
+        console.log(`Error fetching user account: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error fetching user account:', error);
+    }
+  };
+  useEffect(() => {
+    // Fetch token and user details when the component mounts
+    fetchToken();
+  }, []);
+
+  useEffect(() => {
+    fetchUserAccount();
+  }, [token]);
+
+ 
   return (
     <View style={styles.profileimagesec}>
       <Image
@@ -48,7 +81,7 @@ const UserInfo = () => {
         style={styles.profileimage}
       />
       <Text style={styles.profileText1}>{'User - '}{mobileNumber}</Text>
-      <Text style={styles.profileText}>{email}</Text>
+      {/* <Text style={styles.profileText}>{email}</Text> */}
       <Text style={styles.profileText}>{mobileNumber}</Text>
     </View>
   );
@@ -161,6 +194,21 @@ const DrawerNavigation = () => {
           headerShown:false,
           tabBarLabel: 'Contact',
 
+        }
+      }
+      />
+       <Drawer.Screen
+        name="Helps & FAQs"
+        component={Faq}
+        options={{
+          drawerIcon: ({ focused, size }) => (
+            <Image
+              source={require('../assets/Helps.png')}
+              style={{ height: 24, width: 24 }}
+            />
+          ),
+          headerShown:false,
+          tabBarLabel: 'Helps & FAQs',
         }
       }
       />

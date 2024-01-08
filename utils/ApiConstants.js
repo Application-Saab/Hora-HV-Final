@@ -19,6 +19,7 @@ export const ORDER_DETAILS_ENDPOINT = "/api/order/order_details"
 export const ORDER_CANCEL = "/api/order/cancelOrder"
 export const ORDER_INGREDIENTS = "/api/order/getIngredientByOrder"
 export const PAYMENT = "/api/payment_gateway/payment"
+export const PAYMENT_STATUS = "/api/payment_gateway/status"
 
 
 

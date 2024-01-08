@@ -18,6 +18,7 @@ const OrderDetails = ({ navigation, route }) => {
     const [OrderAppl, setOrderAppl] = useState([]);
     const [orderIngredients, setOrderIngredients] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
+
     const handleShareMenu = () => {
         console.log("ShareMenuWithGuest")
     }
@@ -74,10 +75,9 @@ const OrderDetails = ({ navigation, route }) => {
     useEffect(() => {
         async function fetchOrderDetails() {
             try {
-                console.log(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId)
                 const response = await fetch(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId);
                 const responseData = await response.json();
-                console.log("responseData===", responseData)
+             
                 setOrderDetail(responseData.data)
                 setOrderMenu(responseData.data.selecteditems)
                 setOrderAppl(responseData.data.orderApplianceIds)
@@ -125,7 +125,7 @@ const OrderDetails = ({ navigation, route }) => {
                 <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} />
                 <View style={styles.tabSec}>
                     <Tabs onSelectTab={handleTabChange} />
-                    {selectedTab === 1 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} />}
+                    {selectedTab === 1 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail}/>}
                 </View>
                 <View>
                     {(orderDetail.order_status === 0 || orderDetail.order_status === 2) &&
@@ -139,7 +139,7 @@ const OrderDetails = ({ navigation, route }) => {
 
                 </View>
                 <View>
-                    {orderDetail.order_status == '4' ?
+                    {orderDetail.order_status == 'Booked' ?
                         <View style={styles.cancelorderbox}>
                             <View>
                                 <Text style={styles.cancelorderboxtext1}>We Regret to inform you that your order has been canceled! we are working hard to make your experience better and hustle free

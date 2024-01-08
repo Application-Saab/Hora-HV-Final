@@ -1,16 +1,79 @@
-import React from 'react';
-import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Pressable, Image, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
+import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoding';
+import { getCurrentPosition } from 'react-native-geolocation-service';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+const CustomHeader = ({ title, navigation }) => {
 
-const CustomHeader = ({ title,navigation }) => {
+  const [currentAddress, setCurrentAddress] = useState('');
   const route = useRoute();
+  const GOOGLE_MAP_KEY = "AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY"
+  useEffect(() => {
+    Geocoder.init(GOOGLE_MAP_KEY);
+    getCurrentLocation()
+    checkAndRequestLocationPermission();
+  }, []);
+  const checkAndRequestLocationPermission = async () => {
+    try {
+      const permissionResult = await check(
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+          : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+      );
+
+      if (permissionResult === RESULTS.GRANTED) {
+        getCurrentLocation();
+      } else {
+        requestLocationPermission();
+      }
+    } catch (error) {
+      console.error('Error checking location permission:', error);
+    }
+  };
+
+  const requestLocationPermission = async () => {
+    try {
+      const permissionResult = await request(
+        Platform.OS === 'ios'
+          ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+          : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+      );
+
+      if (permissionResult === RESULTS.GRANTED) {
+        getCurrentLocation();
+      } else {
+        console.warn('Location permission denied');
+      }
+    } catch (error) {
+      console.error('Error requesting location permission:', error);
+    }
+  };
+
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        Geocoder.from(latitude, longitude)
+          .then((response) => {
+            const address = response.results[0].formatted_address;
+            setCurrentAddress(address);
+          })
+          .catch((error) => console.warn('Error fetching location address:', error));
+      },
+      (error) => console.log('Error getting current location:', error),
+      { enableHighAccuracy: true, timeout: 10000000, maximumAge: 10000000000000 }
+    );
+  };
 
   const handleBackPress = () => {
     if (title === "Profile" || title === "Contact" || title === "Order History") {
       navigation.navigate('Home');
     }
-    else{
+    else {
       navigation.goBack();
     }
   };
@@ -20,6 +83,7 @@ const CustomHeader = ({ title,navigation }) => {
   };
 
   return (
+
     <LinearGradient
       colors={['#6730B2', '#EE7464']}
       start={{ x: 0, y: 0 }}
@@ -27,30 +91,52 @@ const CustomHeader = ({ title,navigation }) => {
       style={styles.headerContainer}
     >
       {route.name === 'Home' ? (
-        <Pressable onPress={handleDrawerPress}>
-          <Image
-            source={require('../assets/menu-icon.png')}
-            style={styles.menuimage}
-          />
-        </Pressable>
+        <View style={{ flexDirection: 'row' ,  justifyContent: 'space-around' ,  alignItems:"center" }}>
+          <Pressable onPress={handleDrawerPress}>
+            <Image
+              source={require('../assets/menu-icon.png')}
+              style={styles.menuimage}
+            /> 
+          </Pressable>
+          <View style={{width:"80%"  , flexDirection: 'row' , justifyContent:'space-between', alignItems:"center"}}>
+          {/* <Image
+              source={require('../assets/Location.png')}
+              style={{width:30, height:30 }}
+            /> */}
+          <Text style={{color:"white" , fontSize:12 , fontWeight:"500"}}>
+            {currentAddress.slice(0, 90)}{currentAddress.length > 100 ? '.....' : ''}
+          </Text>
+          </View>
+        
+        </View>
       ) : (
-        <Pressable onPress={handleBackPress}>
-          <Image
-            source={require('../assets/back_arrow.png')}
-            style={styles.image}
-          />
-        </Pressable>
+        <View style={styles.headerContainer}>
+          <Pressable onPress={handleBackPress}>
+            <Image
+              source={require('../assets/back_arrow.png')}
+              style={styles.image}
+            />
+          </Pressable>
+          <Text style={styles.headerTitle}>{title}</Text>
+        </View>
       )}
-      <Text style={styles.headerTitle}>{title}</Text>
+
+
     </LinearGradient>
+
   );
 };
 
 const styles = StyleSheet.create({
+  headerBackground: {
+    width: '100%',
+    height: '100%',
+  },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 64,
+    height: 57,
+    marginTop: 0,
   },
   headerTitle: {
     fontSize: 15,
@@ -65,8 +151,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   menuimage: {
-    height: 80,
-    width: 80,
+    height: 70,
+    width: 70,
     marginLeft: 0,
     marginTop: 20,
   },

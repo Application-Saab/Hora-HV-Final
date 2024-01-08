@@ -6,9 +6,9 @@ import CustomStatusBar from '../../components/CustomStatusBar';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
 import Geocoder from 'react-native-geocoding';
-import Geolocation from 'react-native-geolocation-service';
 import CustomHeader from '../../components/CustomeHeader';
-import {PAYMENT } from '../../utils/ApiConstants';
+import {PAYMENT, PAYMENT_STATUS } from '../../utils/ApiConstants';
+import Geolocation from '@react-native-community/geolocation';
 
 const ConfirmDishOrder = ({ navigation, route }) => {
 
@@ -118,12 +118,12 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     );
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     Geocoder.init('AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY');
-    //     getCurrentLocation();
+        Geocoder.init('AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY');
+        getCurrentLocation();
         
-    // }, []);
+    }, []);
 
     const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
@@ -193,7 +193,9 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     }
 
-    const onContinueClick = async () => {
+    const handleConfirmOrder = async () => {
+        let message = checkPaymentStatus();
+        if (message === 'PAYMENT_SUCCESS'){
         try {
             const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
             const requestData = {
@@ -223,49 +225,100 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                 },
             });
             if (response.status == API_SUCCESS_CODE) {
-                const apiUrl = BASE_URL + PAYMENT;
-    
-    const requestData = {
-      user_id: '64a58d475fcdc03e14bfc136',
-      price: totalPrice,
-      phone: 9120202020,
-      name: 'vishal',
-    };
-
-    try {
-      // Make the API call using Axios
-      const response = await axios.post(apiUrl, requestData, {
-        headers: {
-          'Content-Type': 'application/json',
-          // Add any other headers if needed
-        },
-      });
-
-      // Handle the API response
-      console.log('API response:', response.request.responseURL);
-
-      let url = response.request.responseURL;
-
-      Linking.openURL(url)
-      .then((supported) => {
-        if (!supported) {
-          console.log(`Cannot handle URL: ${url}`);
-        } else {
-          console.log(`Opened URL: ${url}`);
-        }
-      })
-
-    } catch (error) {
-      // Handle errors
-      console.error('API error:', error);
-    }
                 navigation.navigate('ConfirmOrder')
             }
         } catch (error) {
             console.log('Error Fetching Data:', error.message);
         }
+        }
+    }
+
+    const checkPaymentStatus = async () => {
+
+        const user_id =  '64a58d475fcdc03e14bfc136';
+
+        const apiUrl = BASE_URL + PAYMENT_STATUS + '/MUID' + user_id;
+
+        console.log(apiUrl);
+
+        const pollInterval = 500000; // 5 seconds (adjust as needed)
+        let isPolling = true;
+
+        const pollPaymentStatus = async () => {
+            try {
+              const response = await axios.post(apiUrl, {}, {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+        
+              if (response.data && response.data.message) {
+                const message = response.data.message;
+                console.log('API response message:', message);
+        
+                // Check if the message is 'pending' to continue polling
+                if (message === 'PAYMENT_PENDING') {
+                  console.log('Payment is still pending. Polling again...');
+                  // Continue polling
+                  setTimeout(pollPaymentStatus, pollInterval);
+                } else {
+                  console.log('Payment status:', message);
+                  // Stop polling when the status is not 'pending'
+                  isPolling = false;
+                  return message;
+                }
+              } else {
+                console.log('API response does not contain a message field');
+                // Stop polling on unexpected response
+                isPolling = false;
+              }
+        
+            } catch (error) {
+              // Handle errors
+              console.error('API error:', error);
+              // Stop polling on error
+              isPolling = false;
+            }
+          };
+        
+          // Start polling
+          pollPaymentStatus();
+    }
+
+    const onContinueClick = async () => {
+        const apiUrl = BASE_URL + PAYMENT;
+    
+        const requestData = {
+        user_id: '64a58d475fcdc03e14bfc136',
+        price: totalPrice / 5,
+        phone: 9120202020,
+        name: '',
+        };
 
         
+    try {
+        const response = await axios.post(apiUrl, requestData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        let url = response.request.responseURL;
+  
+        Linking.openURL(url)
+        .then((supported) => {
+          if (!supported) {
+            console.log(`Cannot handle URL: ${url}`);
+          } else {
+            handleConfirmOrder();
+            console.log(`Opened URL: ${url}`);
+          }
+        })
+  
+      } catch (error) {
+        // Handle errors
+        console.error('API error:', error);
+      }
     }
 
     const addMore = () => {
@@ -319,8 +372,8 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             </View>
             <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 7, backgroundColor: 'rgba(255, 164, 164, 0.27)', borderColor: '#F15252', borderWidth: 1, borderRadius: 3, alignItems: 'center', justifyContent: 'center', marginTop: 15 }}>
 
-                <Text style={{ color: '#000', fontSize: 10, fontWeight: '500' }}>Chef details will be shared 5 hours before the order time</Text>
-                <Text style={{ color: '#FF2929', fontWeight: '500', fontSize: 10 }}>Learn More</Text>
+                <Text style={{ color: '#000', fontSize: 10, fontWeight: '500' }}>Chef details will be shared 5 hours before the order time.</Text>
+                
             </View>
             <ScrollView style={{}}>
                 <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, }}>
@@ -340,7 +393,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
                 <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, paddingEnd: 10 }}>
-                    <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', lineHeight: 26 }}>Payment summary</Text>
+                    <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', lineHeight: 26 }}>Order summary</Text>
                     <View style={{ flexDirection: 'column' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ marginHorizontal: 16, flexDirection: 'column', width: 120, paddingTop: 7, paddingLeft: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, paddingBottom: 3 }}>
@@ -364,23 +417,20 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                         </View>
                     </View>
                     <Image style={{ width: 316, height: 1, marginTop: 23 }} source={require('../../assets/Rectangleline.png')}></Image>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: "#525252", fontWeight: '500', fontSize: 12, lineHeight: 20 }}>Price for dish</Text>
-                        <Text style={{ color: "#525252", fontWeight: '500', fontSize: 12, lineHeight: 20 }}>₹ {dishPrice}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: "#525252", fontWeight: '500', fontSize: 12, lineHeight: 20 }}>Price for Number of people</Text>
-                        <Text style={{ color: "#525252", fontWeight: '500', fontSize: 12, lineHeight: 20 }}>₹ {priceForPeople}</Text>
-                    </View>
+                   
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
                         <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Total payment</Text>
                         <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice}</Text>
                     </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
+                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment to confirm order</Text>
+                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice / 5}</Text>
+                    </View>
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
                     <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
                         <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
-                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>100% Payment is to be paid to chef after order completion.</Text>
+                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to chef after order completion.</Text>
                     </View>
                 </View>
 
@@ -389,7 +439,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
                 <View style={{ justifyContent: 'space-between', marginTop: 5, borderRadius: 6, backgroundColor: '#E8E8E8', borderColor: '#D8D8D8', borderWidth: 1, width: Dimensions.get('window').width, paddingBottom: 10 }}>
                     <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
-                        <Text style={{ padding: 4, color: '#000', fontSize: 13, fontWeight: '600' }}>Order Summary</Text>
+                        <Text style={{ padding: 4, color: '#000', fontSize: 13, fontWeight: '600' }}>Dishes selected</Text>
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <TouchableOpacity onPress={onViewAllClick}>
                                 <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All</Text>
@@ -409,10 +459,10 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                         />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 12 }}>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>Need more dishes?</Text>
+                        <Text style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>Need more info?</Text>
                         <TouchableOpacity onPress={addMore} activeOpacity={1}>
                             <View style={{ marginLeft: 5, backgroundColor: '#E8E8E8', borderRadius: 18, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'center', width: 96, height: 28 }}>
-                                <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500' }}>Add More</Text>
+                                <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500' }}>Contact Us</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
