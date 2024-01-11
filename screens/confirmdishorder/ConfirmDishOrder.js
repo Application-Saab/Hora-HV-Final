@@ -7,7 +7,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
 import Geocoder from 'react-native-geocoding';
 import CustomHeader from '../../components/CustomeHeader';
-import {PAYMENT, PAYMENT_STATUS } from '../../utils/ApiConstants';
+import { PAYMENT, PAYMENT_STATUS } from '../../utils/ApiConstants';
 import Geolocation from '@react-native-community/geolocation';
 
 const ConfirmDishOrder = ({ navigation, route }) => {
@@ -122,25 +122,25 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
         Geocoder.init('AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY');
         getCurrentLocation();
-        
+
     }, []);
 
     const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            Geocoder.from(latitude, longitude)
-              .then((response) => {
-                const address = response.results[0].formatted_address;
-                setCurrentAddress(address);
-              })
-              .catch((error) => console.warn('Error fetching location address:', error));
-          },
-          (error) => console.log('Error getting current location:', error),
-          { enableHighAccuracy: true, timeout: 10000000, maximumAge: 10000000000000 }
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                Geocoder.from(latitude, longitude)
+                    .then((response) => {
+                        const address = response.results[0].formatted_address;
+                        setCurrentAddress(address);
+                    })
+                    .catch((error) => console.warn('Error fetching location address:', error));
+            },
+            (error) => console.log('Error getting current location:', error),
+            { enableHighAccuracy: true, timeout: 10000000, maximumAge: 10000000000000 }
         );
-      };
-    
+    };
+
     const fetchAddressesFromAPI = async () => {
         try {
             const url = BASE_URL + GET_ADDRESS_LIST;
@@ -179,11 +179,11 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const renderDishItem = ({ item }) => {
         return (
-            <View style={{ flexDirection: 'row', marginRight: 5, width: 106, borderRadius: 8, borderColor: '#B8B8B8', borderWidth: 1, backgroundColor: '#FFF', paddingBottom: 5 }}>
-                <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} 
-                style={{ width: 41, height: 42, borderRadius: 20, marginBottom: 9, marginTop: 9, marginStart: 6 }} />
+            <View style={{ flexDirection: 'row', marginRight: 5, width: 140, borderRadius: 8, borderColor: '#B8B8B8', borderWidth: 1, backgroundColor: '#FFF', paddingBottom: 5 }}>
+                <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }}
+                    style={{ width: 41, height: 42, borderRadius: 20, marginBottom: 9, marginTop: 9, marginStart: 6 }} />
                 <View style={{ flexDirection: 'column', alignContent: 'flex-end' }}>
-                    <Text numberOfLines={3} style={{ alignItems: 'flex-end', width: 50, marginLeft: 7, color: '#414141', fontSize: 11, fontWeight: '500', opacity: 0.9, marginTop: 10 }}>{item.name}</Text>
+                    <Text numberOfLines={3} style={{ alignItems: 'flex-end', width: "60%", marginLeft: 7, color: '#414141', fontSize: 11, fontWeight: '500', opacity: 0.9, marginTop: 10 }}>{item.name}</Text>
                     <Text style={{ width: 45, marginTop: 2, color: '#9252AA', fontSize: 11, fontWeight: '700', textAlign: 'center' }}>₹ {item.price}</Text>
                 </View>
 
@@ -195,47 +195,47 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const handleConfirmOrder = async () => {
         let message = checkPaymentStatus();
-        if (message === 'PAYMENT_SUCCESS'){
-        try {
-            const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
-            const requestData = {
-                "toId": "",
-                "order_time": selectedTime.toLocaleTimeString(),
-                "no_of_people": peopleCount,
-                "type": 2,
-                "fromId": "64a58d475fcdc03e14bfc136",
-                "is_discount": "0",
-                "addressId": "64a58e1c5fcdc03e14bfc171",
-                "order_date": selectedDate.toDateString(),
-                "no_of_burner": "",
-                "categoryIds": ["63ee472c6f4f9c2af1da490b"],
-                "order_locality": "",
-                "total_amount": totalPrice,
-                "orderApplianceIds": [],
-                "payable_amount": totalPrice,
-                "is_gst": "0",
-                "order_type": true,
-                "items": [{ "item_id": "641540d58c62c01319fcccc6" }]
+        if (message === 'PAYMENT_SUCCESS') {
+            try {
+                const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
+                const requestData = {
+                    "toId": "",
+                    "order_time": selectedTime.toLocaleTimeString(),
+                    "no_of_people": peopleCount,
+                    "type": 2,
+                    "fromId": "64a58d475fcdc03e14bfc136",
+                    "is_discount": "0",
+                    "addressId": "64a58e1c5fcdc03e14bfc171",
+                    "order_date": selectedDate.toDateString(),
+                    "no_of_burner": "",
+                    "categoryIds": ["63ee472c6f4f9c2af1da490b"],
+                    "order_locality": "",
+                    "total_amount": totalPrice,
+                    "orderApplianceIds": [],
+                    "payable_amount": totalPrice,
+                    "is_gst": "0",
+                    "order_type": true,
+                    "items": [{ "item_id": "641540d58c62c01319fcccc6" }]
+                }
+                const token = await AsyncStorage.getItem('token')
+                const response = await axios.post(url, requestData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': token
+                    },
+                });
+                if (response.status == API_SUCCESS_CODE) {
+                    navigation.navigate('ConfirmOrder')
+                }
+            } catch (error) {
+                console.log('Error Fetching Data:', error.message);
             }
-            const token = await AsyncStorage.getItem('token')
-            const response = await axios.post(url, requestData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': token
-                },
-            });
-            if (response.status == API_SUCCESS_CODE) {
-                navigation.navigate('ConfirmOrder')
-            }
-        } catch (error) {
-            console.log('Error Fetching Data:', error.message);
-        }
         }
     }
 
     const checkPaymentStatus = async () => {
 
-        const user_id =  '64a58d475fcdc03e14bfc136';
+        const user_id = '64a58d475fcdc03e14bfc136';
 
         const apiUrl = BASE_URL + PAYMENT_STATUS + '/MUID' + user_id;
 
@@ -246,79 +246,79 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
         const pollPaymentStatus = async () => {
             try {
-              const response = await axios.post(apiUrl, {}, {
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              });
-        
-              if (response.data && response.data.message) {
-                const message = response.data.message;
-                console.log('API response message:', message);
-        
-                // Check if the message is 'pending' to continue polling
-                if (message === 'PAYMENT_PENDING') {
-                  console.log('Payment is still pending. Polling again...');
-                  // Continue polling
-                  setTimeout(pollPaymentStatus, pollInterval);
+                const response = await axios.post(apiUrl, {}, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.data && response.data.message) {
+                    const message = response.data.message;
+                    console.log('API response message:', message);
+
+                    // Check if the message is 'pending' to continue polling
+                    if (message === 'PAYMENT_PENDING') {
+                        console.log('Payment is still pending. Polling again...');
+                        // Continue polling
+                        setTimeout(pollPaymentStatus, pollInterval);
+                    } else {
+                        console.log('Payment status:', message);
+                        // Stop polling when the status is not 'pending'
+                        isPolling = false;
+                        return message;
+                    }
                 } else {
-                  console.log('Payment status:', message);
-                  // Stop polling when the status is not 'pending'
-                  isPolling = false;
-                  return message;
+                    console.log('API response does not contain a message field');
+                    // Stop polling on unexpected response
+                    isPolling = false;
                 }
-              } else {
-                console.log('API response does not contain a message field');
-                // Stop polling on unexpected response
-                isPolling = false;
-              }
-        
+
             } catch (error) {
-              // Handle errors
-              console.error('API error:', error);
-              // Stop polling on error
-              isPolling = false;
+                // Handle errors
+                console.error('API error:', error);
+                // Stop polling on error
+                isPolling = false;
             }
-          };
-        
-          // Start polling
-          pollPaymentStatus();
+        };
+
+        // Start polling
+        pollPaymentStatus();
     }
 
     const onContinueClick = async () => {
         const apiUrl = BASE_URL + PAYMENT;
-    
+
         const requestData = {
-        user_id: '64a58d475fcdc03e14bfc136',
-        price: totalPrice / 5,
-        phone: 9120202020,
-        name: '',
+            user_id: '64a58d475fcdc03e14bfc136',
+            price: totalPrice / 5,
+            phone: 9120202020,
+            name: '',
         };
 
-        
-    try {
-        const response = await axios.post(apiUrl, requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-  
-        let url = response.request.responseURL;
-  
-        Linking.openURL(url)
-        .then((supported) => {
-          if (!supported) {
-            console.log(`Cannot handle URL: ${url}`);
-          } else {
-            handleConfirmOrder();
-            console.log(`Opened URL: ${url}`);
-          }
-        })
-  
-      } catch (error) {
-        // Handle errors
-        console.error('API error:', error);
-      }
+
+        try {
+            const response = await axios.post(apiUrl, requestData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            let url = response.request.responseURL;
+
+            Linking.openURL(url)
+                .then((supported) => {
+                    if (!supported) {
+                        console.log(`Cannot handle URL: ${url}`);
+                    } else {
+                        handleConfirmOrder();
+                        console.log(`Opened URL: ${url}`);
+                    }
+                })
+
+        } catch (error) {
+            // Handle errors
+            console.error('API error:', error);
+        }
     }
 
     const addMore = () => {
@@ -349,18 +349,18 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             </View>
             <View style={styles.view2}>
                 <View>
-                    
-                <TouchableOpacity activeOpacity={1} onPress={navigateToSelectDish}>
-                    <Image style={styles.dish} source={require('../../assets/SelectDishUnselected.png')} />
-                    <Text style={{ fontSize: 10, fontFamily: '600', color: '#F46C5B' }}>Select Dishes</Text>
+
+                    <TouchableOpacity activeOpacity={1} onPress={navigateToSelectDish}>
+                        <Image style={styles.dish} source={require('../../assets/SelectDishUnselected.png')} />
+                        <Text style={{ fontSize: 10, fontFamily: '600', color: '#F46C5B' }}>Select Dishes</Text>
                     </TouchableOpacity>
                 </View>
                 <Image style={styles.separator1} source={require('../../assets/horizontalSeparator.png')} />
                 <View>
                     <TouchableOpacity activeOpacity={1} onPress={navigateToSelectDate}>
-                    <Image style={styles.time} source={require('../../assets/SelectDateAndTimeTick.png')} />
-                    <Text style={{ fontSize: 10, fontFamily: '600', color: '#F46C5B' }}>Select Date & Time</Text>
-                    
+                        <Image style={styles.time} source={require('../../assets/SelectDateAndTimeTick.png')} />
+                        <Text style={{ fontSize: 10, fontFamily: '600', color: '#F46C5B' }}>Select Date & Time</Text>
+
                     </TouchableOpacity>
                 </View>
                 <Image style={styles.separator2} source={require('../../assets/horizontalSeparator.png')} />
@@ -373,7 +373,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 7, backgroundColor: 'rgba(255, 164, 164, 0.27)', borderColor: '#F15252', borderWidth: 1, borderRadius: 3, alignItems: 'center', justifyContent: 'center', marginTop: 15 }}>
 
                 <Text style={{ color: '#000', fontSize: 10, fontWeight: '500' }}>Chef details will be shared 5 hours before the order time.</Text>
-                
+
             </View>
             <ScrollView style={{}}>
                 <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, }}>
@@ -417,14 +417,14 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                         </View>
                     </View>
                     <Image style={{ width: 316, height: 1, marginTop: 23 }} source={require('../../assets/Rectangleline.png')}></Image>
-                   
+
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Total payment</Text>
+                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Total amount</Text>
                         <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
-                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment to confirm order</Text>
+                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
                         <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice / 5}</Text>
                     </View>
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
@@ -508,6 +508,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
             </RBSheet>
+
 
         </View>
 

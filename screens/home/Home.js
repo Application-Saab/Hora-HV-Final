@@ -4,19 +4,17 @@ import CarouselComponent from '../dialog/CarouselComponent';
 import CustomHeader from '../../components/CustomeHeader';
 
 const Home = ({ navigation }) => {
-  const [decCat, setDecCat] = useState([
-    { image: require('../../assets/Birthday_dec_cat.jpg'), name: 'Birthday' },
-    { image: require('../../assets/first_night_cat_dec.jpg'), name: 'First Night' },
-    { image: require('../../assets/aniversary_Cat_Dec.jpg'), name: 'Anniversary' },
-    { image: require('../../assets/kids_birthday_decoration.jpg'), name: 'Kids Birthday' },
-    { image: require('../../assets/baby-shower-dec-cat.jpg'), name: 'Baby Shower' },
-    { image: require('../../assets/welcome_baby_dec.jpg'), name: 'Welcome Baby' },
+  const [service, setService] = useState([
+    { id: '1', image: require('../../assets/Birthday_dec_cat.jpg'), name: 'Decoration', openLink: 'DecorationPage' },
+    { id: '2', image: require('../../assets/first_night_cat_dec.jpg'), name: 'Chef for Party', openLink: 'CreateOrder' },
+    { id: '3', image: require('../../assets/aniversary_Cat_Dec.jpg'), name: 'Hospitality Services', openLink: 'CreateOrder' },
+    { id: '4', image: require('../../assets/kids_birthday_decoration.jpg'), name: 'Food Delivery', openLink: 'CreateOrder' },
+    { id: '5', image: require('../../assets/baby-shower-dec-cat.jpg'), name: 'Gift & Party Supplies', openLink: 'CreateOrder' },
+    { id: '6', image: require('../../assets/welcome_baby_dec.jpg'), name: 'Entertainment', openLink: 'CreateOrder' },
   ]);
 
-  const openCatItems = (category) => {
-    // const categoryNameWithDashes = category.name.replace(/\s+/g, '-');
-    navigation.navigate('DecorationCatCollection', { category });
-
+  const openCatItems = (openLink) => {
+    navigation.navigate(openLink);
   };
 
   const [currentAddress, setCurrentAddress] = useState(null);
@@ -57,7 +55,7 @@ const Home = ({ navigation }) => {
     <ScrollView style={styles.container}>
       <CustomHeader title={"Home"} navigation={navigation} />
       <View style={{ marginTop: 2 }}>
-        <CarouselComponent data={bookNowData} />
+        <CarouselComponent data={bookNowData} navigation={navigation} />
       </View>
       <View style={{ marginStart: 16, marginTop: 16 }}>
         <Text>
@@ -66,10 +64,11 @@ const Home = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.decContainer}>
-        {decCat.map(({ image, name }, index) => (
-          <Pressable key={index} onPress={() => openCatItems(name)} style={styles.decImageContainer}>
-            <Image source={image} style={styles.decCatimage} />
-          </Pressable>
+        {service.map(({ image, name, openLink }, index) => (
+          <TouchableOpacity onPress={() => openCatItems(openLink)} style={{ width: "31%", marginBottom: 6 }}>
+              <Image source={image} style={styles.decCatimage} />
+              <Text style={{ fontSize: 11, textAlign: 'center', fontWeight: '600', paddingTop: 5, color: "#000", height: 22 }}>{name}</Text>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -199,16 +198,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 10,
-  },
-  decImageContainer: {
-    width: '30%', // Adjust as needed
-    aspectRatio: 1, // Maintain the aspect ratio of the images
-    marginBottom: 10,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    marginTop: 10,
   },
   decCatimage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: 100,
     borderRadius: 10,
   },
   box: {

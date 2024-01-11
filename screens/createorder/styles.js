@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         borderWidth:1 // Change to the desired highlight color
       },
       buttonText: {
-        fontSize: 16,
+        fontSize: 12,
         color:'black'
       },
       selectedButtonText: {
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
       buttonText1: {
         fontSize: 16,
       },
+      
       selectedButtonText1: {
         color: 'white', // Change to the desired highlight text color
       },
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
       },
       cuisineContainer: {
         marginTop:9,
-        marginBottom:9,
+        marginBottom:-4,
         color:"#000",
       },
       cuisineColumnWrapper: {
@@ -170,6 +171,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         left: 0,
+        right: 0,
+        padding: 10,
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderTopColor: '#E0E0E0',
+        alignItems: 'center',
+    },
+    bottomButtonContainer1:{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        top:"100%",
         right: 0,
         padding: 10,
         backgroundColor: 'white',

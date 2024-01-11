@@ -1,26 +1,38 @@
 import React from 'react';
 import Carousel from 'react-native-snap-carousel';
-import { View, Text, StyleSheet, Image, TouchableOpacity ,Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Linking } from 'react-native';
 
-const CarouselComponent = ({ data, reviewData }) => {
+const CarouselComponent = ({ data, reviewData, navigation }) => {
 
-  const handelpage = () =>{
-    alert("handel book now")
-  }
+  const handelpage = (item) => {
+    if (item.id === '3') {
+      // Redirect to WhatsApp link for id 3
+      Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
+    } else if (item.id === '4') {
+      // Redirect to WhatsApp link for id 4
+      Linking.openURL('whatsapp://send?phone=+918884221487'); // Replace '987654321' with the actual phone number
+    }
+    else if (item.id === '2') {
+      navigation.navigate('CreateOrder');
+    }
+    else {
+      // Redirect to CreateOrder page for other ids
+    }
+  };
   const renderItem = ({ item }) => (
     <View style={styles.carouselItem}>
       {reviewData ? (
         <Image source={item.image} style={styles.image1} />
       ) : (
-        <View>
-          <View style={{position:"relative"}}>
+        <View style={{ paddingLeft: 6, paddingRight: 6, marginTop: 2 }}>
+          <View style={{ position: "relative" }}>
             <Image source={item.image} style={styles.image} />
-            <View style={{ position: 'absolute', backgroundColor: '#000', opacity: 0.3, width: '100%', height: '100%' }}></View>
+            <View style={{ position: 'absolute', backgroundColor: '#000', opacity: 0.3, width: '100%', height: '100%', borderRadius: 10 }}></View>
           </View>
-          <View style={{position:"absolute" , top: item.id == 3 ? "19%" :  "25%", transform:"translateY(0, 0)", left:15 , width: item.id == 1 ? "50%" :  "80%"}}>
-            <Text style={{color:"white" , fontSize:16 , fontWeight:"700" , fontSize:20 , textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 }}>{item.text}</Text>
+          <View style={{ position: "absolute", bottom: item.id == 3 ? "20%" : "20%", transform: "translateY(0, 0)", left: 23, width: item.id == 1 ? "50%" : "80%" }}>
+            <Text style={{ color: "white", fontSize: 16, fontWeight: "700", fontSize: 18, textShadowColor: 'rgba(0, 0, 0, 0.6)', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 }}>{item.text}</Text>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.customButton} activeOpacity={1} onPress={handelpage}>
+              <TouchableOpacity style={styles.customButton} activeOpacity={1} onPress={() => handelpage(item)}>
                 <Text style={styles.buttonText}> Book Now</Text>
               </TouchableOpacity>
             </View>
@@ -45,6 +57,7 @@ const CarouselComponent = ({ data, reviewData }) => {
         inactiveDotStyle={styles.inactiveDotStyle}
         inactiveDotOpacity={0.4}
         inactiveDotScale={0.6}
+
       />
     </View>
   );
@@ -63,6 +76,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 158,
+    borderRadius: 10,
   },
   image1: {
     width: '100%',
@@ -83,18 +97,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#CFCFCF', // Inactive dot color
   },
-  buttonContainer:{
-    backgroundColor:"#9252AA",
-    width:100,
-    paddingVertical:8,
-    borderRadius:5,
-    marginTop:7
+  buttonContainer: {
+    backgroundColor: "#9252AA",
+    width: 100,
+    paddingVertical: 8,
+    borderRadius: 5,
+    marginTop: 7
   },
-  buttonText:{
-    color:"white",
-    textAlign:"center",
-    fontSize:16,
-    fontWeight:'700',
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: '700',
   }
 });
 

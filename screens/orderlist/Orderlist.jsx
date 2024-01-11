@@ -57,7 +57,6 @@ const Orderlist = ({ navigation  }) => {
                 }
             } catch (error) {
                 console.error('Error fetching user account:', error);
-                console.log('Error fetching user account. Please try again.');
             }
         };
 
@@ -265,7 +264,7 @@ const Orderlist = ({ navigation  }) => {
                                 </View>
                                 <View style={styles.sec2}>
                                     <View>
-                                        <TouchableHighlight style={styles.button} underlayColor="#E56352" onPress={() => handleOrderDetails(orderData[item]._id , orderData[item].order_id)}>
+                                        <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id , orderData[item].order_id)}>
                                             <View><Text style={styles.buttonText}>View Details</Text></View>
                                         </TouchableHighlight>
                                     </View>

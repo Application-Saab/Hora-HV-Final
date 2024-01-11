@@ -29,7 +29,7 @@ const CreateOrder = ({ navigation }) => {
     const [isDishSelected, setIsDishSelected] = useState(false);
     const [isPopupVisible, setPopupVisible] = useState(false);
 
-
+    
     // get category of cuisines
     
     useEffect(() => {
@@ -66,7 +66,7 @@ const CreateOrder = ({ navigation }) => {
         const isSelected = selectedCuisines.includes(item[0]);
 
         return (
-            <View style={{ marginBottom: 4, flexDirection: 'row', paddingEnd: 5 , paddingBottom:4 }}>
+            <View style={{ marginBottom: 4, flexDirection: 'row', paddingEnd: 5 , paddingBottom:4 , justifyContent:"flex-start" , alignItems:"center"}}>
                 <TouchableOpacity
                     style={[styles.button, isSelected && styles.selectedButton]}
                     onPress={() => handleCuisinePress(item[0])}
@@ -174,7 +174,7 @@ const CreateOrder = ({ navigation }) => {
 
     const renderDishItem = ({ item }) => (
         <TouchableOpacity onPress={() => openBottomSheet(item, bottomSheetRef)} activeOpacity={1}>
-            <View style={{ width: '35%', padding: 2, justifyContent: 'space-around', marginTop: 7 }}>
+            <View style={{  width: windowWidth * 0.3 ,  padding: 0, justifyContent: 'flex-start', marginTop: 7  }}>
                 <View style={{ flexDirection: 'column' }}>
                     <ImageBackground
                         source={
@@ -182,7 +182,7 @@ const CreateOrder = ({ navigation }) => {
                                 ? require('../../assets/Rectanglepurple.png')
                                 : require('../../assets/rectanglewhite.png')
                         }
-                        style={{ width: 130, height: 152, marginTop: 33 }}
+                        style={{  width: "100%", height: 138, marginTop: 33 }}
                         imageStyle={{ borderRadius: 16 }}
                     >
                         <View style={{ flexDirection: 'column', paddingHorizontal: 5 }}>
@@ -194,7 +194,7 @@ const CreateOrder = ({ navigation }) => {
                                                 ? { uri: `https://horaservices.com/api/uploads/${item.special_appliance_id[0].image}` }
                                                 : { uri: `https://horaservices.com/api/uploads/${item.image}` }
                                         }
-                                        style={{ width: 80, height: 80, borderRadius: 40, marginTop: -30, marginBottom:20 }}
+                                        style={{ width: 80, height: 80, borderRadius: 40, marginTop: -30, marginBottom:1 }}
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -334,11 +334,11 @@ const CreateOrder = ({ navigation }) => {
 
                 </View>
 
-                <View style={styles.bottomButtonContainer}>
+                {/* <View style={styles.bottomButtonContainer1}>
                     <TouchableHighlight onPress={() => handleIncreaseQuantity} style={styles.customButton} underlayColor="transparent" activeOpacity={1}>
                         <Text style={styles.buttonText1}>Add Dish</Text>
                     </TouchableHighlight>
-                </View>
+                </View> */}
             </View>
         </View>
 
@@ -409,7 +409,7 @@ const CreateOrder = ({ navigation }) => {
                     onValueChange={handleToggleNonVeg}
                     trackColor={{ true: '#D33030', false: '#D4DBDE' }}
                     thumbColor={isNonVegSelected ? 'white' : 'white'}
-                    style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 18, marginStart: 10, marginVertical: 3 }}
+                    style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 1, marginStart: 10, marginVertical: 3 }}
                 />
                 </View>
                 <View style={{ marginRight: 12 , width: 42 }}>
@@ -417,12 +417,12 @@ const CreateOrder = ({ navigation }) => {
                 </View>
             </View>
             </View>
-            <View style={{flexDirection:'row', marginTop:10 }}>
+            <View style={{flexDirection:'row', marginTop:4 }}>
             <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
             </View>
             <ScrollView>
             <View style={{ marginLeft: 20, marginRight: 20 , justifyContent:"flex-start" }}>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: 'black', marginTop: 9}}>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: 'black', marginTop: 5}}>
                     Select Cuisines
                 </Text>
                 <FlatList

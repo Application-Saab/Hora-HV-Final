@@ -1,0 +1,525 @@
+// ProductDateSummary.js
+import React, { useState, useRef, useEffect } from "react";
+import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
+import CustomHeader from '../../components/CustomeHeader';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
+import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoding';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
+const ProductDateSummary = ({ route, navigation }) => {
+    const [addresses, setAddresses] = useState([]);
+    const { selectedProducts, totalPrice } = route.params;
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [isTimeValid, setTimeValid] = useState(null);
+    const [isDateValid, setDateValid] = useState(null);
+    const [errorText, setErrorText] = useState(null)
+    const [isDatePressed, setIsDatePressed] = useState(false)
+    const [isTimePressed, setIsTimePressed] = useState(false)
+    const today = new Date();
+    const bottomSheetRef = useRef(null);
+    const [currentAddress, setCurrentAddress] = useState('');
+
+    const minimumDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+    const twoMinutesLater = new Date();
+    twoMinutesLater.setMinutes(twoMinutesLater.getMinutes() + 2);
+    const toggleSelectedTab = (tabName) => {
+        setSelectedTab(tabName);
+    };
+
+    const AddressItem = ({ address, selected, onSelect }) => (
+        <TouchableOpacity onPress={onSelect}>
+            <View style={[styles.container, selected && styles.selectedContainer]}>
+                <View style={{ flexDirection: 'row', marginTop: 25, alignItems: 'center' }}>
+                    <Text style={[styles.headingText, selected && styles.selectedText]}>Delivers To</Text>
+                    <TouchableOpacity onPress={() => editAddress(address)} style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+                        <Image source={selected ? require('../../assets/editSelected.png') : require('../../assets/edit.png')} style={{ height: 14, width: 14 }} />
+                        <Text style={[styles.editText, selected && styles.selectedText]}>Edit</Text>
+                    </TouchableOpacity>
+
+                </View>
+                <View style={{ flexDirection: 'row', flex: 1, marginTop: 10, marginStart: 5, marginEnd: 16, paddingBottom: 25, alignItems: 'center' }}>
+                    <View>
+                        <Image
+                            source={
+                                address.title === 'Home'
+                                    ? selected
+                                        ? require('../../assets/homeSelected.png')
+                                        : require('../../assets/homelabel.png')
+                                    : address.title === 'Hotel'
+                                        ? selected
+                                            ? require('../../assets/homeSelected.png')
+                                            : require('../../assets/hotel.png')
+                                        : address.title === 'Work'
+                                            ? selected
+                                                ? require('../../assets/homeSelected.png')
+                                                : require('../../assets/homelabel.png')
+                                            : require('../../assets/hotel.png')
+
+                            }
+                            style={styles.homeIcon}
+                        />
+                    </View>
+                    <View>
+                        <Text style={[styles.parallelText, selected && styles.selectedText]}>
+                            {address.title}
+                        </Text>
+                        <Text numberOfLines={2} style={[styles.multiLineText, selected && styles.selectedText]}>
+                            {address.address1}
+                        </Text>
+                    </View>
+                </View>
+
+            </View>
+        </TouchableOpacity>
+    );
+
+    const BottomSheetContent = ({ data, onSelectAddress }) => (
+
+        <View style={{ flexDirection: 'column' }}>
+            <View style={{ marginHorizontal: 40 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: 'black' }}>
+                    Saved Address
+                </Text>
+            </View>
+            <View style={{ marginTop: 19 }}>
+
+                <FlatList
+                    data={data}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <AddressItem
+                            address={item}
+                            onSelect={() => onSelectAddress(item)}
+                            selected={false}
+                        />
+                    )}>
+                </FlatList>
+            </View>
+
+        </View>
+
+    );
+
+    useEffect(() => {
+
+        Geocoder.init('AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY');
+        getCurrentLocation();
+
+    }, []);
+
+    const getCurrentLocation = () => {
+        Geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                Geocoder.from(latitude, longitude)
+                    .then((response) => {
+                        const address = response.results[0].formatted_address;
+                        setCurrentAddress(address);
+                    })
+                    .catch((error) => console.warn('Error fetching location address:', error));
+            },
+            (error) => console.log('Error getting current location:', error),
+            { enableHighAccuracy: true, timeout: 10000000, maximumAge: 10000000000000 }
+        );
+    };
+
+    const fetchAddressesFromAPI = async () => {
+        try {
+            const url = BASE_URL + GET_ADDRESS_LIST;
+            const requestData = {
+                page: '1'
+            };
+            const token = await AsyncStorage.getItem('token')
+
+            console.warn(token)
+            const response = await axios.post(url, requestData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': token
+                },
+            });
+            if (response.status == API_SUCCESS_CODE) {
+                setAddresses(response.data.data.address)
+            }
+        } catch (error) {
+            console.log('Error Fetching Data:', error.message);
+        }
+    };
+
+    const openBottomSheet = () => {
+        bottomSheetRef.current.open();
+        fetchAddressesFromAPI()
+    };
+
+    const handleSelectAddress = (address) => {
+        setCurrentAddress(address.address1);
+        bottomSheetRef.current.close();
+    };
+
+
+    const changeLocation = () => {
+        openBottomSheet()
+    }
+
+    const addAddress = () => {
+        bottomSheetRef.current.close();
+        navigation.navigate('ConfirmLocation', { 'data': null })
+    }
+
+    // const onContinueClick = async () => {
+    //     const apiUrl = BASE_URL + PAYMENT;
+
+    //     const requestData = {
+    //     user_id: '64a58d475fcdc03e14bfc136',
+    //     price: totalPrice / 5,
+    //     phone: 9120202020,
+    //     name: '',
+    //     };
+
+
+    // try {
+    //     const response = await axios.post(apiUrl, requestData, {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     });
+
+    //     let url = response.request.responseURL;
+
+    //     Linking.openURL(url)
+    //     .then((supported) => {
+    //       if (!supported) {
+    //         console.log(`Cannot handle URL: ${url}`);
+    //       } else {
+    //         handleConfirmOrder();
+    //         console.log(`Opened URL: ${url}`);
+    //       }
+    //     })
+
+    //   } catch (error) {
+    //     // Handle errors
+    //     console.error('API error:', error);
+    //   }
+    // }
+
+
+    const onContinueClick = () => {
+        alert("confirm order click")
+    }
+
+    const checkIsDateValid = () => {
+        const currentTime = new Date();
+        const selectedDateTime = new Date(selectedDate);
+        selectedDateTime.setHours(selectedTime.getHours(), selectedTime.getMinutes());
+        const timeDifference = selectedDateTime.getTime() - currentTime.getTime();
+        const isDateGreaterThan24Hours = timeDifference >= 24 * 60 * 60 * 1000;
+        setDateValid(isDateGreaterThan24Hours);
+        return isDateGreaterThan24Hours
+    }
+
+    const checkIsTimeValid = () => {
+        const isTimeBetweenRange = selectedTime.getHours() >= 7 && selectedTime.getHours() <= 22;
+        setTimeValid(isTimeBetweenRange);
+        return isTimeBetweenRange
+    }
+
+
+    const isOrderValid = isTimeValid && isDateValid > 0;
+
+    const handleDateChange = (event, date) => {
+        if (date !== undefined) {
+            setSelectedDate(date);
+            setShowDatePicker(false);
+
+            const isDateValid = checkIsDateValid();
+            const isTimeValid = checkIsTimeValid();
+
+            if (!isDateValid) {
+                setErrorText('Order can be placed at least 24 hours in advance.');
+                return;
+            }
+            else if (!isTimeValid) {
+                setErrorText('*Order can be placed only between 7:00 AM to 10:00 PM');
+                return;
+            } else {
+                setErrorText(null);
+            }
+        }
+    };
+
+    const handleTimeChange = (event, time) => {
+        if (time !== undefined) {
+            setSelectedTime(time);
+            setShowTimePicker(false);
+
+            const isDateValid = checkIsDateValid();
+            const isTimeValid = checkIsTimeValid();
+
+            if (!isDateValid) {
+                setErrorText('Order can be placed at least 24 hours in advance.');
+                return;
+            } else if (!isTimeValid) {
+                setErrorText('*Order can be placed only between 7:00 AM to 10:00 PM');
+                return;
+            } else {
+                setErrorText(null);
+            }
+        }
+    };
+
+    function formatTime(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Handle midnight (12 AM)
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    }
+    return (
+        <View style={styles.screenContainer}>
+            <CustomHeader title={"Order Summary"} navigation={navigation} />
+
+            <ScrollView style={{ paddingLeft: 0, paddingRight: 7 }}>
+                <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9 + 4, padding: 7, backgroundColor: 'rgba(255, 164, 164, 0.27)', borderColor: '#F15252', borderWidth: 1, borderRadius: 3, alignItems: 'center', justifyContent: 'center', marginTop: 15 }}>
+                    <Text style={{ color: '#000', fontSize: 10, fontWeight: '500', textAlign: 'center' }}>The decorator requires approximately 40-90 minutes to fulfill the service</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', marginTop: 10, textAlign: 'center' }}>
+
+                    <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={1}>
+
+                        <View style={{ marginStart: 16, marginEnd: 8, flexDirection: 'column', paddingHorizontal: 17, backgroundColor: 'white', borderColor: isDateValid != null && isDateValid == false ? '#FF3636' : "#F6ECEC", borderRadius: 10, borderWidth: 1, paddingBottom: 9 }}>
+                            <Text style={{ paddingTop: 4, color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Booking Date</Text>
+                            <View style={{ flexDirection: 'row', marginTop: 1 }}>
+
+                                <Text style={{ fontSize: 16, fontWeight: 600, color: isDatePressed ? '#383838' : "grey" }}>{selectedDate.toLocaleDateString()}</Text>
+
+                                <Image source={require('../../assets/ic_calendar.png')} style={{ height: 19, width: 19, marginLeft: 17 }} />
+                                {showDatePicker && (
+                                    <DateTimePicker
+                                        value={selectedDate}
+                                        mode="date"
+                                        display="default"
+                                        minimumDate={minimumDate}
+                                        onChange={handleDateChange}
+                                    />
+                                )}
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row' }}>
+                        <TouchableOpacity onPress={() => setShowTimePicker(true)} activeOpacity={1}>
+                            <View style={{ flexDirection: 'column', paddingHorizontal: 21, backgroundColor: 'white', borderColor: isTimeValid != null && isTimeValid == false ? '#FF3636' : "#F6ECEC", borderRadius: 10, borderWidth: 1, paddingBottom: 9 }}>
+                                <Text style={{ paddingTop: 4, color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Decor finish time</Text>
+                                <View style={{ flexDirection: 'row', marginTop: 1 }}>
+
+                                    <Text style={{ fontSize: 16, fontWeight: 600, color: isTimePressed ? '#383838' : "grey" }}>
+                                        {formatTime(selectedTime)}
+                                    </Text>
+                                    <Image source={require('../../assets/clock.png')} style={{ height: 19, width: 19, marginLeft: 17 }} />
+                                    {showTimePicker && (
+                                        <DateTimePicker
+                                            value={selectedTime}
+                                            mode="time"
+                                            display="default"
+                                            onChange={handleTimeChange}
+                                        />
+                                    )}
+                                </View>
+
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, backgroundColor: "#fff" }}>
+                    <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', }}>
+                        Serving location
+                    </Text>
+                    <View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
+                        <Text style={{ color: '#9252AA', fontWeight: '500', lineHeight: 18, fontSize: 13 }}>{currentAddress}</Text>
+
+                    </View>
+                    <TouchableOpacity onPress={changeLocation} activeOpacity={1}>
+
+                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change location</Text>
+                        </View>
+
+                    </TouchableOpacity>
+                </View>
+
+
+                <View style={{ paddingLeft: 15, paddingRight: 12, marginTop: 10 }}>
+                    <View style={{ borderColor: "#F6ECEC", backgroundColor: "#fff", borderWidth: 1, borderRadius: 10 }}>
+                        <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Total amount</Text>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice * .3}</Text>
+                            </View>
+                            <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
+                                <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to executor after order completion.</Text>
+                            </View>
+                        </View>
+                        <View style={styles.selectedProductsContainer}>
+                            {selectedProducts.map(product => (
+                                <View>
+                                    <View key={product.id} style={styles.productContainer}>
+                                        <View>
+                                            <Image source={product.image} style={styles.productImage} />
+                                        </View>
+                                        <View style={{ width: '50%' }}>
+                                            <Text style={styles.productName}>{product.name}</Text>
+                                            <Text style={styles.productPrice}>₹{product.price}</Text>
+                                        </View>
+
+                                    </View>
+                                    <View>
+                                        <TextInput
+                                            editable
+                                            multiline
+                                            numberOfLines={5}
+                                            maxLength={100}
+                                            style={styles.textArea}
+                                            placeholder="Share the comments"
+                                        />
+                                    </View>
+                                </View>
+
+
+                            ))}
+                        </View>
+                    </View>
+
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 12 }}>
+                    <Text style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>Need more info?</Text>
+                    <TouchableOpacity activeOpacity={1}>
+                        <View style={{ marginLeft: 5, backgroundColor: '#E8E8E8', borderRadius: 18, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'center', width: 96, height: 28 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500' }}>Contact Us</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ paddingLeft: 15, paddingRight: 12, marginTop: 10 }}>
+                    <View style={{ padding: 7, flexDirection: 'column', justifyContent: "space-between", alignItems: "center", borderRadius: 10, paddingRight: 11, marginTop: 15, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(211, 75, 233, 0.10)', borderColor: '#E6E6E6', borderWidth: 1, }}>
+                        <View>
+                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}> Cancellation and Order Change Policy:</Text>
+
+                        </View>
+                        <View>
+                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
+                                <Text>If cancellations are made -</Text>
+                                - In less than 24 hours before an Event: No amount refund
+                                - 24 hours in advance- 100% amount refund.
+                                The order cannot be edited after paying advance. Customer can cancel the order and replace the new order with required changes.
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+
+            </ScrollView>
+
+
+
+            <View style={{ marginTop: 11, alignItems: 'center', justifyContent: 'center' }}>
+                <TouchableOpacity onPress={onContinueClick} style={styles.continueButton} activeOpacity={1}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+                        <Text style={styles.buttonText1}>Confirm Order</Text>
+
+                    </View>
+
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    screenContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
+    selectedProductsContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginTop: 30,
+        paddingHorizontal: 30
+    },
+    productContainer: {
+        width: '100%',
+        marginBottom: 10,
+        alignItems: 'left',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    productImage: {
+        width: 120,
+        height: 120,
+        borderRadius: 10,
+    },
+    productName: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 10,
+    },
+    productId: {
+        fontSize: 14,
+        color: '#555',
+    },
+    productPrice: {
+        fontSize: 14,
+        color: '#555',
+    },
+    textArea: {
+        width: '80%',
+        height: 60,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 3,
+        padding: 2,
+        marginTop: 0,
+        marginBottom: 20
+    },
+    bottomButtonContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 10,
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderTopColor: '#E0E0E0',
+        alignItems: 'center',
+    },
+    continueButton: {
+        width: Dimensions.get('window').width * 0.9,
+        backgroundColor: '#9252AA',
+        justifyContent: 'center',
+        paddingVertical: 17,
+        borderRadius: 20,
+        marginBottom: 15
+    },
+    buttonText1: {
+        color: 'white',
+        fontWeight: '500',
+        fontSize: 18,
+    },
+});
+
+export default ProductDateSummary;

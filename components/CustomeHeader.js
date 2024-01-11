@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
+import { SafeAreaView } from 'react-native';
 import { getCurrentPosition } from 'react-native-geolocation-service';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 const CustomHeader = ({ title, navigation }) => {
@@ -83,7 +84,7 @@ const CustomHeader = ({ title, navigation }) => {
   };
 
   return (
-
+    
     <LinearGradient
       colors={['#6730B2', '#EE7464']}
       start={{ x: 0, y: 0 }}
@@ -91,23 +92,25 @@ const CustomHeader = ({ title, navigation }) => {
       style={styles.headerContainer}
     >
       {route.name === 'Home' ? (
-        <View style={{ flexDirection: 'row' ,  justifyContent: 'space-around' ,  alignItems:"center" }}>
-          <Pressable onPress={handleDrawerPress}>
-            <Image
-              source={require('../assets/menu-icon.png')}
-              style={styles.menuimage}
-            /> 
-          </Pressable>
-          <View style={{width:"80%"  , flexDirection: 'row' , justifyContent:'space-between', alignItems:"center"}}>
-          {/* <Image
-              source={require('../assets/Location.png')}
-              style={{width:30, height:30 }}
-            /> */}
-          <Text style={{color:"white" , fontSize:12 , fontWeight:"500"}}>
-            {currentAddress.slice(0, 90)}{currentAddress.length > 100 ? '.....' : ''}
-          </Text>
+        <View style={{ flexDirection: 'row', alignItems: "center"  , justifyContent:"flex-start" , paddingLeft:10 , paddingRight:20 }}>
+          <View>
+            <Pressable onPress={handleDrawerPress}>
+              <Image
+                source={require('../assets/menu-icon-img.png')}
+                style={styles.menuimage}
+              />
+            </Pressable>
           </View>
-        
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: "center" }}>
+            <Image
+              source={require('../assets/Location.png')}
+              style={{ width: 20, height: 20, marginRight: 4 }}
+            />
+            <Text style={{ color: "white", fontSize: 14, fontWeight: "400" }}>
+              {/* {currentAddress} */}
+              {currentAddress.length > 38 ? currentAddress.slice(0, 38) + '...' : currentAddress}
+            </Text>
+          </View>
         </View>
       ) : (
         <View style={styles.headerContainer}>
@@ -136,7 +139,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: 57,
-    marginTop: 0,
   },
   headerTitle: {
     fontSize: 15,
@@ -151,10 +153,9 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   menuimage: {
-    height: 70,
-    width: 70,
-    marginLeft: 0,
-    marginTop: 20,
+    height: 30,
+    width: 30,
+    marginRight:12
   },
 });
 

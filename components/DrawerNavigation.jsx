@@ -104,6 +104,7 @@ const CustomDrawerContent = (props) => {
 
 const DrawerNavigation = () => {
   return (
+    
     <Drawer.Navigator
     initialRouteName="Home"
     drawerPosition="right"

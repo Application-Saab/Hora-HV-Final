@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Dimensions, ImageBackground, FlatList, ScrollView, StatusBar, View, Text, TextInput, Image, TouchableOpacity, TouchableHighlight, BackHandler } from 'react-native';
-
+import ProductDateSummary from '../screens/Decoration/ProductDateSummary';
 import CustomHeader from '../components/CustomeHeader';
 import Splash from '../screens/splash/splash'
 import Home from '../screens/home/Home';
@@ -14,9 +14,10 @@ import ConfirmLocation from '../screens/confirmlocation/ConfirmLocation';
 import SelectDate from '../screens/SelectDate/SelectDate';
 import ConfirmDishOrder from '../screens/confirmdishorder/ConfirmDishOrder';
 import Onboarding from '../screens/Onboarding/Onboarding';
-import DecorationCatCollection from '../screens/Decoration/DecorationCatCollection';
+import DecorationCatPage from '../screens/Decoration/DecorationCatPage';
 import DrawerNavigation from '../components/DrawerNavigation';
 import OrderDetails from '../screens/orderdetails/OrderDetails';
+import DecorationPage from '../screens/Decoration/DecorationPage';
 const Stack = createNativeStackNavigator();
 
 
@@ -40,7 +41,9 @@ const StackNavigation = () => {
       <Stack.Screen name="SelectDate" component={SelectDate} options={{ headerShown: true }} />
       <Stack.Screen name="ConfirmDishOrder" component={ConfirmDishOrder} options={{ headerShown: true }} />
       <Stack.Screen name="Onboarding" component={Onboarding} options={{ headerShown: true }} />
-      <Stack.Screen name="DecorationCatCollection" component={DecorationCatCollection} options={{ headerShown: true }} />
+      <Stack.Screen name="DecorationCatPage" component={DecorationCatPage} options={{ headerShown: true }}/>
+      <Stack.Screen name="ProductDateSummary" component={ProductDateSummary} options={{ headerShown: true }}/>
+      <Stack.Screen name="DecorationPage" component={DecorationPage} options={{ headerShown: true }} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ headerShown: true }} />
     </Stack.Navigator>
   );

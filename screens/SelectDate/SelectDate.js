@@ -152,8 +152,7 @@ const SelectDate = ({ navigation, route }) => {
 
         item.qty = item.qty * peopleCount;
 
-        if (item.qty >= 1000)
-        {
+        if (item.qty >= 1000) {
             item.qty = item.qty / 1000;
             if (item.unit === 'g')
                 item.unit = 'kg'
@@ -161,13 +160,14 @@ const SelectDate = ({ navigation, route }) => {
                 item.unit = 'L'
         }
         return (
-            <View style={{ height: 51, paddingEnd: 2, alignItems: 'center', borderRadius: 5, borderColor: '#DADADA', borderWidth: 0.5, flexDirection: 'row', flex: 1, marginRight: 6, marginBottom: 8 }}>
+            <View style={{ height: 51, paddingEnd: 2, alignItems: 'center', borderRadius: 5, borderColor: '#DADADA', borderWidth: 0.5, flexDirection: 'row', marginRight: 15, marginBottom: 8 }}>
                 <View style={{ marginLeft: 5, width: 40, height: 40, backgroundColor: '#F0F0F0', borderRadius: 3, alignItems: 'center', justifyContent: 'center', marginRight: 5 }}>
                     <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={{ width: 31, height: 24 }} />
                 </View>
 
-                <View style={{ flexDirection: 'column', marginLeft: 1, width: 43 }}>
-                    <Text style={{ fontSize: 10, fontWeight: '500', color: '#414141', maxWidth: 120 }} numberOfLines={1}>{item.name}</Text>
+                <View style={{ flexDirection: 'column', marginLeft: 1, width: 80 }}>
+                    <Text style={{ fontSize: 10, fontWeight: '500', color: '#414141' }}>{item.name}</Text>
+
                     <Text style={{ fontSize: 14, fontWeight: '700', color: '#9252AA' }}>{item.qty + ' ' + item.unit}</Text>
                 </View>
             </View>
@@ -175,7 +175,7 @@ const SelectDate = ({ navigation, route }) => {
     };
 
     const renderPreparationText = ({ items
-     }) => {
+    }) => {
         if (showAll) {
             return items.map((item, index) => (
                 <Text key={index} style={styles.item}>{`${index + 1}. ${item}`}</Text>
@@ -321,7 +321,7 @@ const SelectDate = ({ navigation, route }) => {
                     }
                     totalIngredients[ingredient._id].qty += parseInt(ingredient.qty);
                     if (ingredient.unit === 'gram')
-                    totalIngredients[ingredient._id].unit = 'g';
+                        totalIngredients[ingredient._id].unit = 'g';
                 });
             }
         }
@@ -413,7 +413,7 @@ const SelectDate = ({ navigation, route }) => {
             setWarningVisible(true);
         }
         else {
-          
+
             navigation.navigate("ConfirmDishOrder", {
                 "selectedDate": selectedDate, "selectedTime": selectedTime, "peopleCount": peopleCount,
                 "burnerCount": burnerCount,
@@ -429,7 +429,7 @@ const SelectDate = ({ navigation, route }) => {
         hours = hours ? hours : 12; // Handle midnight (12 AM)
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
     }
-    
+
 
     const handleWarningClose = () => {
         setWarningVisible(false);
@@ -488,7 +488,7 @@ const SelectDate = ({ navigation, route }) => {
             <ScrollView>
 
                 <View style={{ justifyContent: 'space-between', marginTop: 17, paddingTop: 7, paddingBottom: 9, backgroundColor: '#FFFFFF', marginLeft: 15, marginEnd: 16, borderRadius: 10, height: 195, elevation: 2 }}>
-                    <View style={{ justifyContent: 'flex-end', flex: 1, flexDirection: 'row', marginEnd: 7 }}>
+                    <View style={{ justifyContent: 'flex-end', flex: 1, flexDirection: 'row', marginEnd: 9 }}>
                         <TouchableOpacity onPress={toggleModal}>
 
                             <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
@@ -523,9 +523,9 @@ const SelectDate = ({ navigation, route }) => {
                                     <Text style={{ paddingTop: 4, color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Chef Arrival Time</Text>
                                     <View style={{ flexDirection: 'row', marginTop: 1 }}>
 
-                                         <Text style={{ fontSize: 16, fontWeight: 600, color: isTimePressed ? '#383838' : "grey" }}>
-                    {formatTime(selectedTime)}
-                </Text>
+                                        <Text style={{ fontSize: 16, fontWeight: 600, color: isTimePressed ? '#383838' : "grey" }}>
+                                            {formatTime(selectedTime)}
+                                        </Text>
                                         <Image source={require('../../assets/clock.png')} style={{ height: 19, width: 19, marginLeft: 17 }} />
                                         {showTimePicker && (
                                             <DateTimePicker
@@ -557,7 +557,7 @@ const SelectDate = ({ navigation, route }) => {
                             <TouchableOpacity onPress={decreasePeopleCount} activeOpacity={1}>
                                 <Image source={require('../../assets/ic_minus.png')} style={{ height: 25, width: 25, marginLeft: 5 }} />
                             </TouchableOpacity>
-                            <Text style={{ marginLeft: 5, lineHeight: 23, fontSize: 18, marginTop: 2, width: 22, textAlign: 'center', color:'black' }}>{peopleCount}</Text>
+                            <Text style={{ marginLeft: 5, lineHeight: 23, fontSize: 18, marginTop: 2, width: 22, textAlign: 'center', color: 'black' }}>{peopleCount}</Text>
                             <TouchableOpacity onPress={increasePeopleCount} activeOpacity={1}>
                                 <Image source={require('../../assets/plus.png')} style={{ height: 25, width: 25, marginLeft: 5 }} />
                             </TouchableOpacity>
@@ -590,7 +590,7 @@ const SelectDate = ({ navigation, route }) => {
                     <Text style={{ color: '#707070', fontSize: 12, fontWeight: '400' }} >Keep these Appliances and Ingredients ready before chef Arrival</Text>
                 </View>
 
-                <View style={{ flexDirection: 'row', marginTop: 20, marginHorizontal: 16}}>
+                <View style={{ flexDirection: 'row', marginTop: 20, marginHorizontal: 16 }}>
                     <TouchableOpacity style={{
                         backgroundColor: activeTab === 'left'
                             ? "#D9D9D9"
@@ -606,9 +606,9 @@ const SelectDate = ({ navigation, route }) => {
                         <Text style={activeTab === 'right' ? styles.activeTab : styles.inactiveTab}>Ingredient</Text>
                     </TouchableOpacity>
                 </View>
-            
+
                 {renderTabContent()}
-    
+
 
             </ScrollView>
             <View>
@@ -638,8 +638,8 @@ const SelectDate = ({ navigation, route }) => {
                     style={[
                         styles.continueButton,
                         {
-                            backgroundColor: isOrderValid?'#9252AA':'#F9E9FF',
-                            borderColor:  isOrderValid?'#9252AA':'#F9E9FF',
+                            backgroundColor: isOrderValid ? '#9252AA' : '#F9E9FF',
+                            borderColor: isOrderValid ? '#9252AA' : 'red',
                         },
                     ]}
                     underlayColor="#9252AA"
@@ -650,7 +650,7 @@ const SelectDate = ({ navigation, route }) => {
                         <Text
                             style={[
                                 styles.continueButtonLeftText,
-                                { color: isOrderValid ? 'white' : '#343333'},
+                                { color: isOrderValid ? 'white' : '#343333' },
                             ]}
                         >
                             Continue
