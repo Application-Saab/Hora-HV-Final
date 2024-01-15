@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView ,Text, View, Image, Button } from 'react-native';
+import { StyleSheet, ScrollView, Text, View, Image, Button } from 'react-native';
 import { BASE_URL, USER_DETAILS_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
 

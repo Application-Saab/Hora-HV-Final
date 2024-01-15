@@ -6,62 +6,24 @@ import CustomHeader from '../../components/CustomeHeader';
 // import Share from 'react-native-share';
 
 
-const Orderlist = ({ navigation  }) => {
+const Orderlist = ({ navigation }) => {
     const [orderData, setOrderData] = useState({})
     const [userId, setUserId] = useState('')
     const [invitedate, setInviteDate] = useState('')
     const [token, setToken] = useState('');
 
-    const handleOrderDetails = (e , a) => {
-         navigation.navigate('OrderDetails' , {'apiOrderId': e , 'orderId':a} )
+    const handleOrderDetails = (e, a) => {
+        navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a })
     }
 
-    AsyncStorage.getItem('token')
-        .then((storedToken) => {
-            if (storedToken) {
-                setToken(storedToken)
-                // Do something with the token
-            } else {
-                console.log('Token not found in AsyncStorage');
-            }
-        })
-        .catch((error) => {
-            console.error('Error retrieving token:', error);
-        });
+
 
 
     useEffect(() => {
-        const fetchUserAccount = async () => {
-            try {
-                const storedToken = await AsyncStorage.getItem('token');
-                if (storedToken) {
-                    setToken(storedToken);
-                    const response = await fetch(BASE_URL + GET_USER_DETAIL_ENDPOINT, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'authorization': token,
-                        },
-                    });
-
-                    if (response.ok) {
-                        const userData = await response.json();
-                        setUserId(userData.data._id);
-                        fetchOrderList();
-                    } else {
-                        const errorData = await response.json();
-                        console.log(`Error fetching user account: ${errorData.message}`);
-                    }
-                } else {
-                    console.log('Token not found in AsyncStorage');
-                }
-            } catch (error) {
-                console.error('Error fetching user account:', error);
-            }
-        };
-
         const fetchOrderList = async () => {
             try {
+                const userId = await AsyncStorage.getItem("userID");
+                console.log(userId);
                 const response = await fetch(BASE_URL + ORDERLIST_ENDPOINT, {
                     method: 'POST',
                     headers: {
@@ -73,20 +35,22 @@ const Orderlist = ({ navigation  }) => {
                         "_id": userId,
                     }),
                 });
-
                 const responseData = await response.json();
-                if (responseData.data.order) {
+
+                if (responseData && responseData.data && responseData.data.order) {
                     setOrderData(responseData.data.order);
                 } else {
-                    console.log("No orders found");
+                    console.log("No orders found======");
+                    setOrderData([]); // Set an empty array if no orders are found
                 }
             } catch (error) {
                 console.log("Error fetching orders:", error);
             }
         };
 
-        fetchUserAccount();
-    }, [userId, token]);
+        fetchOrderList();
+    }, []);
+
 
 
     const sendInvite = (dishes) => {
@@ -97,28 +61,28 @@ const Orderlist = ({ navigation  }) => {
         // message = message + dishes.order_date.slice(0, 10);
 
         // message = message + ' ' + dishes.order_time;
-      
+
         // dishes.selecteditems.forEach((dish,index) => {
         //   message += '\n' + (index+1) + '. ' + dish.name;
         // });
 
         // if (dishes.addressId != null)
         // {message = message + '\n At ' + dishes.addressId.address1 + ' ' + dishes.addressId.address2 +   `\nhttps://play.google.com/store/apps/details?id=com.hora`;}
-      
+
         // // Add the rest of your message here
         // // ...
-      
+
         // const shareOptions = {
         //   message: message,
         // };
-      
+
         // try {
         //   const ShareResponse = Share.open(shareOptions);
         // } catch (error) {
         //   alert("error" + error);
         // }
-      };
-      
+    };
+
 
 
     const getOrderStatus = (orderStatusValue) => {
@@ -141,7 +105,7 @@ const Orderlist = ({ navigation  }) => {
             return ""
         }
         if (orderStatusValue === 6) {
-            return "expire"
+            return "Expired"
         }
     }
 
@@ -166,8 +130,9 @@ const Orderlist = ({ navigation  }) => {
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <CustomHeader title={"Order History"} navigation={navigation} />
+
             <View style={styles.container}>
-                {
+                {orderData.length > 0 && (
                     Object.keys(orderData).map((item, index) => {
                         return (
                             <View key={index}
@@ -193,13 +158,16 @@ const Orderlist = ({ navigation  }) => {
                                     </View>
                                     <View>
                                         {
-                                            orderData[item].order_status == "3" ?
+                                            orderData[item].order_status === 3 || orderData[item].order_status === 2 ?
                                                 <Text style={styles.orderstatus3}>
                                                     {getOrderStatus(orderData[item].order_status)}
-                                                </Text> :
-                                                <Text style={styles.orderstatus}>
-                                                    {getOrderStatus(orderData[item].order_status)}
-                                                </Text>
+                                                </Text> : orderData[item].order_status === 0 ?
+                                                    <Text style={styles.orderstatus4}>
+                                                        {getOrderStatus(orderData[item].order_status)}
+                                                    </Text> :
+                                                    <Text style={styles.orderstatus}>
+                                                        {getOrderStatus(orderData[item].order_status)}
+                                                    </Text>
                                         }
                                     </View>
                                 </View>
@@ -264,13 +232,13 @@ const Orderlist = ({ navigation  }) => {
                                 </View>
                                 <View style={styles.sec2}>
                                     <View>
-                                        <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id , orderData[item].order_id)}>
+                                        <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id, orderData[item].order_id)}>
                                             <View><Text style={styles.buttonText}>View Details</Text></View>
                                         </TouchableHighlight>
                                     </View>
 
                                     <View>
-                                        {getOrderStatus(orderData[item].order_status) === 'Booked' ? (
+                                        {getOrderStatus(orderData[item].order_status) === 'Booked' || getOrderStatus(orderData[item].order_status) === 'Accepted' || getOrderStatus(orderData[item].order_status) === 'In-progress' ? (
                                             <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={() => sendInvite(orderData[item])}>
                                                 <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                                                     <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
@@ -283,7 +251,33 @@ const Orderlist = ({ navigation  }) => {
                             </View>
                         )
                     })
-                }
+                )}
+                {orderData.length === 0 && (
+                    <View style={styles.noOrdersContainer}>
+                         <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" }}>You don't have any orders yet. Please place the order to make your party memorable</Text>
+                        <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
+                            <TouchableHighlight
+                            onPress={() => navigation.navigate('Home')}
+                                style={
+                                    styles.continueButton
+                                }
+                            >
+                                <View style={styles.buttonContent}>
+                                    <Text
+                                        style={
+                                            styles.continueButtonLeftText
+                            }
+                                    >
+                                        Continue
+                                    </Text>
+
+
+                                </View>
+                            </TouchableHighlight>
+
+                        </View>
+                    </View>
+                )}
             </View>
         </ScrollView>
     )
@@ -347,6 +341,18 @@ const styles = StyleSheet.create({
     },
     orderstatus3: {
         color: 'rgba(72, 169, 63, 1)',
+        backgroundColor: "rgba(72, 169, 63, 0.2)",
+        borderRadius: 20,
+        textAlign: 'center',
+        paddingLeft: 6,
+        paddingRight: 6,
+        paddingTop: 2,
+        paddingBottom: 3,
+        fontSize: 10,
+        fontWeight: '500'
+    },
+    orderstatus4: {
+        color: 'orange',
         backgroundColor: "rgba(72, 169, 63, 0.2)",
         borderRadius: 20,
         textAlign: 'center',

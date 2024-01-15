@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Dimensions, TouchableOpacity, Text, Image, View, FlatList, StyleSheet, TextInput, Alert, Platform, PermissionsAndroid } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import Geolocation from 'react-native-geolocation-service';
+import Geolocation from '@react-native-community/geolocation';
 import * as Permissions from 'react-native-permissions';
 import Geocoder from 'react-native-geocoding';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -13,15 +13,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const ConfirmLocation = ({ navigation, route }) => {
-  const [locationPermissionStatus, setLocationPermissionStatus] = useState(null);
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState("granted");
   const [locationText, setLocationText] = useState('');
   const [currentLocation, setCurrentLocation] = useState('')
   const [selectedButtonId, setSelectedButtonId] = useState(null);
   const [recipient, setRecipient] = useState('');
   const [houseNumber, setHouseNumber] = useState('');
   const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [completeAddress, setCompleteAddress] = useState([]);
   const data = route.params.data
-  const [mapRegion, setMapRegion] = useState(null);
+  const [mapRegion, setMapRegion] = useState(false);
   const mapViewRef = useRef(null);
   const [isAddressValid, setAddressValid] = useState(false);
 
@@ -29,7 +31,6 @@ const ConfirmLocation = ({ navigation, route }) => {
 
   const bottomSheetRef = useRef();
   const GOOGLE_MAP_KEY = "AIzaSyBmHupwMPDVmKEryBTT9LlIeQITS3olFeY"
-
   const buttonData = [
     { id: '1', label: 'Home' },
     { id: '2', label: 'Work' },
@@ -52,7 +53,6 @@ const ConfirmLocation = ({ navigation, route }) => {
 
 
   const handleButtonPress = (buttonId) => {
-    console.warn(buttonId)
     setSelectedButtonId(buttonId);
   };
 
@@ -75,65 +75,17 @@ const ConfirmLocation = ({ navigation, route }) => {
     }
   };
 
-  // useEffect(() => {
-  //   Geocoder.init(GOOGLE_MAP_KEY);
-  //   if (data != null) {
-  //     handleSetLocation()
-  //   }
-  //   const checkLocationPermission = async () => {
-  //     if (Platform.OS === 'android') {
-  //       const granted = await PermissionsAndroid.check(
-  //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-  //       );
-  //       setLocationPermissionStatus(granted ? 'granted' : 'denied');
-  //       if (granted) {
-  //         getCurrentLocation();
-  //       }
-  //     } else if (Platform.OS === 'ios') {
-  //       const status = await Permissions.request(Permissions.PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-  //       setLocationPermissionStatus(status);
-  //       if (status === Permissions.RESULTS.GRANTED) {
-  //         getCurrentLocation();
-  //       }
-  //     }
-  //   };
-
-  //   // const requestLocationPermissionAndroid = async () => {
-  //   //   try {
-  //   //     const granted = await PermissionsAndroid.request(
-  //   //       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-  //   //     );
-  //   //     setLocationPermissionStatus(granted ? 'granted' : 'denied');
-  //   //     if (granted) {
-  //   //       getCurrentLocation();
-  //   //     }
-  //   //   } catch (error) {
-  //   //     console.warn('Error requesting location permission:', error);
-  //   //   }
-  //   // };
-
-  //   // const requestLocationPermissionIOS = async () => {
-  //   //   try {
-  //   //     const status = await Permissions.request(Permissions.PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-  //   //     setLocationPermissionStatus(status);
-  //   //     if (status === Permissions.RESULTS.GRANTED) {
-  //   //       getCurrentLocation();
-  //   //     }
-  //   //   } catch (error) {
-  //   //     console.warn('Error requesting location permission:', error);
-  //   //   }
-  //   // };
-
-  //   checkLocationPermission();
-  // }, []);
+  
 
   const focusOnCurrentLocation = () => {
+    console.log(locationPermissionStatus);
     if (locationPermissionStatus === 'granted') {
       getCurrentLocation()
     }
   };
 
   const getCurrentLocation = () => {
+
     Geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -143,47 +95,69 @@ const ConfirmLocation = ({ navigation, route }) => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         };
+
         setMapRegion(updatedInitialRegion); // Update the initialRegion directly
+        console.log(mapRegion)
+       
         Geocoder.from(latitude, longitude)
           .then((response) => {
             const address = response.results[0].formatted_address;
+            console.log("address" + address);
+            setCompleteAddress(response.results[0].address_components);
+    
             setCurrentLocation(address);
+            console.log("Current Location" + currentLocation);
           })
           .catch((error) =>
             console.warn('Error fetching location address:', error)
           );
       },
       (error) => console.log('Error getting current location:', error),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+      { enableHighAccuracy: true, timeout: 2000000, maximumAge: 10000000000000 }
     );
   };
 
 
   const handleSetLocation = () => {
     bottomSheetRef.current.open();
+    console.log("Inside handle SEtlocation");
+    console.log("a" + currentLocation);
+    if (currentLocation) {
+      const [prefillAddress1, prefillAddress2, prefillAddress3, prefillAddress4, prefillAddress5, prefillAddress6, prefillAddress7,prefillAddress8] = currentLocation.split(',');
+      if (prefillAddress1 != NaN && prefillAddress2 != NaN) {
+        setHouseNumber(prefillAddress1 + prefillAddress2);
+        setAddress(prefillAddress3 + prefillAddress4 + prefillAddress5);
+        setCity(prefillAddress5+prefillAddress6)
+      }
+    }
+
   };
 
   const handleSearchLocation = (address) => {
     setLocationText(address);
   };
 
-
+  
   useEffect(() => {
     // ... your existing code
     if (route.params.data != null) {
       handleSetLocation();
+  
+      console.log(data[0])
       // Prefill recipient, houseNumber, and address based on address2
-      if (data.address2) {
-        console.warn(data.address2)
-        const [prefillRecipient, prefillHouseNumber, prefillAddress] = data.address2.split('/');
+      if (data[0].address2) {
+        const [prefillRecipient, prefillHouseNumber, prefillAddress] = data[0].address2.split(',');
         if (prefillAddress != NaN && prefillAddress != NaN) {
           setRecipient(prefillRecipient);
           setHouseNumber(prefillHouseNumber);
           setAddress(prefillAddress);
+          setCity(data[0].city);
         }
       }
 
-      const matchedButton = buttonData.find(button => button.label.toLowerCase() === data.title.toLowerCase());
+      
+      console.log(data[0]["title"]);
+      const matchedButton = buttonData.find(button => button["label"].toLowerCase() === data[0]["title"]);
       if (matchedButton) {
         setSelectedButtonId(matchedButton.id);
       }
@@ -192,7 +166,6 @@ const ConfirmLocation = ({ navigation, route }) => {
       }
       checkAddressValidity()
     }
-
     // ... rest of your code
   }, []);
 
@@ -206,23 +179,46 @@ const ConfirmLocation = ({ navigation, route }) => {
         label = buttonData[selectedButtonId - 1]['label']
       }
 
-      const address2 = recipient + "/" + houseNumber + "/" + address
+    let userId;
+
+    AsyncStorage.getItem("userID")
+    .then(userID => {
+      console.log(userID);
+      userId = userID;
+      console.log(userId);
+    })
+    .catch(error => {
+      console.error('Error retrieving userID:', error);
+    });
+
+      const address2 = recipient + "," + houseNumber + "," + address
+
+      AsyncStorage.setItem("Address", address2);
+      const locality = await AsyncStorage.getItem('Locality')
+      const city = await AsyncStorage.getItem('City')
+
       const requestData =
       {
         title: label,
         address1: currentLocation,
         address2: address2,
-        address_type: "1",
-        _id: "6413340f549b58e3dc39a035"
+        address_type: selectedButtonId,
+        locality: locality,
+        city: city,
+        userId:userId
+
       };
+
+
       const token = await AsyncStorage.getItem('token')
+
       const response = await axios.post(url, requestData, {
         headers: {
           'Content-Type': 'application/json',
           'authorization': token
         },
       });
-      console.warn(requestData)
+
       if (response.status == API_SUCCESS_CODE) {
         navigation.goBack()
       }
@@ -262,59 +258,6 @@ const ConfirmLocation = ({ navigation, route }) => {
         </View>
       )}
 
-<View style={styles.view1}>
-        <Image style={styles.image4} source={require('../../assets/info.png')} />
-        <Text style={styles.text1}>Price is calculated from dish cost and number of servings.</Text>
-      </View>
-
-
-
-      {/* 
-      <View style={styles.searchBox}>
-        <TouchableOpacity activeOpacity={1} style={styles.searchButton}>
-          <Image source={require('../../assets/ic_search_black.png')} style={styles.image1}></Image>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="Find Your location"
-          value={locationText}
-          onChangeText={handleSearchLocation}
-          placeholderTextColor="black"
-        />
-      </View> */}
-{/* 
-      <View style={{}}>
-        <TouchableOpacity activeOpacity={1} style={styles.searchButton}>
-          <Image source={require('../../assets/ic_search_black.png')} style={styles.image1}></Image>
-        </TouchableOpacity>
-
-        <GooglePlacesAutocomplete
-          placeholder="Find Your location"
-          onPress={(data, details = null) => {
-            if (details) {
-              console.warn(details)
-              // 'data' contains information about the selected place
-              // You can access the latitude and longitude using 'details.geometry.location'
-              const { description, geometry } = details;
-              const lat = geometry.location.lat;
-              const lng = geometry.location.lng;
-              setCurrentLocation(details.formatted_address); // Set the location text
-              handleRegionChange({
-                latitude: lat,
-                longitude: lng,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }); // Update the map region
-            }
-          }}
-          sheetContent={styles.searchBox}
-          query={{
-            key: GOOGLE_MAP_KEY,
-            language: 'en', // To receive results in English
-          }}
-        />
-      </View> */}
-
       <View style={{ position: 'absolute', bottom: 270, right: 20 }}>
         <TouchableOpacity
           style={{ backgroundColor: 'transparent' }}
@@ -352,7 +295,7 @@ const ConfirmLocation = ({ navigation, route }) => {
         ref={bottomSheetRef}
         closeOnDragDown={true}
         closeOnPressMask={true}
-        height={550}
+        height={650}
         customStyles={{
           container: styles.bottomSheetContainer,
           wrapper: styles.bottomSheetWrapper,
@@ -384,7 +327,18 @@ const ConfirmLocation = ({ navigation, route }) => {
             />
           </View>
           <View style={{ ...styles.textInputContainer, marginTop: 12 }}>
-            <TextInput style={styles.textInput} placeholder="Street/Society/Nearyby Landmark" value={address}
+            <TextInput
+              style={styles.textInput}
+              placeholder="Street/Society/Nearyby Landmark"
+              value={address}
+              onChangeText={(address) => ValidateAddress(address)}
+            />
+          </View>
+          <View style={{ ...styles.textInputContainer, marginTop: 12 }}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="City"
+              value={city}
               onChangeText={(address) => ValidateAddress(address)}
             />
           </View>
@@ -482,6 +436,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginEnd: 26,
     height: 55,
+    color:"black"
   },
   buttonsContainer: {
     marginTop: 22,

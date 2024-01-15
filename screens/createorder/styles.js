@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
       justifyContent:"flex-start",
       alignContent:"center",
       paddingLeft:20,
-      paddingTop:20,
+      paddingTop:15,
       width:"100%"
     },
     boxvegContainer:{
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
       borderWidth:1,
       justifyContent:"space-around",
       alignItems:"center",
-      padding:5,
+      padding:2,
     },
     boxnonvegContainer:{
       marginRight:20,
@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
       borderWidth:1,
       justifyContent:"space-around",
       alignItems:"center",
-      paddingTop:5,
-      paddingBottom:5,
-      paddingRight:8,
+      paddingTop:2,
+      paddingBottom:2,
+      paddingRight:2,
       paddingLeft:8
       
     },
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         marginTop:15,
       },
       button: {
-        paddingHorizontal: 12,
+        paddingHorizontal: 9,
         paddingVertical: 8,
         backgroundColor: 'white',
         borderRadius: 15,
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
         borderColor:'#9252AA',
         borderWidth:1 // Change to the desired highlight color
       },
+
       buttonText: {
         fontSize: 12,
         color:'black'
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         padding: 12,
-        paddingTop:52
+        paddingTop:12
   
       },
       bottomSheetWrapper: {

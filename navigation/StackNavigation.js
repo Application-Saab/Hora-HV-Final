@@ -18,6 +18,7 @@ import DecorationCatPage from '../screens/Decoration/DecorationCatPage';
 import DrawerNavigation from '../components/DrawerNavigation';
 import OrderDetails from '../screens/orderdetails/OrderDetails';
 import DecorationPage from '../screens/Decoration/DecorationPage';
+import foodDelivery from '../screens/foodDelivery/foodDelivery';
 const Stack = createNativeStackNavigator();
 
 
@@ -45,6 +46,7 @@ const StackNavigation = () => {
       <Stack.Screen name="ProductDateSummary" component={ProductDateSummary} options={{ headerShown: true }}/>
       <Stack.Screen name="DecorationPage" component={DecorationPage} options={{ headerShown: true }} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ headerShown: true }} />
+      <Stack.Screen name="foodDelivery" component={foodDelivery} options={{headerShown:true}}/>
     </Stack.Navigator>
   );
 };

@@ -6,9 +6,11 @@ const OrderDetailsIngre = ({ OrderDetail}) => {
   const [orderIngredients, setOrderIngredients] = useState({});
   async function fetchOrderIngredients() {
     try {
+     
       const response = await fetch(BASE_URL + ORDER_INGREDIENTS + '/' + OrderDetail.order_id);
       const responseData = await response.json();
       setOrderIngredients(responseData.data);
+
     } catch (error) {
       console.log(error);
     }

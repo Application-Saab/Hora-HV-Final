@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, Image, Button , Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OrderDetailsSection from '../../components/orderDetailsSection';
 import OrderDetailsChef from '../../components/OrderDetailsChef';
@@ -9,6 +9,7 @@ import OrderDetailsIngre from '../../components/OrderDetailsIngre';
 import CustomHeader from '../../components/CustomeHeader';
 import OrderDetailsAppli from '../../components/OrderDetailsAppli';
 import { BASE_URL, ORDER_DETAILS_ENDPOINT, ORDER_CANCEL } from '../../utils/ApiConstants';
+// import Share from 'react-native-share';
 
 
 const OrderDetails = ({ navigation, route }) => {
@@ -68,9 +69,44 @@ const OrderDetails = ({ navigation, route }) => {
         setSelectedTab(tabNumber);
     };
 
+    const handlePage = () => {
+        Linking.openURL('whatsapp://send?phone=+918982321487&text=I%20wanted%20to%20Share%20feedback%20of%20your%20service');
+    }
+
     const handleRating = () => {
         alert("rate us")
     }
+
+    // const sendInvite = (dishes) => {
+    //     let message = `You are Invited!!!
+    //     * * * * * *
+    //     Enjoy the gathering with specially cooked by professional chef from hora `;
+
+    //     message = message + dishes.order_date.slice(0, 10);
+
+    //     message = message + ' ' + dishes.order_time;
+      
+    //     dishes.selecteditems.forEach((dish,index) => {
+    //       message += '\n' + (index+1) + '. ' + dish.name;
+    //     });
+
+    //     if (dishes.addressId != null)
+    //     {message = message + '\n At ' + dishes.addressId.address1 + ' ' + dishes.addressId.address2 +   `\nhttps://play.google.com/store/apps/details?id=com.hora`;}
+      
+    //     // Add the rest of your message here
+    //     // ...
+      
+    //     const shareOptions = {
+    //       message: message,
+    //     };
+      
+    //     try {
+    //       const ShareResponse = Share.open(shareOptions);
+    //     } catch (error) {
+    //       alert("error" + error);
+    //     }
+    //   };
+
 
     useEffect(() => {
         async function fetchOrderDetails() {
@@ -92,11 +128,10 @@ const OrderDetails = ({ navigation, route }) => {
 
 
 
-
-
-
     async function cancelOrder() {
         try {
+            const token = await AsyncStorage.getItem("token");
+           
             const response = await fetch(BASE_URL + ORDER_CANCEL, {
                 method: 'POST',
                 headers: {
@@ -104,13 +139,14 @@ const OrderDetails = ({ navigation, route }) => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    _id: "64627058b3592591716bd1c0",
-                    Authorisation: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDEzMzQwZjU0OWI1OGUzZGMzOWEwMzUiLCJuYW1lIjoiUmFodWwiLCJlbWFpbCI6IiIsInBob25lIjoiODM4Nzk5OTM4MiIsInJvbGUiOiJzdXBwbGllciIsImlhdCI6MTY3ODk4NDg3OSwiZXhwIjoxNzEwNTIwODc5fQ.PEnGF12sAFsF_idngQZnGR_eSLYweXCOPsq7iTJUMoc"
+                    _id: route.params.apiOrderId,
+                    Authorisation: token
                 })
             }); // Replace with your API endpoint for updating user profile
 
             // Handle success response
-            console.log('Order cancelled successfully');
+            console.log(response);
+            alert('Order cancelled successfully');
         } catch (error) {
             // Handle error response
             console.log('Error updating profile:', error);
@@ -127,9 +163,9 @@ const OrderDetails = ({ navigation, route }) => {
                     <Tabs onSelectTab={handleTabChange} />
                     {selectedTab === 1 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail}/>}
                 </View>
-                <View>
-                    {(orderDetail.order_status === 0 || orderDetail.order_status === 2) &&
-                        orderDetail.order_status !== "Completed" ? (
+                {/* <View>
+                    {(orderDetail.order_status === "Booked" || orderDetail.order_status === "Accepted") &&
+                        orderDetail.order_status !== "In-progress" ? (
                         <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={sendInvite}>
                             <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                                 <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
@@ -137,18 +173,41 @@ const OrderDetails = ({ navigation, route }) => {
                         </TouchableHighlight>
                     ) : null}
 
-                </View>
+                </View> */}
                 <View>
-                    {orderDetail.order_status == 'Booked' ?
+                <View>
+                    {orderDetail.order_status === 0 || orderDetail.order_status === 1 ||
+                        orderDetail.order_status === 2 ? (
+                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={cancelOrder}>
+                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                                <View><Text style={styles.ratingbuttonText} onPress={cancelOrder}>Cancel Order</Text></View>
+                            </View>
+                        </TouchableHighlight>
+                        
+                    ) : null}
+
+                </View>
+                    {orderDetail.order_status === 4 ?
                         <View style={styles.cancelorderbox}>
                             <View>
                                 <Text style={styles.cancelorderboxtext1}>We Regret to inform you that your order has been canceled! we are working hard to make your experience better and hustle free
                                 </Text>
                             </View>
                             <View>
-                                <Text style={styles.cancelorderboxtext2}>Contact us for more help!</Text>
+                                <Text style={styles.cancelorderboxtext2} onPress={handlePage}>Contact us for more help!</Text>
                             </View>
                         </View>
+                        :
+                        ''
+                    }
+                    <Text>{orderDetail.order_status}</Text>
+                    {orderDetail.order_status === 3 ?
+                      
+                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={handlePage}>
+                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                                <View><Text style={styles.ratingbuttonText}>Share you feedback with us</Text></View>
+                            </View>
+                        </TouchableHighlight>
                         :
                         ''
                     }
@@ -232,7 +291,8 @@ const styles = StyleSheet.create({
     },
     cancelorderboxtext1: {
         fontWeight: "500",
-        marginBottom: 0
+        marginBottom: 0,
+        color:'black'
     },
     cancelorderboxtext2: {
         fontWeight: "500",

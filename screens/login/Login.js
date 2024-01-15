@@ -149,6 +149,7 @@ const Login = ({ navigation, route }) => {
         };
     }, [timer]);
 
+    
     const handlePress = () => {
         if (mobileNumber.length < 10) {
             setValidMobileNumber(false)
@@ -172,14 +173,10 @@ const Login = ({ navigation, route }) => {
         <ImageBackground source={require('../../assets/loginBackground.png')} style={styles.backgroundImage}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
             <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-
                 <Image source={require('../../assets/hora.png')} style={styles.image} />
             </View>
-
-         
-
             <View style={{ justifyContent: 'center', flexDirection: 'column', alignItems: 'center', marginTop: 8, marginHorizontal: 45 }}>
-                <Text style={{ fontWeight: '500', fontSize: 14, color: "#BEBEBE" }}> Get Restaurant like food cooked at{'\n'}            your home and parties</Text>
+                <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" }}>Simplifying and Enhancing Celebrations{'\n'}            All Party Services, One App</Text>
                 {!isPressed ? (<Text style={{ fontWeight: '800', fontSize: 18, color: 'black', marginTop: 9 }}>Get Started</Text>) : null}
                 {isPressed ? (<Text style={{ fontSize: 18, color: 'black', fontWeight: '700', marginTop: 3 }}>Enter OTP</Text>) : null}
                 <View style={{ marginLeft: 16 }}>

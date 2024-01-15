@@ -29,9 +29,18 @@ const CreateOrder = ({ navigation }) => {
     const [isDishSelected, setIsDishSelected] = useState(false);
     const [isPopupVisible, setPopupVisible] = useState(false);
 
-    
+    const [isWarningVisibleForDishCount, setWarningVisibleForDishCount] = useState(false);
+    const [isWarningVisibleForCuisineCount, setWarningVisibleForCuisineCount] = useState(false);
+
+    const handleWarningClose = () => {
+        setWarningVisibleForDishCount(false);
+        setWarningVisibleForCuisineCount(false);
+    };
+
+
+
     // get category of cuisines
-    
+
     useEffect(() => {
         const fetchCuisineData = async () => {
             try {
@@ -57,31 +66,33 @@ const CreateOrder = ({ navigation }) => {
 
     useEffect(() => {
         if (cuisines.length > 0 && selectedCuisines.length === 0) {
-          handleCuisinePress(cuisines[0][0]);
+            handleCuisinePress(cuisines[0][0]);
         }
-      }, [cuisines, selectedCuisines]);
-    
+    }, [cuisines, selectedCuisines]);
+
     //render item used to iterate over cuisine list
     const renderItem = ({ item }) => {
         const isSelected = selectedCuisines.includes(item[0]);
 
         return (
-            <View style={{ marginBottom: 4, flexDirection: 'row', paddingEnd: 5 , paddingBottom:4 , justifyContent:"flex-start" , alignItems:"center"}}>
-                <TouchableOpacity
-                    style={[styles.button, isSelected && styles.selectedButton]}
-                    onPress={() => handleCuisinePress(item[0])}
-                    underlayColor={isSelected ? "#9252AA" : "#000"}
-                    activeOpacity={1}
-
-                >
-                    <Text style={[styles.buttonText, isSelected && styles.selectedButtonText]}>{item[1]}</Text>
-                </TouchableOpacity>
+            <View style={{ marginBottom: 4, flexDirection: 'row', paddingEnd: 5, paddingBottom: 4, justifyContent: "space-between", alignItems: "center" }}>
+                 {item[1] !== 'Decoration' ?
+                    <TouchableOpacity
+                        style={[styles.button, isSelected && styles.selectedButton]}
+                        onPress={() => handleCuisinePress(item[0])}
+                        underlayColor={isSelected ? "#9252AA" : "#000"}
+                        activeOpacity={1}
+                    >
+                        <Text style={[styles.buttonText, isSelected && styles.selectedButtonText]}>{item[1]}</Text>
+                    </TouchableOpacity>
+                    : null
+                }
                 {expandedCategories.includes(item[0]) && ( // Conditionally render the cuisines list
                     <FlatList
                         data={cuisines}
                         renderItem={renderItem}
                         keyExtractor={(item) => item}
-                        numColumns={3}
+                        numColumns={4}
                         contentContainerStyle={styles.cuisineContainer}
                     />
                 )}
@@ -90,8 +101,8 @@ const CreateOrder = ({ navigation }) => {
     };
 
     const handleIncreaseQuantity = (dish, isSelected) => {
-        if (/*selectedDishes.length > 5 && isSelected*/false) {
-            //setPopupVisible(true)
+        if (selectedDishes.length > 11 && !isSelected) {
+            setWarningVisibleForDishCount(true);
         } else {
             const updatedSelectedDishes = [...selectedDishes];
             const updatedSelectedDishDictionary = { ...selectedDishDictionary };
@@ -104,11 +115,11 @@ const CreateOrder = ({ navigation }) => {
             setSelectedDishes(updatedSelectedDishes);
             setSelectedCount(updatedSelectedDishes.length);
             if (isSelected) {
-                const updatedPrice = selectedDishPrice - parseInt(dish.price, 10)
+                const updatedPrice = selectedDishPrice - parseInt(dish.dish_rate, 10)
                 setSelectedDishPrice(updatedPrice)
             }
             else {
-                const updatedPrice = selectedDishPrice + parseInt(dish.price, 10)
+                const updatedPrice = selectedDishPrice + parseInt(dish.dish_rate, 10)
                 setSelectedDishPrice(updatedPrice)
             }
             if (updatedSelectedDishDictionary[dish._id]) {
@@ -134,7 +145,7 @@ const CreateOrder = ({ navigation }) => {
             });
         } else {
             // Display a popup or handle the case where the user tries to select more than 3 cuisines
-            setPopupVisible(true);
+            setWarningVisibleForCuisineCount(true);
         }
     };
     const fetchMealBasedOnCuisine = async () => {
@@ -170,11 +181,11 @@ const CreateOrder = ({ navigation }) => {
             setSelectedCount(0);
             setSelectedDishPrice(0)
         }
-    }, [selectedCuisines,isNonVegSelected])
+    }, [selectedCuisines, isNonVegSelected])
 
     const renderDishItem = ({ item }) => (
         <TouchableOpacity onPress={() => openBottomSheet(item, bottomSheetRef)} activeOpacity={1}>
-            <View style={{  width: windowWidth * 0.3 ,  padding: 0, justifyContent: 'flex-start', marginTop: 7  }}>
+            <View style={{ width: windowWidth * 0.3, padding: 0, justifyContent: 'flex-start', marginTop: 7 }}>
                 <View style={{ flexDirection: 'column' }}>
                     <ImageBackground
                         source={
@@ -182,7 +193,7 @@ const CreateOrder = ({ navigation }) => {
                                 ? require('../../assets/Rectanglepurple.png')
                                 : require('../../assets/rectanglewhite.png')
                         }
-                        style={{  width: "100%", height: 138, marginTop: 33 }}
+                        style={{ width: "100%", height: 138, marginTop: 33 }}
                         imageStyle={{ borderRadius: 16 }}
                     >
                         <View style={{ flexDirection: 'column', paddingHorizontal: 5 }}>
@@ -194,7 +205,7 @@ const CreateOrder = ({ navigation }) => {
                                                 ? { uri: `https://horaservices.com/api/uploads/${item.special_appliance_id[0].image}` }
                                                 : { uri: `https://horaservices.com/api/uploads/${item.image}` }
                                         }
-                                        style={{ width: 80, height: 80, borderRadius: 40, marginTop: -30, marginBottom:1 }}
+                                        style={{ width: 80, height: 80, borderRadius: 40, marginTop: -30, marginBottom: 1 }}
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -239,7 +250,7 @@ const CreateOrder = ({ navigation }) => {
                                         color: selectedDishes.includes(item._id) ? 'white' : '#9252AA',
                                     }}
                                 >
-                                    ₹ {item.price}
+                                    ₹ {item.dish_rate}
                                 </Text>
                                 <TouchableOpacity onPress={() => handleIncreaseQuantity(item, selectedDishes.includes(item._id))}>
                                     <Image
@@ -299,46 +310,42 @@ const CreateOrder = ({ navigation }) => {
     const RenderBottomSheetContent = () => (
         <View style={{ flex: 1 }}>
             <View contentContainerStyle={{ flexGrow: 1 }}>
-                <Image source={{ uri: `https://horaservices.com/api/uploads/${dishDetail.image}` }} style={{ width: Dimensions.get('window').width * 0.9, height: 184, borderTopLeftRadius: 45, borderTopRightRadius: 45 }} />
-                <Text style={{ color: '#1C1C1C', fontSize: 23, fontWeight: '800' }}>{dishDetail.name}</Text>
+                <Image source={{ uri: `https://horaservices.com/api/uploads/${dishDetail.image}` }} style={{ width: Dimensions.get('window').width - 24, height: 250, borderTopLeftRadius: 45, borderTopRightRadius: 45 }} />
+                <Text style={{ color: '#1C1C1C', fontSize: 23, fontWeight: '800', paddingVertical: 8 }}>{dishDetail.name}</Text>
                 <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
-                <Text style={{ color: '#736F6F', fontSize: 9, fontWeight: '400', opacity: 0.9 }}>{dishDetail.description}</Text>
-                <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
-
-                <View style={{ marginTop: 7, backgroundColor: '#F7F2F9', width: 343, borderRadius: 5, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'start', padding: 10 }}>
-                    <Text style={{ color: '#4F4F4F', fontSize: 13, fontWeight: '400' }}>{dishDetail.per_plate_qty.qty} Serve/ Person</Text>
+                <View>
+                    <Text style={{ color: '#736F6F', fontSize: 16, fontWeight: '400', opacity: 0.9, marginVertical: 10 }}>{dishDetail.description}</Text>
                 </View>
-                <View style={{ padding: 10, marginTop: 4, flexDirection: 'column', backgroundColor: '#F7F2F9', width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
-                    <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Appliance Required</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 3 }}>
-                        <Image source={require('../../assets/plus.png')} style={{ width: 25, height: 25 }} />
-                        <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400', marginLeft: 10, marginTop: 4 }}>Charcoal Burner</Text>
+                <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
+                <View>
+                    <View style={{ marginTop: 7, backgroundColor: '#F7F2F9', width: 343, borderRadius: 5, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'start', padding: 10 }}>
+                        <Text style={{ color: '#4F4F4F', fontSize: 13, fontWeight: '400' }}>{dishDetail.per_plate_qty.qty ? `${dishDetail.per_plate_qty.qty} ${dishDetail.per_plate_qty.unit}/ Person` : 'NA'}</Text>
+                    </View>
+                    <View style={{ padding: 10, marginTop: 4, flexDirection: 'column', backgroundColor: '#F7F2F9', width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
+                        <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Special Appliance Required</Text>
+                        <View style={{ flexDirection: 'row', marginTop: 3 }}>
+                            <Image source={require('../../assets/plus.png')} style={{ width: 25, height: 25 }} />
+                            <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400', marginLeft: 10, marginTop: 4 }}>
+                                {dishDetail.special_appliance_id && dishDetail.special_appliance_id.length > 0 ? 
+                                <View>
+                                    {
+                                        dishDetail.special_appliance_id.map((appliance, index) => (
+                                            <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{appliance.name}</Text>
+                                                {index < dishDetail.special_appliance_id.length - 1 && <Text>, </Text>}
+                                            </View>
+                                        ))
+                                    }
+                                </View>
+                                : "NA" }
+                                </Text>
+                        </View>
+                    </View>
+                    <View style={{ marginTop: 4, flexDirection: 'column', backgroundColor: '#F7F2F9', padding: 10, width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
+                        <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Advance Preparations required</Text>
+                        <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{dishDetail.preperationtext?dishDetail.preperationtext:"NA"}</Text>
                     </View>
                 </View>
-                <View style={{ marginTop: 4, flexDirection: 'column', backgroundColor: '#F7F2F9', padding: 10, width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
-                    <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Advance Preparations required</Text>
-                    <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{dishDetail.preperationtext}</Text>
-                </View>
-                <View style={{ marginTop: 5, padding: 10, flexDirection: 'column', backgroundColor: '#F7F2F9', width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
-                    <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Served With</Text>
-                    <View>
-                        <FlatList
-                            data={dishDetail.serving_dish}
-                            renderItem={renderServedItem}
-                            keyExtractor={(item, index) => index.toString()}
-                            numColumns={3}
-                            contentContainerStyle={styles.container}
-                            columnWrapperStyle={styles.columnWrapper}
-                        />
-                    </View>
-
-                </View>
-
-                {/* <View style={styles.bottomButtonContainer1}>
-                    <TouchableHighlight onPress={() => handleIncreaseQuantity} style={styles.customButton} underlayColor="transparent" activeOpacity={1}>
-                        <Text style={styles.buttonText1}>Add Dish</Text>
-                    </TouchableHighlight>
-                </View> */}
             </View>
         </View>
 
@@ -363,14 +370,14 @@ const CreateOrder = ({ navigation }) => {
     );
 
     const addDish = (selectedDishPrice) => {
-        navigation.navigate('SelectDate', { selectedDishDictionary, selectedDishPrice })
+        navigation.navigate('SelectDate', { selectedDishDictionary, selectedDishPrice, selectedDishes })
     }
     const handleToggleNonVeg = () => {
         setIsNonVegSelected(!isNonVegSelected)
-     }
-    
-     const handleToggleVeg = () => {
-     }
+    }
+
+    const handleToggleVeg = () => {
+    }
     return (
         <View style={styles.screenContainer}>
             <CustomHeader title={"Create Order"} navigation={navigation} />
@@ -386,143 +393,150 @@ const CreateOrder = ({ navigation }) => {
                 <Image style={styles.image4} source={require('../../assets/ConfirmOrderUnselected.png')} />
             </View>
             <View style={styles.vegNonVegContainer}>
-            <View style={styles.boxvegContainer}>
+                <View style={styles.boxvegContainer}>
 
-                <View style={{}}>
-                    <Switch
-                        value={isVegSelected}
-                        onValueChange={handleToggleVeg}
-                        trackColor={{ true: '#8DE080', false: '#D4DBDE' }}
-                        thumbColor={'white'}
-                        style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 18, marginStart: 10, marginVertical: 3 }}
-                    />
-                </View>
+                    <View style={{}}>
+                        <Switch
+                            value={isVegSelected}
+                            onValueChange={handleToggleVeg}
+                            trackColor={{ true: '#8DE080', false: '#D4DBDE' }}
+                            thumbColor={'white'}
+                            style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 18, marginStart: 10, marginVertical: 3 }}
+                        />
+                    </View>
 
-                <View style={{ marginLeft: 7, marginRight: 12 }}>
-                    <Text style={{ fontWeight: '500', fontSize: 9, color: '#000' }}>Veg only</Text>
+                    <View style={{ marginLeft: 7, marginRight: 12 }}>
+                        <Text style={{ fontWeight: '500', fontSize: 9, color: '#000' }}>Veg only</Text>
+                    </View>
+                </View>
+                <View style={styles.boxnonvegContainer}>
+                    <View>
+                        <Switch
+                            value={isNonVegSelected}
+                            onValueChange={handleToggleNonVeg}
+                            trackColor={{ true: '#D33030', false: '#D4DBDE' }}
+                            thumbColor={isNonVegSelected ? 'white' : 'white'}
+                            style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 40, height: 10, marginStart: 10, marginVertical: 3 }}
+                        />
+                    </View>
+                    <View style={{ marginRight: 8, width: 40 }}>
+                        <Text style={{ fontWeight: '500', fontSize: 9, color: "#9252AA" }}>Non-Veg</Text>
+                    </View>
                 </View>
             </View>
-            <View style={styles.boxnonvegContainer}>
-                <View>
-                <Switch
-                    value={isNonVegSelected}
-                    onValueChange={handleToggleNonVeg}
-                    trackColor={{ true: '#D33030', false: '#D4DBDE' }}
-                    thumbColor={isNonVegSelected ? 'white' : 'white'}
-                    style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 1, marginStart: 10, marginVertical: 3 }}
-                />
-                </View>
-                <View style={{ marginRight: 12 , width: 42 }}>
-                    <Text style={{ fontWeight: '500', fontSize: 9, color: "#9252AA" }}>Non-Veg</Text>
-                </View>
-            </View>
-            </View>
-            <View style={{flexDirection:'row', marginTop:4 }}>
-            <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
-            </View>
-            <ScrollView>
-            <View style={{ marginLeft: 20, marginRight: 20 , justifyContent:"flex-start" }}>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: 'black', marginTop: 5}}>
-                    Select Cuisines
-                </Text>
-                <FlatList
-                    data={cuisines}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item}
-                    numColumns={3}
-                    contentContainerStyle={styles.cuisineContainer}
-                />
-            </View>
-            <View style={{ flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row', marginTop: 4 }}>
                 <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
             </View>
-
-            <View style={{ paddingHorizontal: 12 }}>
-                <FlatList
-                    data={mealList}
-                    keyExtractor={(item) => item.mealObject._id}
-                    renderItem={({ item }) => (
-                        <View style={{ marginVertical: 5 }}>
-                            {item.dish.length > 0 && (
-                                <View style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', lineHeight: 15, paddingTop: 15 }}>{item.mealObject.name} ({item.dish.length})</Text>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                        <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
-                                            <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10}}>View All</Text>
-
-                                        </TouchableOpacity>
-                                        <Image style={{ width: 9, height: 9, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image>
-                                    </View>
-
-                                </View>
-                            )}
-
-                            {expandedCategories.includes(item.mealObject._id) ? (
-                                // Show all dishes if this category is expanded
-                                <FlatList
-                                    data={item.dish}
-                                    keyExtractor={(dish) => dish._id}
-                                    renderItem={renderDishItem}
-                                    numColumns={3} // Set numColumns to 3 for the grid layout
-                                    contentContainerStyle={styles.dishContainer}
-                                    columnWrapperStyle={styles.dishColumnWrapper}
-                                />
-                            ) : (
-                                // Show only the first 3 dishes if this category is collapsed
-                                <FlatList
-                                    data={item.dish.slice(0, 3)}
-                                    keyExtractor={(dish) => dish._id}
-                                    renderItem={renderDishItem}
-                                    numColumns={3}
-                                    contentContainerStyle={styles.dishContainer}
-                                    columnWrapperStyle={styles.dishColumnWrapper}
-                                />
-                            )}
-
-                            
-                        </View>
-                        
-                    )}
-                />
-            </View>
-            </ScrollView>
-       
-            <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
-            <TouchableHighlight
-                onPress={() => addDish(selectedDishPrice)}
-                style={[
-                    styles.continueButton,
-                    {
-                        backgroundColor: isDishSelected ? '#9252AA' : '#F9E9FF',
-                        borderColor: isDishSelected ? '#9252AA' : '#F9E9FF',
-                    },
-                ]}
-                underlayColor="#9252AA"
-                activeOpacity={1}
-                disabled={!isDishSelected}
-            >
-                <View style={styles.buttonContent}>
-                    <Text
-                        style={[
-                            styles.continueButtonLeftText,
-                            { color: isDishSelected ? 'white' : '#343333' },
-                        ]}
-                    >
-                        Continue
+            <ScrollView>
+                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: "flex-start", flexGrow: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '900', color: 'black', marginTop: 5 }}>
+                        Select Cuisines
                     </Text>
-                    <Text
-                        style={[
-                            styles.continueButtonRightText,
-                            { color: isDishSelected ? 'white' : '#343333' },
-                        ]}
-                    >
-                        {selectedCount} Items | ₹ {selectedDishPrice}
-                    </Text>
-
+                    <FlatList
+                        data={cuisines}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item}
+                        numColumns={4}
+                        contentContainerStyle={styles.cuisineContainer}
+                    />
                 </View>
-            </TouchableHighlight>
+                <View style={{ flexDirection: 'row' }}>
+                    <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
+                </View>
 
-        </View>
+                <View style={{ paddingHorizontal: 12 }}>
+                    <FlatList
+                        data={mealList}
+                        keyExtractor={(item) => item.mealObject._id}
+                        renderItem={({ item }) => (
+                            <View style={{ marginVertical: 5 }}>
+                                {item.dish.length > 0 && (
+                                    <View style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', lineHeight: 15, paddingTop: 15 }}>{item.mealObject.name} ({item.dish.length})</Text>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                            <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
+                                                <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All</Text>
+
+                                            </TouchableOpacity>
+                                            <Image style={{ width: 9, height: 9, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image>
+                                        </View>
+
+                                    </View>
+                                )}
+
+                                {expandedCategories.includes(item.mealObject._id) ? (
+                                    // Show all dishes if this category is expanded
+                                    <FlatList
+                                        data={item.dish}
+                                        keyExtractor={(dish) => dish._id}
+                                        renderItem={renderDishItem}
+                                        numColumns={3} // Set numColumns to 3 for the grid layout
+                                        contentContainerStyle={styles.dishContainer}
+                                        columnWrapperStyle={styles.dishColumnWrapper}
+                                    />
+                                ) : (
+                                    // Show only the first 3 dishes if this category is collapsed
+                                    <FlatList
+                                        data={item.dish.slice(0, 3)}
+                                        keyExtractor={(dish) => dish._id}
+                                        renderItem={renderDishItem}
+                                        numColumns={3}
+                                        contentContainerStyle={styles.dishContainer}
+                                        columnWrapperStyle={styles.dishColumnWrapper}
+                                    />
+                                )}
+
+
+                            </View>
+
+                        )}
+                    />
+                </View>
+            </ScrollView>
+
+            <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
+                <TouchableHighlight
+                    onPress={() => addDish(selectedDishPrice)}
+                    style={[
+                        styles.continueButton,
+                        {
+                            backgroundColor: isDishSelected ? '#9252AA' : '#F9E9FF',
+                            borderColor: isDishSelected ? '#9252AA' : '#F9E9FF',
+                        },
+                    ]}
+                    underlayColor="#9252AA"
+                    activeOpacity={1}
+                    disabled={!isDishSelected}
+                >
+                    <View style={styles.buttonContent}>
+                        <Text
+                            style={[
+                                styles.continueButtonLeftText,
+                                { color: isDishSelected ? 'white' : '#343333' },
+                            ]}
+                        >
+                            Continue
+                        </Text>
+                        <Text
+                            style={[
+                                styles.continueButtonRightText,
+                                { color: isDishSelected ? 'white' : '#343333' },
+                            ]}
+                        >
+                            {selectedCount} Items | ₹ {selectedDishPrice}
+                        </Text>
+
+                    </View>
+                </TouchableHighlight>
+
+            </View>
+            <View>
+                <OrderWarning visible={isWarningVisibleForDishCount} title={"Only 12 dishes can be selected!!!"} buttonText={"ERROR"}
+                    onClose={handleWarningClose} />
+
+                <OrderWarning visible={isWarningVisibleForCuisineCount} title={"Only 3 Cuisines can be selected!!!"} buttonText={"ERROR"}
+                    onClose={handleWarningClose} />
+            </View>
         </View>
 
     )

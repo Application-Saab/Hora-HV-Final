@@ -1,5 +1,3 @@
-
-
 export const BASE_URL="https://horaservices.com:3000";
 export const OTP_GENERATE_END_POINT= "/api/user/otp_generate";
 export const API_SUCCESS_CODE=200;
@@ -9,7 +7,7 @@ export const GET_ORDER_HISTORY_ENDPOINT="/api/order/user_order_list"
 export const GET_CUISINE_ENDPOINT="/api/configuration/admin_configuration_list"
 export const GET_MEAL_DISH_ENDPOINT="/api/user/getMealDish"
 export const GET_ADDRESS_LIST="/api/users/address/address_list"
-export const SAVE_LOCATION_ENDPOINT="/api/users/address/edit"
+export const SAVE_LOCATION_ENDPOINT="/api/users/address/editByUserID"
 export const CONFIRM_ORDER_ENDPOINT = "/api/order/add"
 export const OTP_VERIFY_ENDPOINT = "/api/user/otp_verify"
 export const USER_DETAILS_ENDPOINT = "/api/setting/details"
@@ -20,6 +18,8 @@ export const ORDER_CANCEL = "/api/order/cancelOrder"
 export const ORDER_INGREDIENTS = "/api/order/getIngredientByOrder"
 export const PAYMENT = "/api/payment_gateway/payment"
 export const PAYMENT_STATUS = "/api/payment_gateway/status"
+export const GET_DECORATION_CAT_ID = "/api/meals/idByTag?tag="
+export const GET_DECORATION_CAT_ITEM = "/api/Decoration/searchByTag/"
 
 
 

@@ -8,7 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import OrderWarning from '../dialog/OrderWarning';
 import InfoModal from '../dialog/info';
 import CustomHeader from '../../components/CustomeHeader';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const SelectDate = ({ navigation, route }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -41,9 +41,19 @@ const SelectDate = ({ navigation, route }) => {
     const isAppliancesSelected = selectedTab === 'Appliances';
     const isIngredientsSelected = selectedTab === 'Ingredients';
 
-
-
-
+    useEffect(() =>{
+        AsyncStorage.getItem("selectedDate").then((sDate) => {
+            if (sDate != null) {
+              setSelectedDate(new Date(sDate));
+            }
+          });
+          AsyncStorage.getItem("selectedTime").then((sTime) => {
+            if (sTime != null) {
+             
+              setSelectedTime(new Date(sTime));
+            }
+         });
+    },[])
 
     const checkIsDateValid = () => {
         const currentTime = new Date();
@@ -93,6 +103,7 @@ const SelectDate = ({ navigation, route }) => {
 
     const handleDateChange = (event, date) => {
         if (date !== undefined) {
+            AsyncStorage.setItem("selectedDate", date.toString());
             setSelectedDate(date);
             setShowDatePicker(false);
 
@@ -114,6 +125,7 @@ const SelectDate = ({ navigation, route }) => {
 
     const handleTimeChange = (event, time) => {
         if (time !== undefined) {
+            AsyncStorage.setItem("selectedTime", time.toString());
             setSelectedTime(time);
             setShowTimePicker(false);
 
@@ -326,7 +338,7 @@ const SelectDate = ({ navigation, route }) => {
             }
         }
 
-        console.warn(totalIngredients)
+      
         return Object.values(totalIngredients);
     };
 
@@ -342,8 +354,13 @@ const SelectDate = ({ navigation, route }) => {
             }
         }
 
-        return totalBurnerCount;
-    };
+        if (totalBurnerCount <= 6)
+        return 2;
+    else if (totalBurnerCount > 6 && totalBurnerCount < 10)
+        return 3;
+    else if (totalBurnerCount > 10)
+        return 4;
+};
 
 
 
@@ -417,7 +434,8 @@ const SelectDate = ({ navigation, route }) => {
             navigation.navigate("ConfirmDishOrder", {
                 "selectedDate": selectedDate, "selectedTime": selectedTime, "peopleCount": peopleCount,
                 "burnerCount": burnerCount,
-                "selectedDishes": data
+                "selectedDishes": data, "items":route.params.selectedDishes
+
             })
         }
     }

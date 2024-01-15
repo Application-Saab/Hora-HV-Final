@@ -42,6 +42,7 @@ const Profile = ({ navigation }) => {
         setName(userData.data.name || '');
         setMobileNumber(userData.data.phone || '');
         setEmail(userData.data.email || '');
+        AsyncStorage.setItem("userID", userData.data._id);
       } else {
         const errorData = await response.json();
         console.log(`Error fetching user account: ${errorData.message}`);

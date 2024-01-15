@@ -3,9 +3,37 @@ import { StyleSheet, Text, View, Image, Dimensions } from 'react-native';
 
 const OrderDetailsMenu = ({ OrderMenu }) => {
   var Appetizer = [];
+  var Breads = [];
+  var Breakfast = [];
+  var Dessert = [];
+  var Maincourse = [];
+  var Mocktails = [];
+  var SaladPapad = [];
+  var SoupBeverages = [];
   OrderMenu.forEach((item) => {
     if (item.mealId[0].name === 'Appetizer') {
       Appetizer.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Breads, Rice and Raita') {
+      Breads.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Breakfast') {
+      Breakfast.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Dessert') {
+      Dessert.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Main course') {
+      Maincourse.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Mocktails') {
+      Mocktails.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Salad & Papad') {
+      SaladPapad.push({ name: item.name, image: item.image, price: item.price });
+    }
+    else if (item.mealId[0].name === 'Soups & Beverages') {
+      SoupBeverages.push({ name: item.name, image: item.image, price: item.price });
     }
   });
   return (
@@ -31,8 +59,156 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
 
         </View>
       )}
+      {Breads.length > 0 && (
+        <View style={styles.foodItemsContainer}>
+          <View>
+            <Text style={styles.menuCat}>{'Breads, Rice and Raita'} {"(" + Breads.length + ")"}</Text>
+          </View>
+          <View style={styles.foodItemsSecContainer}>
+            {Breads.map((item, index) => (
+              <View key={index} style={styles.foodItem}>
+                <View style={styles.foodItemImageContainer}>
+                  <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+                </View>
+                <View style={styles.foodItemDetails}>
+                <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+                </View>
+              </View>
+            ))}
+          </View>
+
+        </View>
+      )}
+      {Breakfast.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Breakfast'} {"(" + Breakfast.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {Breakfast.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
+  {Dessert.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Dessert'} {"(" + Dessert.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {Dessert.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
+  {Maincourse.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Main course'} {"(" + Maincourse.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {Maincourse.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
+  {Mocktails.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Mocktails'} {"(" + Mocktails.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {Mocktails.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
+  {SaladPapad.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Salad & Papad'} {"(" + SaladPapad.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {SaladPapad.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
+  {SoupBeverages.length > 0 && (
+    <View style={styles.foodItemsContainer}>
+      <View>
+        <Text style={styles.menuCat}>{'Soups & Beverages'} {"(" + SoupBeverages.length + ")"}</Text>
+      </View>
+      <View style={styles.foodItemsSecContainer}>
+        {SoupBeverages.map((item, index) => (
+          <View key={index} style={styles.foodItem}>
+            <View style={styles.foodItemImageContainer}>
+              <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+            </View>
+            <View style={styles.foodItemDetails}>
+            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+
+            </View>
+          </View>
+        ))}
+      </View>
+
+    </View>
+  )}
     </View>
   );
+  
 };
 const windowWidth = Dimensions.get('window').width;
 

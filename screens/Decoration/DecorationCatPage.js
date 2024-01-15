@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, Pressable, Dimensions, ImageBackground, TouchableOpacity, TouchableHighlight } from 'react-native';
 import CustomHeader from '../../components/CustomeHeader';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
+import { BASE_URL, GET_DECORATION_CAT_ID, GET_DECORATION_CAT_ITEM } from '../../utils/ApiConstants';
+import axios from 'axios';
 const DecorationCatPage = ({ route, navigation }) => {
-    const { category } = route.params;
+    const { subCategory } = route.params;
     const bottomSheetRef = useRef(null);
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [selectedProductPrice, setSelectedProductPrice] = useState(0)
@@ -12,25 +13,20 @@ const DecorationCatPage = ({ route, navigation }) => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [isProductSelected, setIsProductSelected] = useState(false);
     const [itemDetail, setItemDetail] = useState(null)
-    const [catalogueData, setCatalogueData] = useState([
-        { id: 1, name: 'Red and Yellow Balloon Decoration', image: require('../../assets/decimage1.jpg'), price: 200 },
-        { id: 2, name: 'Unicorn Theme Decoration', image: require('../../assets/ballon-dec2.jpg'), price: 300 },
-        { id: 3, name: 'Car Decoration Theme', image: require('../../assets/ballon-dec3.jpg'), price: 500 },
-        { id: 4, name: 'Red and Yellow Balloon Decoration', image: require('../../assets/decimage1.jpg'), price: 200 },
-        { id: 5, name: 'Unicorn Theme Decoration', image: require('../../assets/ballon-dec2.jpg'), price: 300 },
-        { id: 6, name: 'Car Decoration Theme', image: require('../../assets/ballon-dec3.jpg'), price: 500 },
-        { id: 7, name: 'Red and Yellow Balloon Decoration', image: require('../../assets/decimage1.jpg'), price: 200 },
-        { id: 8, name: 'Unicorn Theme Decoration', image: require('../../assets/ballon-dec2.jpg'), price: 300 },
-        { id: 9, name: 'Car Decoration Theme', image: require('../../assets/ballon-dec3.jpg'), price: 500 },
-    ]);
+    const [catId, setCatId] = useState("")
+    const [catalogueData, setCatalogueData] = useState([])
 
     const handleIncreaseQuantity = (item) => {
-        const isItemAlreadySelected = selectedProducts.some(product => product.id === item.id);
+        const isItemAlreadySelected = selectedProducts.some(
+            (product) => product._id === item._id
+        );
 
         if (isItemAlreadySelected) {
             // Decrease quantity (remove item)
-            const updatedProducts = selectedProducts.filter(product => product.id !== item.id);
-            const updatedTotalPrice = totalPrice - item.price;
+            const updatedProducts = selectedProducts.filter(
+                (product) => product._id !== item._id
+            );
+            const updatedTotalPrice = totalPrice - parseInt(item.price);
             setSelectedProducts(updatedProducts);
             setTotalPrice(updatedTotalPrice);
             setSelectedCount(updatedProducts.length);
@@ -38,13 +34,16 @@ const DecorationCatPage = ({ route, navigation }) => {
         } else {
             // Increase quantity (add item)
             const updatedProducts = [...selectedProducts, item];
-            const updatedTotalPrice = totalPrice + item.price;
+            const updatedTotalPrice = totalPrice + parseInt(item.price);
             setSelectedProducts(updatedProducts);
             setTotalPrice(updatedTotalPrice);
             setSelectedCount(updatedProducts.length);
             setIsProductSelected(true);
         }
     };
+
+
+
 
     const addDish = (selectedProducts, totalPrice) => {
         navigation.navigate('ProductDateSummary', { selectedProducts, totalPrice });
@@ -62,14 +61,46 @@ const DecorationCatPage = ({ route, navigation }) => {
     };
 
 
+    const getSubCatId = async () => {
+        try {
+            const response = await axios.get(BASE_URL + GET_DECORATION_CAT_ID + subCategory);
+            const categoryId = response.data.data._id;
+          
+            setCatId(categoryId);
+
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
+    };
+
+
+    const getSubCatItems = async () => {
+        try {
+            const response = await axios.get(BASE_URL + GET_DECORATION_CAT_ITEM + catId);
+            setCatalogueData(response.data.data);
+
+
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
+    };
+
+    useEffect(() => {
+        getSubCatId();
+    }, [])
+
+    useEffect(() => {
+        getSubCatItems();
+    }, [catId])
+
+
     const RenderBottomSheetContent = () => (
         <View>
             <View style={{ paddingTop: 5, paddingRight: 5 }}>
-                {/* <Image source={{ uri: `https://horaservices.com/api/uploads/${itemDetail.image}` }} style={{ width: Dimensions.get('window').width * 0.9, height: 184, borderTopLeftRadius: 45, borderTopRightRadius: 45 }} /> */}
-                <Image source={itemDetail.image} style={{ width: Dimensions.get('window').width, height: 400, aspectRatio: 1, borderTopLeftRadius: 5, borderTopRightRadius: 5 }} />
+                <Image source={{ uri: `https://horaservices.com/api/uploads/${itemDetail.featured_image}` }} style={{ width: Dimensions.get('window').width, height: 400, aspectRatio: 1, borderTopLeftRadius: 5, borderTopRightRadius: 5 }} />
                 <Text style={{ color: '#1C1C1C', fontSize: 23, fontWeight: '800' }}>{itemDetail.name}</Text>
                 <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
-                <Text>{itemDetail.price}</Text>
+                <Text>₹ {itemDetail.price}</Text>
                 <Text style={{ color: '#736F6F', fontSize: 9, fontWeight: '400', opacity: 0.9 }}>{itemDetail.description}</Text>
                 <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
             </View>
@@ -80,28 +111,29 @@ const DecorationCatPage = ({ route, navigation }) => {
 
     return (
         <View style={styles.screenContainer}>
-            <CustomHeader title={"Catalouge"} navigation={navigation} />
             <ScrollView>
-              
+                <CustomHeader title={"Home"} navigation={navigation} />
+
                 <View style={styles.container}>
                     <View style={styles.decContainer}>
                         {catalogueData.map((item) => (
                             <View style={{ width: Dimensions.get('window').width * 0.46 }}>
                                 <ImageBackground
                                     source={
-                                        selectedProducts.some(product => product.id === item.id)
-                                            ? require('../../assets/Rectanglepurple.png')
+                                        selectedProducts.some((product) => product._id === item._id)
+                                        ? require('../../assets/Rectanglepurple.png')
                                             : require('../../assets/rectanglewhite.png')
                                     }
-                                    style={{ width: "100%", height: 232, marginTop: 10 }}
+                                    style={{ width: "100%", height: 240, marginTop: 10 }}
                                     imageStyle={{ borderRadius: 16 }}
                                 >
+
                                     <TouchableOpacity
                                         onPress={() => openBottomSheet(item, bottomSheetRef)} activeOpacity={1}
-                                        key={item.id}
+                                        key={item._id}
                                         style={styles.decImageContainer}
                                     >
-                                        <Image source={item.image} style={styles.decCatimage} />
+                                        <Image source={{ uri: `https://horaservices.com/api/uploads/${item.featured_image}` }} style={styles.decCatimage} />
 
                                     </TouchableOpacity>
                                     <Text
@@ -116,7 +148,7 @@ const DecorationCatPage = ({ route, navigation }) => {
                                             marginTop: 0,
                                             paddingLeft: 3,
                                             marginBottom: 2,
-                                            color: selectedProducts.some(product => product.id === item.id)
+                                            color: selectedProducts.some(product => product._id === item._id)
                                                 ? 'white' : '#9252AA',
                                         }}
                                     >
@@ -129,7 +161,7 @@ const DecorationCatPage = ({ route, navigation }) => {
                                             fontWeight: '700',
                                             fontSize: 17,
                                             opacity: 0.9,
-                                            color: selectedProducts.some(product => product.id === item.id)
+                                            color: selectedProducts.some(product => product._id === item._id)
                                                 ? 'white' : '#9252AA',
                                         }}> ₹ {item.price}</Text>
 
@@ -137,9 +169,9 @@ const DecorationCatPage = ({ route, navigation }) => {
                                         <TouchableOpacity onPress={() => handleIncreaseQuantity(item)}>
                                             <Image
                                                 source={
-                                                    selectedProducts.some(product => product.id === item.id)
-                                                        ? require('../../assets/minus.png')
-                                                        : require('../../assets/plus.png')
+                                                    selectedProducts.some((product) => product._id === item._id)
+                                                        ? require("../../assets/minus.png")
+                                                        : require("../../assets/plus.png")
                                                 }
                                                 style={{ width: 21, height: 21 }}
                                             />
@@ -153,6 +185,8 @@ const DecorationCatPage = ({ route, navigation }) => {
                         ))}
                     </View>
                 </View>
+
+
 
 
             </ScrollView>
@@ -241,8 +275,8 @@ const styles = StyleSheet.create({
         padding: 5
     },
     decCatimage: {
-        width: '100%', // Set to 100% width
-        height: '100%',
+        width: 155, // Set to 100% width
+        height: 150,
         borderRadius: 10, // Optional: Add border-radius for rounded corners
     },
     decImageText: {

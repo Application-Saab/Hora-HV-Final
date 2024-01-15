@@ -5,26 +5,27 @@ import CustomHeader from '../../components/CustomeHeader';
 
 const Home = ({ navigation }) => {
   const [service, setService] = useState([
-    { id: '1', image: require('../../assets/Birthday_dec_cat.jpg'), name: 'Decoration', openLink: 'DecorationPage' },
-    { id: '2', image: require('../../assets/first_night_cat_dec.jpg'), name: 'Chef for Party', openLink: 'CreateOrder' },
-    { id: '3', image: require('../../assets/aniversary_Cat_Dec.jpg'), name: 'Hospitality Services', openLink: 'CreateOrder' },
-    { id: '4', image: require('../../assets/kids_birthday_decoration.jpg'), name: 'Food Delivery', openLink: 'CreateOrder' },
-    { id: '5', image: require('../../assets/baby-shower-dec-cat.jpg'), name: 'Gift & Party Supplies', openLink: 'CreateOrder' },
-    { id: '6', image: require('../../assets/welcome_baby_dec.jpg'), name: 'Entertainment', openLink: 'CreateOrder' },
+    { id: '1', image: require('../../assets/decoration.png'), name: 'Decoration', openLink: 'DecorationPage', category: "decoration" },
+    { id: '2', image: require('../../assets/chefforparty.png'), name: 'Chef for Party', openLink: 'CreateOrder', category: "chef" },
+    { id: '3', image: require('../../assets/hospitality-service.png'), name: 'Hospitality Services', openLink: 'DecorationCatPage', category: "hospitalityService" },
+    { id: '4', image: require('../../assets/fooddeliveryhome.png'), name: 'Food Delivery', openLink: 'foodDelivery', category: "foodDelivery" },
+    { id: '5', image: require('../../assets/gift.png'), name: 'Gift & Party Supplies', openLink: 'DecorationPage', category: "gift" },
+    { id: '6', image: require('../../assets/entainment.png'), name: 'Entertainment', openLink: 'CreateOrder', category: "enterntainment" },
   ]);
 
-  const openCatItems = (openLink) => {
-    navigation.navigate(openLink);
+  const openCat = (item) => {
+    navigation.navigate(item.openLink, { category: item.category });
+
   };
 
   const [currentAddress, setCurrentAddress] = useState(null);
 
   const bookNowData = [
-    { id: '1', image: require('../../assets/homebanner1.png'), text: "Book Decorations for your Events" },
-    { id: '2', image: require('../../assets/homebanner2.png'), text: "Chef for party - Food by Top Chef at just ₹80 / Person" },
-    { id: '3', image: require('../../assets/homebanner3.png'), text: "Food Delivery - Starting at just Rs 300 per person with multiple dish options" },
-    { id: '4', image: require('../../assets/homebanner4.png'), text: "Waiter/Cleaner/Helper - at just Rs 650" },
-    { id: '5', image: require('../../assets/homebanner5.png'), text: "Explore Our Various Service" }
+    { id: '1', image: require('../../assets/homebanner1.png'), text: "Book Decorations for your Events", openLink: "DecorationPage", category: "decoration" },
+    { id: '2', image: require('../../assets/homebanner2.png'), text: "Chef for party - Food by Top Chef at just ₹80 / Person", openLink: "CreateOrder", category: "chef" },
+    { id: '3', image: require('../../assets/homebanner3.png'), text: "Food Delivery - Starting at just Rs 300 per person with multiple dish options", openLink: "foodDelivery", category: "hospitalityService" },
+    { id: '4', image: require('../../assets/homebanner4.png'), text: "Waiter/Cleaner/Helper - at just Rs 650", openLink: "whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!", category: "foodDelivery" },
+    { id: '5', image: require('../../assets/homebanner5.png'), text: "Explore Our Various Service", openLink: "whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!", category: "enterntainment" }
   ];
 
   const popularDishes = [
@@ -64,10 +65,10 @@ const Home = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.decContainer}>
-        {service.map(({ image, name, openLink }, index) => (
-          <TouchableOpacity onPress={() => openCatItems(openLink)} style={{ width: "31%", marginBottom: 6 }}>
-              <Image source={image} style={styles.decCatimage} />
-              <Text style={{ fontSize: 11, textAlign: 'center', fontWeight: '600', paddingTop: 5, color: "#000", height: 22 }}>{name}</Text>
+        {service.map((item, index) => (
+          <TouchableOpacity onPress={() => openCat(item)} style={{ width: "31%", marginBottom: 6 }}>
+            <Image source={item.image} style={styles.decCatimage} />
+            <Text style={{ fontSize: 11, textAlign: 'center', fontWeight: '600', paddingTop: 5, color: "#000", height: 22 }}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -112,7 +113,7 @@ const Home = ({ navigation }) => {
                   style={styles.hwicon}
                 />
                 <Text style={styles.hwheading}>Select Service</Text>
-                <Text style={styles.hwtext}>Select from the wide range of cuisines & dishes</Text>
+                <Text style={styles.hwtext}>Select from the wide range of services and dishes</Text>
               </View>
             </ImageBackground>
           </View>

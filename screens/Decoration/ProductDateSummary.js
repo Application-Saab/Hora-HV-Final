@@ -368,7 +368,7 @@ const ProductDateSummary = ({ route, navigation }) => {
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
-                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice * .3}</Text>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {parseFloat(totalPrice * 0.3).toFixed(1)}</Text>
                             </View>
                             <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
                                 <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
@@ -380,7 +380,8 @@ const ProductDateSummary = ({ route, navigation }) => {
                                 <View>
                                     <View key={product.id} style={styles.productContainer}>
                                         <View>
-                                            <Image source={product.image} style={styles.productImage} />
+                                            <Image source={{ uri: `https://horaservices.com/api/uploads/${product.featured_image}` }} style={styles.productImage} />
+
                                         </View>
                                         <View style={{ width: '50%' }}>
                                             <Text style={styles.productName}>{product.name}</Text>
@@ -458,8 +459,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        marginTop: 30,
-        paddingHorizontal: 30
+        marginTop: 20,
+        paddingLeft: 20,
+        paddingRight:30,
     },
     productContainer: {
         width: '100%',
@@ -474,7 +476,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     productName: {
-        fontSize: 16,
+        fontSize: 12,
         fontWeight: '600',
         marginTop: 10,
     },
@@ -483,16 +485,16 @@ const styles = StyleSheet.create({
         color: '#555',
     },
     productPrice: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#555',
     },
     textArea: {
-        width: '80%',
-        height: 60,
+        width: '100%',
+        height: 80,
         borderWidth: 1,
         borderColor: '#ddd',
-        borderRadius: 3,
-        padding: 2,
+        borderRadius: 10,
+        paddingLeft: 8,
         marginTop: 0,
         marginBottom: 20
     },

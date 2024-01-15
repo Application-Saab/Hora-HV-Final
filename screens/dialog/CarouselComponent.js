@@ -4,19 +4,15 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Linking } 
 
 const CarouselComponent = ({ data, reviewData, navigation }) => {
 
+  
   const handelpage = (item) => {
-    if (item.id === '3') {
+    console.log("item",item.openLink)
+    if (item.id === '5') {
       // Redirect to WhatsApp link for id 3
       Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
-    } else if (item.id === '4') {
-      // Redirect to WhatsApp link for id 4
-      Linking.openURL('whatsapp://send?phone=+918884221487'); // Replace '987654321' with the actual phone number
     }
-    else if (item.id === '2') {
-      navigation.navigate('CreateOrder');
-    }
-    else {
-      // Redirect to CreateOrder page for other ids
+     else{
+      navigation.navigate(item.openLink, { category: item.category });
     }
   };
   const renderItem = ({ item }) => (
