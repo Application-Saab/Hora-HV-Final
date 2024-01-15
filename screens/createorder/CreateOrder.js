@@ -9,7 +9,7 @@ import { BASE_URL, GET_CUISINE_ENDPOINT, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOIN
 import OrderWarning from '../dialog/OrderWarning';
 import CustomHeader from '../../components/CustomeHeader';
 import { Directions } from 'react-native-gesture-handler';
-
+import Loader from '../../components/Loader';
 const CreateOrder = ({ navigation }) => {
     const [selected, setSelected] = useState('veg');
     const [cuisines, setCuisines] = useState([]);
@@ -28,7 +28,7 @@ const CreateOrder = ({ navigation }) => {
     const [isVegSelected, setIsVegSelected] = useState(true);
     const [isDishSelected, setIsDishSelected] = useState(false);
     const [isPopupVisible, setPopupVisible] = useState(false);
-
+    const [loading , setLoading] = useState(true)
     const [isWarningVisibleForDishCount, setWarningVisibleForDishCount] = useState(false);
     const [isWarningVisibleForCuisineCount, setWarningVisibleForCuisineCount] = useState(false);
 
@@ -44,6 +44,7 @@ const CreateOrder = ({ navigation }) => {
     useEffect(() => {
         const fetchCuisineData = async () => {
             try {
+               
                 const url = BASE_URL + GET_CUISINE_ENDPOINT;
                 const requestData = {
                     type: "cuisine"
@@ -60,6 +61,7 @@ const CreateOrder = ({ navigation }) => {
             } catch (error) {
                 console.log('Error Fetching Data:', error.message);
             }
+           
         };
         fetchCuisineData();
     }, []);
@@ -150,6 +152,7 @@ const CreateOrder = ({ navigation }) => {
     };
     const fetchMealBasedOnCuisine = async () => {
         try {
+            setLoading(true);
             const url = BASE_URL + GET_MEAL_DISH_ENDPOINT;
             const is_dish = isNonVegSelected ? 0 : 1
             const requestData = {
@@ -166,6 +169,9 @@ const CreateOrder = ({ navigation }) => {
             }
         } catch (error) {
             console.log('Error Fetching Data:', error.message);
+        }
+        finally {
+            setLoading(false); // Set loading to false when the API request is completed
         }
     }
     //get call to fetch meal based on cuisine.
@@ -428,7 +434,14 @@ const CreateOrder = ({ navigation }) => {
                 <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
             </View>
             <ScrollView>
-                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: "flex-start", flexGrow: 1 }}>
+                {loading ? (
+                    <View style={styles.loaderContainer}>
+                    <Loader loading={loading} />
+                </View>
+                ) 
+                : (
+                    <View>
+                         <View style={{ marginLeft: 20, marginRight: 20, justifyContent: "flex-start", flexGrow: 1 }}>
                     <Text style={{ fontSize: 14, fontWeight: '900', color: 'black', marginTop: 5 }}>
                         Select Cuisines
                     </Text>
@@ -492,6 +505,10 @@ const CreateOrder = ({ navigation }) => {
                         )}
                     />
                 </View>
+                    </View>
+                )
+                }
+               
             </ScrollView>
 
             <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>

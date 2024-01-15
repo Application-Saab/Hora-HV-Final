@@ -19,6 +19,8 @@ import DrawerNavigation from '../components/DrawerNavigation';
 import OrderDetails from '../screens/orderdetails/OrderDetails';
 import DecorationPage from '../screens/Decoration/DecorationPage';
 import foodDelivery from '../screens/foodDelivery/foodDelivery';
+import HospitalityService from '../screens/hospitalityservice/HospitalityService';
+import gifts from '../screens/gifts/gifts';
 const Stack = createNativeStackNavigator();
 
 
@@ -29,9 +31,8 @@ const StackNavigation = () => {
       screenOptions={{
         header: ({ route }) => { },
       }}
-      initialRouteName='DrawerNavigator'
-    >
-      
+      initialRouteName='Login'
+    > 
       <Stack.Screen name="DrawerNavigator" component={DrawerNavigation} />
       <Stack.Screen name="MyAccount" component={MyAccount} options={{ headerShown: true }} />
       <Stack.Screen name="Splash" component={Splash} options={{ headerShown: true }} />
@@ -47,6 +48,9 @@ const StackNavigation = () => {
       <Stack.Screen name="DecorationPage" component={DecorationPage} options={{ headerShown: true }} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} options={{ headerShown: true }} />
       <Stack.Screen name="foodDelivery" component={foodDelivery} options={{headerShown:true}}/>
+      <Stack.Screen name="Hospitality Services" component={HospitalityService} options={{headerShown:true}}/>
+      <Stack.Screen name="Gifts" component={gifts} options={{headerShown:true}}/>
+
     </Stack.Navigator>
   );
 };

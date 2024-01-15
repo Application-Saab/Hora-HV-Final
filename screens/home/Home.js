@@ -7,9 +7,9 @@ const Home = ({ navigation }) => {
   const [service, setService] = useState([
     { id: '1', image: require('../../assets/decoration.png'), name: 'Decoration', openLink: 'DecorationPage', category: "decoration" },
     { id: '2', image: require('../../assets/chefforparty.png'), name: 'Chef for Party', openLink: 'CreateOrder', category: "chef" },
-    { id: '3', image: require('../../assets/hospitality-service.png'), name: 'Hospitality Services', openLink: 'DecorationCatPage', category: "hospitalityService" },
+    { id: '3', image: require('../../assets/hospitality-service.png'), name: 'Hospitality Services', openLink: 'HospitalityService', category: "hospitalityService" },
     { id: '4', image: require('../../assets/fooddeliveryhome.png'), name: 'Food Delivery', openLink: 'foodDelivery', category: "foodDelivery" },
-    { id: '5', image: require('../../assets/gift.png'), name: 'Gift & Party Supplies', openLink: 'DecorationPage', category: "gift" },
+    { id: '5', image: require('../../assets/gift.png'), name: 'Gift & Party Supplies', openLink: 'gifts', category: "gift" },
     { id: '6', image: require('../../assets/entainment.png'), name: 'Entertainment', openLink: 'CreateOrder', category: "enterntainment" },
   ]);
 
@@ -21,11 +21,13 @@ const Home = ({ navigation }) => {
   const [currentAddress, setCurrentAddress] = useState(null);
 
   const bookNowData = [
-    { id: '1', image: require('../../assets/homebanner1.png'), text: "Book Decorations for your Events", openLink: "DecorationPage", category: "decoration" },
-    { id: '2', image: require('../../assets/homebanner2.png'), text: "Chef for party - Food by Top Chef at just ₹80 / Person", openLink: "CreateOrder", category: "chef" },
-    { id: '3', image: require('../../assets/homebanner3.png'), text: "Food Delivery - Starting at just Rs 300 per person with multiple dish options", openLink: "foodDelivery", category: "hospitalityService" },
-    { id: '4', image: require('../../assets/homebanner4.png'), text: "Waiter/Cleaner/Helper - at just Rs 650", openLink: "whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!", category: "foodDelivery" },
-    { id: '5', image: require('../../assets/homebanner5.png'), text: "Explore Our Various Service", openLink: "whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!", category: "enterntainment" }
+     { id: '1', image: require('../../assets/homebanner1.png'), name: 'Decoration', text: "Book Decorations for your Events", openLink: 'DecorationPage', category: "decoration" },
+    { id: '2', image: require('../../assets/homebanner2.png'), name: 'Chef for Party',text: "Chef for party - Food by Top Chef at just ₹80 / Person", openLink: 'CreateOrder', category: "chef" },
+    { id: '3', image: require('../../assets/homebanner3.png'), name: 'Hospitality Services', text: "Waiter/Cleaner/Helper - at just Rs 650",  openLink: 'HospitalityService', category: "hospitalityService" },
+    { id: '4', image: require('../../assets/homebanner4.png'), name: 'Food Delivery', text: "Food Delivery - Starting at just Rs 300 per person with multiple dish options", openLink: 'foodDelivery', category: "foodDelivery" },
+    { id: '5', image: require('../../assets/homebanner5.png'), name: 'Gift & Party Supplies',text: "Buy Gifts to Surprise", openLink: 'gifts', category: "gifts" },
+    { id: '6', image: require('../../assets/homebanner5.png'), name: 'Entertainment', text: "Entertainment", openLink: 'CreateOrder', category: "enterntainment" },
+
   ];
 
   const popularDishes = [

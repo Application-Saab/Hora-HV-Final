@@ -29,9 +29,7 @@ const Contact = ({ navigation }) => {
     return (
         <ScrollView>
             <CustomHeader title={"Contact"} navigation={navigation} />
-
             <View style={styles.container}>
-
                 <View>
                     <Image source={require('../../assets/contausimage.png')} style={{
                         width: 339,

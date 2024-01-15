@@ -232,6 +232,11 @@ const ProductDateSummary = ({ route, navigation }) => {
         return isTimeBetweenRange
     }
 
+    
+    const contactUsRedirection = () =>{
+        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
+    }
+
 
     const isOrderValid = isTimeValid && isDateValid > 0;
 
@@ -410,7 +415,7 @@ const ProductDateSummary = ({ route, navigation }) => {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 12 }}>
                     <Text style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>Need more info?</Text>
-                    <TouchableOpacity activeOpacity={1}>
+                    <TouchableOpacity activeOpacity={1}  onPress={contactUsRedirection}>
                         <View style={{ marginLeft: 5, backgroundColor: '#E8E8E8', borderRadius: 18, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'center', width: 96, height: 28 }}>
                             <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500' }}>Contact Us</Text>
                         </View>

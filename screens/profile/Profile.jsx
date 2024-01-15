@@ -69,6 +69,14 @@ const Profile = ({ navigation }) => {
     await AsyncStorage.setItem('isLoggedIn', 'false');
     await AsyncStorage.removeItem('mobileNumber');
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('City');
+    await AsyncStorage.removeItem('State');
+    await AsyncStorage.removeItem('Pincode');
+    await AsyncStorage.removeItem('Locality');
+    await AsyncStorage.removeItem('Address');
+    await AsyncStorage.removeItem('userID');
+    await AsyncStorage.removeItem('selectedDate');
+    await AsyncStorage.removeItem('selectedTime');
     navigation.replace('Login');
   };
 

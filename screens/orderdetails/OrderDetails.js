@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Button , Linking } from 'react-native';
+import { StyleSheet, Text, View, Image, Button , Linking , Dimensions} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OrderDetailsSection from '../../components/orderDetailsSection';
-import OrderDetailsChef from '../../components/OrderDetailsChef';
-import { ScrollView, TextInput, TouchableOpacity, TouchableHighlight, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, TextInput, TouchableOpacity ,TouchableHighlight, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import OrderDetailsMenu from '../../components/OrderDetailsMenu';
 import OrderDetailsIngre from '../../components/OrderDetailsIngre';
 import CustomHeader from '../../components/CustomeHeader';
@@ -19,6 +18,8 @@ const OrderDetails = ({ navigation, route }) => {
     const [OrderAppl, setOrderAppl] = useState([]);
     const [orderIngredients, setOrderIngredients] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
+   
+
 
     const handleShareMenu = () => {
         console.log("ShareMenuWithGuest")
@@ -69,7 +70,7 @@ const OrderDetails = ({ navigation, route }) => {
         setSelectedTab(tabNumber);
     };
 
-    const handlePage = () => {
+    const contactUsRedirection = () => {
         Linking.openURL('whatsapp://send?phone=+918982321487&text=I%20wanted%20to%20Share%20feedback%20of%20your%20service');
     }
 
@@ -113,7 +114,7 @@ const OrderDetails = ({ navigation, route }) => {
             try {
                 const response = await fetch(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId);
                 const responseData = await response.json();
-             
+               
                 setOrderDetail(responseData.data)
                 setOrderMenu(responseData.data.selecteditems)
                 setOrderAppl(responseData.data.orderApplianceIds)
@@ -145,18 +146,20 @@ const OrderDetails = ({ navigation, route }) => {
             }); // Replace with your API endpoint for updating user profile
 
             // Handle success response
-            console.log(response);
+       
             alert('Order cancelled successfully');
         } catch (error) {
             // Handle error response
             console.log('Error updating profile:', error);
         }
     }
-
+   
     return (
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <CustomHeader title={"Order Details"} navigation={navigation} />
+            {/* <Text style={{ color: "red" }}>{'aaaa'}{orderDetail.preperationtext}</Text> */}
+
             <View style={styles.container}>
                 <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} />
                 <View style={styles.tabSec}>
@@ -175,6 +178,7 @@ const OrderDetails = ({ navigation, route }) => {
 
                 </View> */}
                 <View>
+               
                 <View>
                     {orderDetail.order_status === 0 || orderDetail.order_status === 1 ||
                         orderDetail.order_status === 2 ? (
@@ -194,16 +198,16 @@ const OrderDetails = ({ navigation, route }) => {
                                 </Text>
                             </View>
                             <View>
-                                <Text style={styles.cancelorderboxtext2} onPress={handlePage}>Contact us for more help!</Text>
+                                <Text style={styles.cancelorderboxtext2} onPress={contactUsRedirection}>Contact us for more help!</Text>
                             </View>
                         </View>
                         :
                         ''
                     }
-                    <Text>{orderDetail.order_status}</Text>
+                
                     {orderDetail.order_status === 3 ?
                       
-                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={handlePage}>
+                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={contactUsRedirection}>
                             <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                                 <View><Text style={styles.ratingbuttonText}>Share you feedback with us</Text></View>
                             </View>
@@ -220,7 +224,7 @@ const OrderDetails = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
     scrollContainer: {
-        flexGrow: 1,
+        flex: 1,
     },
     container: {
         backgroundColor: '#F2F2F2',

@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, Image , Dimensions} from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions } from 'react-native';
 
 const OrderDetailsAppli = ({ OrderAppl }) => {
   return (
-    <View style={{ paddingTop: 20 , backgroundColor:"#fff" , paddingTop:20, paddingLeft:20 }}>
+    <View style={{ paddingTop: 20, backgroundColor: "#fff", paddingTop: 20, paddingLeft: 20 }}>
       <View>
         <Text style={{ fontWeight: "600", color: "#000", fontSize: 16 }}>Required Burners</Text>
         <Text style={{ color: "#969696", fontSize: 11, fontWeight: "500" }}>(Burners would be used at your location)</Text>
@@ -43,17 +43,24 @@ const OrderDetailsAppli = ({ OrderAppl }) => {
           <Text style={{ color: "#969696", fontSize: 11, fontWeight: "500" }}>{'(Keep these appliances ready at your location)'}</Text>
         </View>
         <View style={styles.foodItemsContainer}>
-          {OrderAppl.map((item, index) => (
-            <View key={index} style={styles.foodItem}>
-              <View style={styles.foodItemImageContainer}>
-                <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+          {OrderAppl.length > 0 ? (
+            OrderAppl.map((item, index) => (
+              <View key={index} style={styles.foodItem}>
+                <View style={styles.foodItemImageContainer}>
+                  <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
+                </View>
+                <View style={styles.foodItemDetails}>
+                  <Text style={styles.foodItemName}>{item.name}</Text>
+                </View>
               </View>
-              <View style={styles.foodItemDetails}>
-              <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
-              </View>
-            </View>
-
-          ))}
+            ))
+          ) : (
+            <>
+              <Text style={{paddingLeft:5, paddingRight:14, color:"#969696" ,fontWeight:"400"}}>No special appliances required.</Text>
+            <Text style={{paddingLeft:5, paddingRight:14, color:"#969696" ,fontWeight:"400"}}>Normally available utensils would be sufficient to complete your order.</Text>
+        
+            </>
+            )}
         </View>
 
       </View>
@@ -63,12 +70,12 @@ const OrderDetailsAppli = ({ OrderAppl }) => {
 const windowWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
-  foodItemsContainer:{
-    backgroundColor:"#fff",
-    paddingTop:20,
-    paddingLeft:20,
+  foodItemsContainer: {
+    backgroundColor: "#fff",
+    paddingTop: 20,
+    paddingLeft: 20,
   },
- 
+
   foodItemImageContainer: {
     width: 30,
     height: 30,
@@ -91,7 +98,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:"space-between",
+    justifyContent: "space-between",
     marginBottom: 5,
     marginRight: 3, // Add margin between food items
     borderWidth: 1,
@@ -102,7 +109,7 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     paddingLeft: 5,
     minHeight: 70,
-    width: '30%', // Set width to 30% for three items in a row
+    width: '48%', // Set width to 30% for three items in a row
   },
   foodItemImage: {
     flex: 1,

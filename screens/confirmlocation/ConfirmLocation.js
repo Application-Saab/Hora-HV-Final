@@ -144,8 +144,9 @@ const ConfirmLocation = ({ navigation, route }) => {
       handleSetLocation();
   
       console.log(data[0])
+      let matchedButton;
       // Prefill recipient, houseNumber, and address based on address2
-      if (data[0].address2) {
+      if (data[0] && data[0].address2) {
         const [prefillRecipient, prefillHouseNumber, prefillAddress] = data[0].address2.split(',');
         if (prefillAddress != NaN && prefillAddress != NaN) {
           setRecipient(prefillRecipient);
@@ -153,11 +154,9 @@ const ConfirmLocation = ({ navigation, route }) => {
           setAddress(prefillAddress);
           setCity(data[0].city);
         }
+        matchedButton = buttonData.find(button => button["label"].toLowerCase() === data[0]["title"]);
       }
-
       
-      console.log(data[0]["title"]);
-      const matchedButton = buttonData.find(button => button["label"].toLowerCase() === data[0]["title"]);
       if (matchedButton) {
         setSelectedButtonId(matchedButton.id);
       }

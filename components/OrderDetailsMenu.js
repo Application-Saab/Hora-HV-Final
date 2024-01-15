@@ -50,7 +50,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
                   <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
                 </View>
                 <View style={styles.foodItemDetails}>
-                <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+                <Text style={styles.foodItemName}>{item.name}</Text>
 
                 </View>
               </View>
@@ -71,7 +71,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
                   <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
                 </View>
                 <View style={styles.foodItemDetails}>
-                <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+                <Text style={styles.foodItemName}>{item.name}</Text>
 
                 </View>
               </View>
@@ -92,7 +92,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+            <Text style={styles.foodItemName}>{item.name}</Text>
 
             </View>
           </View>
@@ -113,7 +113,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+            <Text style={styles.foodItemName}>{item.name}</Text>
 
             </View>
           </View>
@@ -134,7 +134,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+            <Text style={styles.foodItemName}>{item.name}</Text>
 
             </View>
           </View>
@@ -155,7 +155,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+            <Text style={styles.foodItemName}>{item.name}</Text>
 
             </View>
           </View>
@@ -176,7 +176,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
+            <Text style={styles.foodItemName}>{item.name}</Text>
 
             </View>
           </View>
@@ -197,8 +197,7 @@ const OrderDetailsMenu = ({ OrderMenu }) => {
               <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }} style={styles.foodItemImage} />
             </View>
             <View style={styles.foodItemDetails}>
-            <Text style={styles.foodItemName}>{item.name.length > 14 ? `${item.name.substring(0, 16)}...` : item.name}</Text>
-
+            <Text style={styles.foodItemName}>{ item.name}</Text>
             </View>
           </View>
         ))}
@@ -220,8 +219,8 @@ const styles = StyleSheet.create({
   },
   foodItemsContainer:{
     backgroundColor:"#fff",
-    paddingTop:20,
-    paddingLeft:10,
+    paddingTop:10,
+    paddingLeft:12,
     paddingRight:10,
   },
   foodItemsSecContainer: {
@@ -230,7 +229,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 10,
-    paddingBottom:20,
     flexWrap: 'wrap', // Allow items to wrap into the next row
   },
   foodItem: {
@@ -243,22 +241,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc', // Specify the border color
     borderRadius: 10, // Add border radius for rounded corners
-    width: '32%', // Adjust width based on available space
-    paddingTop: 5,
-    paddingBottom: 5,
+    width: '48%', // Adjust width based on available space
+    paddingTop: 2,
+    paddingBottom: 2,
     paddingRight:5,
     paddingLeft:5,
     minHeight:70,
   },
   foodItemImageContainer: {
-    width: 40,
-    height: 35,
+    width: 50,
+    height: 50,
   },
   foodItemImage: {
     flex: 1,
     width: '100%',
     height: '100%',
-    borderRadius: 10,
+    borderRadius: 2,
   },
   foodItemDetails: {
     flex: 1,

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, ScrollView ,Text, View, Image, Button } from 'react-native';
+import { StyleSheet, ScrollView, Text, View, TouchableOpacity, Linking, TouchableHighlight ,Image } from 'react-native';
 import { BASE_URL, USER_DETAILS_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
 
 
-const HospitalityService = ({ navigation }) => {
+const gifts = ({ navigation }) => {
    
 
     return (
         <ScrollView>
-            <CustomHeader title={"Hospitality Services"} navigation={navigation} />
+            <CustomHeader title={"Gifts"} navigation={navigation} />
             <View style={styles.container}>   
             {'Coming Soon'} 
             </View>
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
    
 });
 
-export default HospitalityService
+export default gifts

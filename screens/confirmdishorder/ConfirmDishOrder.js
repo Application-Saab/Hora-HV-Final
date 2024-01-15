@@ -23,6 +23,8 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     const [currentAddress, setCurrentAddress] = useState('');
     const [showAllItems, setShowAllItems] = useState(false);
     const [count, setCount] = useState(0);
+    const [add, setAdd] = useState('');
+    const [addId, setAddId] = useState('')
     let cat = []
 
     const selectedMealList = Object.values(selectedDishData).map(dish => {
@@ -132,38 +134,50 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                Geocoder.from(latitude, longitude)
-                    .then((response) => {
-                        const address = response.results[0].formatted_address;
-                        setCompleteAddress(response.results[0].address_components);
-                        setCurrentAddress(address);
-                    })
-                    .catch((error) => console.warn('Error fetching location address:', error));
-            },
-            (error) => console.log('Error getting current location:', error),
-            { enableHighAccuracy: true, timeout: 100000000000000000, maximumAge: 1000000000000000000000000  }
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            Geocoder.from(latitude, longitude)
+              .then((response) => {
+                const address = response.results[0].formatted_address;
+                setCompleteAddress(response.results[0].address_components);
+                setAdd(address);
+                setCurrentAddress(address);
+              })
+              .catch((error) => console.warn('Error fetching location address:', error));
+          },
+          (error) => console.log('Error getting current location:', error),
+          { enableHighAccuracy: true, timeout: 100000000000000000, maximumAge: 1000000000000000000000000 }
         );
-    };
+      };
 
-    const fetchAddressesFromAPI = async () => {
+      const fetchAddressesFromAPI = async () => {
         try {
             const url = BASE_URL + GET_ADDRESS_LIST;
+            
             const requestData = {
                 page: '1'
             };
             const token = await AsyncStorage.getItem('token')
 
             console.warn(token)
+            
             const response = await axios.post(url, requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                     'authorization': token
                 },
             });
+            
+            
             if (response.status == API_SUCCESS_CODE) {
                 setAddresses(response.data.data.address)
+                
+                response.data.data.address.forEach(element => {
+                    if (element.address1 ===  add || element.address2 === add)
+                        
+                        setAddId(element._id)
+                });
             }
         } catch (error) {
             console.log('Error Fetching Data:', error.message);
@@ -176,7 +190,14 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     };
 
     const handleSelectAddress = (address) => {
-        console.log(address);
+        setAdd(address.address2)
+        addresses.forEach(element => {
+            if (element.address1 ===  add || element.address2 === add)
+                
+                setAddId(element._id)
+        });
+        console.log(addId);
+        console.log(address.address2)
         setCurrentAddress(address.address2);
         bottomSheetRef.current.close();
     };
@@ -201,12 +222,20 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     }
 
     const handleConfirmOrder = async (merchantTransactionId) => {
+        Object.values(selectedDishData).map((item) => cat.push(item.cuisineId[0]));
+        console.log(currentAddress)
+        addresses.forEach(element => {
+            if (element.address1 ===  add || element.address2 === add)
+                setAddId(element._id)
+        });
+
+        console.log(addId);
         try {
-            console.log("HandleConfirmOrder")
+            
             const message = await checkPaymentStatus(merchantTransactionId);
             const storedUserID = await AsyncStorage.getItem("userID");
-            const items = route.params.items.map(value => ({ [value]: value }))
-
+            const items = route.params.items.map(value => value)
+            
             if (message === 'PAYMENT_SUCCESS') {
                 const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
                 const requestData = {
@@ -216,10 +245,10 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     "type": 2,
                     "fromId": storedUserID,
                     "is_discount": "0",
-                    "addressId": "64a58e1c5fcdc03e14bfc171",
+                    "addressId": addId,
                     "order_date": selectedDate.toDateString(),
                     "no_of_burner": "",
-                    "categoryIds": ["63ee472c6f4f9c2af1da490b"],
+                    "categoryIds": cat,
                     "order_locality": "",
                     "total_amount": totalPrice,
                     "orderApplianceIds": [],
@@ -228,6 +257,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     "order_type": true,
                     "items": items
                 }
+                console.log(requestData)
                 const token = await AsyncStorage.getItem('token');
     
                 const response = await axios.post(url, requestData, {
@@ -244,19 +274,19 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         } catch (error) {
             console.log('Error Confirming Order:', error.message);
         }
+        console.log(cat);
     };
-
+    
     const checkPaymentStatus = async (merchantTransactionId) => {
         try {
             const storedUserID = await AsyncStorage.getItem('userID');
             const apiUrl = BASE_URL + PAYMENT_STATUS + '/' + merchantTransactionId;
-            console.log(apiUrl);
+            
     
             const pollInterval = 5000; // 5 seconds (adjust as needed)
             const pollingDuration = 300000; // 5 minutes
     
             const pollPaymentStatus = async () => {
-                console.log("Inside polling");
                 const startTime = Date.now();
     
                 while (Date.now() - startTime < pollingDuration) {
@@ -267,7 +297,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                             },
                         });
     
-                        console.log(response);
+                        
     
                         if (response.data && response.data.message) {
                             const message = response.data.message;
@@ -301,26 +331,28 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             throw error; // Rethrow the error for the caller to handle
         }
     };
+    
+    
 
     function getRandomNumber(min, max) {
         return Math.random() * (max - min) + min;
       }
 
-    
 
-      const onContinueClick = async () => {
+    const onContinueClick = async () => {
         
         const apiUrl = BASE_URL + PAYMENT;
-    
-        const storedUserID = await AsyncStorage.getItem("userID");
         
+        const storedUserID = await AsyncStorage.getItem("userID");
+        const phoneNumber = await AsyncStorage.removeItem('mobileNumber')
+        console.log(storedUserID)
         const randomInteger = Math.floor(getRandomNumber(1,100));
 
         let merchantTransactionId = storedUserID + randomInteger
         const requestData = {
         user_id: storedUserID,
         price: totalPrice / 5,
-        phone: 9120202020,
+        phone: phoneNumber,
         name: '',
         merchantTransactionId: merchantTransactionId
         };
@@ -350,7 +382,6 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         console.error('API error:', error);
       }
     }
-
     const addMore = () => {
         navigation.navigate('CreateOrder')
     }
@@ -363,7 +394,6 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const contactUsRedirection = () =>{
         Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
-
     }
 
     const changeLocation = async () => {
@@ -383,6 +413,8 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             AsyncStorage.setItem("Locality", locality)
           ]);
       
+          setAdd(address)
+          
           address = address + locality + city + state + pincode;
           setCurrentAddress(address);
           openBottomSheet();

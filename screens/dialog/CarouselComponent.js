@@ -6,15 +6,9 @@ const CarouselComponent = ({ data, reviewData, navigation }) => {
 
   
   const handelpage = (item) => {
-    console.log("item",item.openLink)
-    if (item.id === '5') {
-      // Redirect to WhatsApp link for id 3
-      Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
-    }
-     else{
+    console.log(item.openLink + item.category)
       navigation.navigate(item.openLink, { category: item.category });
     }
-  };
   const renderItem = ({ item }) => (
     <View style={styles.carouselItem}>
       {reviewData ? (

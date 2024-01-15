@@ -96,7 +96,7 @@ const Faq = ({ navigation }) => {
             <ScrollView>
                 <CustomHeader title={"Faq"} navigation={navigation} />
                 <View style={styles.container}>
-                    <Text style={{ color: "#9252AA", fontSize: 20, fontWeight: "600", paddingVertical: 10 }}>{'Top Questions'}</Text>
+                    <Text style={{ color: "#9252AA", fontSize: 20, fontWeight: "600", paddingVertical: 10 }}>{'TOP QUESTIONS'}</Text>
                     <View>
                         {faqData.map((item, index) => (
                             <View key={index} style={{ borderColor: "#D9D9D9", borderWidth: 1, marginVertical: 10, paddingHorizontal: 20, paddingVertical: 20, borderRadius: 10 }}>

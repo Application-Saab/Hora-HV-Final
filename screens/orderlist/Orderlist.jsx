@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Linking, View, StyleSheet, Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, Linking, View, StyleSheet, ActivityIndicator ,Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, ORDERLIST_ENDPOINT, GET_USER_DETAIL_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
 // import Share from 'react-native-share';
+import Loader from '../../components/Loader';
 
 
 const Orderlist = ({ navigation }) => {
@@ -11,17 +12,15 @@ const Orderlist = ({ navigation }) => {
     const [userId, setUserId] = useState('')
     const [invitedate, setInviteDate] = useState('')
     const [token, setToken] = useState('');
-
+    const [loading, setLoading] = useState(true);
     const handleOrderDetails = (e, a) => {
         navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a })
     }
 
-
-
-
     useEffect(() => {
         const fetchOrderList = async () => {
             try {
+                setLoading(true);
                 const userId = await AsyncStorage.getItem("userID");
                 console.log(userId);
                 const response = await fetch(BASE_URL + ORDERLIST_ENDPOINT, {
@@ -37,14 +36,19 @@ const Orderlist = ({ navigation }) => {
                 });
                 const responseData = await response.json();
 
+                console.log("responseData.data.order", responseData.data.order)
                 if (responseData && responseData.data && responseData.data.order) {
-                    setOrderData(responseData.data.order);
+                    const sortedOrders = responseData.data.order.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+                    setOrderData(sortedOrders);
                 } else {
                     console.log("No orders found======");
                     setOrderData([]); // Set an empty array if no orders are found
                 }
             } catch (error) {
                 console.log("Error fetching orders:", error);
+            }
+            finally {
+                setLoading(false); // Set loading to false when the API request is completed
             }
         };
 
@@ -128,11 +132,16 @@ const Orderlist = ({ navigation }) => {
 
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={styles.screenContainer}>
             <CustomHeader title={"Order History"} navigation={navigation} />
-
+         
             <View style={styles.container}>
-                {orderData.length > 0 && (
+                {loading ?(
+                     <View style={styles.loaderContainer}>
+                     <Loader loading={loading} />
+                 </View>
+                ):
+                orderData.length > 0 ? (
                     Object.keys(orderData).map((item, index) => {
                         return (
                             <View key={index}
@@ -219,15 +228,21 @@ const Orderlist = ({ navigation }) => {
                                     </View>
                                     <View >
                                         <View style={styles.ulclass}>
-                                            <View style={{ textAlign: "right", listStyle: "none" }}>
-                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 16, fontWeight: "600" }}>Total Payment</Text>
+                                           
+                                            <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
+                                            <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" , paddingLeft:13 }}>Total Amount</Text>
+                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
+                                                    {"₹" + "" + orderData[item].payable_amount + ".00"}</Text>
                                             </View>
-                                            <View style={{ textAlign: "right", listStyle: "none", paddingTop: 24 }}>
-                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 16, fontWeight: "600", textAlign: "right" }}>
+                                          
+                                            <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
+                                            <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" }}>Balance Amount</Text>
+
+                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
                                                     {"₹" + "" + orderData[item].payable_amount + ".00"}</Text>
                                             </View>
                                         </View>
-
+                                      
                                     </View>
                                 </View>
                                 <View style={styles.sec2}>
@@ -251,45 +266,58 @@ const Orderlist = ({ navigation }) => {
                             </View>
                         )
                     })
-                )}
-                {orderData.length === 0 && (
-                    <View style={styles.noOrdersContainer}>
-                         <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" }}>You don't have any orders yet. Please place the order to make your party memorable</Text>
-                        <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
-                            <TouchableHighlight
-                            onPress={() => navigation.navigate('Home')}
-                                style={
-                                    styles.continueButton
-                                }
-                            >
-                                <View style={styles.buttonContent}>
-                                    <Text
-                                        style={
-                                            styles.continueButtonLeftText
-                            }
-                                    >
-                                        Continue
-                                    </Text>
-
-
-                                </View>
-                            </TouchableHighlight>
-
+                )
+                :(
+                    orderData.length === 0 && (
+                        <View style={styles.noOrdersContainer}>
+                            <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" }}>You don't have any orders yet. Please place the order to make your party memorable</Text>
+                            <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
+                                <TouchableHighlight
+                                    onPress={() => navigation.navigate('Home')}
+                                    style={
+                                        styles.continueButton
+                                    }
+                                >
+                                    <View style={styles.buttonContent}>
+                                        <Text
+                                            style={
+                                                styles.continueButtonLeftText
+                                            }
+                                        >
+                                            Continue
+                                        </Text>
+    
+    
+                                    </View>
+                                </TouchableHighlight>
+    
+                            </View>
                         </View>
-                    </View>
-                )}
+                    )
+                )
+                }
+               
             </View>
         </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
+    screenContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
     container: {
         paddingLeft: 20,
         paddingRight: 20,
         paddingTop: 20,
         backgroundColor: 'white'
-
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor:"red",
     },
     sec: {
         display: "flex",
@@ -371,7 +399,8 @@ const styles = StyleSheet.create({
         paddingBottom: 0,
         paddingTop: 5,
         paddingLeft: 0,
-        paddingRight: 0
+        paddingRight: 0,
+        textAlign:"right",
     },
     ulclass1: {
         marginTop: 8,
