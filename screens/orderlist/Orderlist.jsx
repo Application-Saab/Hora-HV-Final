@@ -232,14 +232,14 @@ const Orderlist = ({ navigation }) => {
                                             <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
                                             <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" , paddingLeft:13 }}>Total Amount</Text>
                                                 <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
-                                                    {"₹" + "" + orderData[item].payable_amount + ".00"}</Text>
+                                                    {"₹" + "" + orderData[item].payable_amount}</Text>
                                             </View>
                                           
                                             <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
                                             <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" }}>Balance Amount</Text>
 
                                                 <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
-                                                    {"₹" + "" + orderData[item].payable_amount + ".00"}</Text>
+                                                    {"₹" + "" + Math.round((orderData[item].payable_amount*4)/5)}</Text>
                                             </View>
                                         </View>
                                       

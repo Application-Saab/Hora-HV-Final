@@ -213,6 +213,7 @@ const SelectDate = ({ navigation, route }) => {
             <View style={{ paddingHorizontal: 15, flexDirection: 'column', marginLeft: 16, marginEnd: 20, borderWidth: 1, elevation: 1, backgroundColor: 'white', borderBottomRightRadius: 15, borderBottomLeftRadius: 15, borderColor: 'white' }}>
                 <View style={{ flexDirection: 'column' }}>
                     <Text style={{ color: '#000000', fontSize: 13, fontWeight: '600', marginTop: 20 }}>Required Burners</Text>
+                    <Text style={{ color: '#969696', fontSize: 11, fontWeight: '500', marginTop: 6 }}>Number of burners depend upon the number of dishes chosen</Text>
                     <Text style={{ color: '#969696', fontSize: 11, fontWeight: '500', marginTop: 6 }}>(Burners would be used at your location)</Text>
 
                 </View>

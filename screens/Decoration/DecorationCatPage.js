@@ -65,7 +65,6 @@ const DecorationCatPage = ({ route, navigation }) => {
         try {
             const response = await axios.get(BASE_URL + GET_DECORATION_CAT_ID + subCategory);
             const categoryId = response.data.data._id;
-          
             setCatId(categoryId);
 
         } catch (error) {
@@ -94,18 +93,29 @@ const DecorationCatPage = ({ route, navigation }) => {
     }, [catId])
 
 
+    const getItemInclusion = (inclusion) => {
+        const htmlString = inclusion[0];
+        const withoutDivTags = htmlString.replace(/<\/?div>/g, '');
+        const statements = withoutDivTags.split('<div>');
+        const bulletedList = statements
+            .filter(statement => statement.trim() !== '')
+            .map(statement => `- ${statement.trim()}`);
+        const combinedString = bulletedList.join(' ');
+        const finalList = combinedString.split(/--|-/);
+        const filteredList = finalList.filter(item => item.trim() !== '');
+        return filteredList.map((item, index) => `${index + 1}: ${item.trim()}\n`);
+    }
+
+
     const RenderBottomSheetContent = () => (
         <View>
-            <View style={{ paddingTop: 5, paddingRight: 5 }}>
-                <Image source={{ uri: `https://horaservices.com/api/uploads/${itemDetail.featured_image}` }} style={{ width: Dimensions.get('window').width, height: 400, aspectRatio: 1, borderTopLeftRadius: 5, borderTopRightRadius: 5 }} />
-                <Text style={{ color: '#1C1C1C', fontSize: 23, fontWeight: '800' }}>{itemDetail.name}</Text>
+            <View style={{ paddingTop: 5, paddingRight: 40, paddingLeft: 10 }}>
+                <Image source={{ uri: `https://horaservices.com/api/uploads/${itemDetail.featured_image}` }} style={{ width: Dimensions.get('window').width, height: 340, aspectRatio: 1, borderTopLeftRadius: 5, borderTopRightRadius: 5 }} />
+                <Text style={{ color: '#1C1C1C', fontSize: 23, fontWeight: '800', marginVertical: 13 }}>{itemDetail.name}</Text>
                 <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
-                <Text>₹ {itemDetail.price}</Text>
-                <Text style={{ color: '#736F6F', fontSize: 9, fontWeight: '400', opacity: 0.9 }}>{itemDetail.description}</Text>
-                <Image source={require('../../assets/Vector4.png')} style={{ width: 332.5, height: 1 }} />
+                <Text style={{ color: '#736F6F', fontSize: 14, fontWeight: '400', paddingTop: 18 }}>{getItemInclusion(itemDetail.inclusion)}</Text>
             </View>
         </View>
-
     );
 
 
@@ -121,7 +131,7 @@ const DecorationCatPage = ({ route, navigation }) => {
                                 <ImageBackground
                                     source={
                                         selectedProducts.some((product) => product._id === item._id)
-                                        ? require('../../assets/Rectanglepurple.png')
+                                            ? require('../../assets/Rectanglepurple.png')
                                             : require('../../assets/rectanglewhite.png')
                                     }
                                     style={{ width: "100%", height: 240, marginTop: 10 }}

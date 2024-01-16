@@ -468,7 +468,7 @@ const CreateOrder = ({ navigation }) => {
                                         <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', lineHeight: 15, paddingTop: 15 }}>{item.mealObject.name} ({item.dish.length})</Text>
                                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                                             <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
-                                                <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All</Text>
+                                                <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All Dishes</Text>
 
                                             </TouchableOpacity>
                                             <Image style={{ width: 9, height: 9, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image>
@@ -548,10 +548,10 @@ const CreateOrder = ({ navigation }) => {
 
             </View>
             <View>
-                <OrderWarning visible={isWarningVisibleForDishCount} title={"Only 12 dishes can be selected!!!"} buttonText={"ERROR"}
+                <OrderWarning visible={isWarningVisibleForDishCount} title={"Maximum 12 dishes can be prepared at home!!!"} buttonText={"OK"}
                     onClose={handleWarningClose} />
 
-                <OrderWarning visible={isWarningVisibleForCuisineCount} title={"Only 3 Cuisines can be selected!!!"} buttonText={"ERROR"}
+                <OrderWarning visible={isWarningVisibleForCuisineCount} title={"Only 3 Cuisines can be selected!!!"} buttonText={"OK"}
                     onClose={handleWarningClose} />
             </View>
         </View>

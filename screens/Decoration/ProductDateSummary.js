@@ -1,6 +1,6 @@
 // ProductDateSummary.js
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Linking , Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
 import CustomHeader from '../../components/CustomeHeader';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
@@ -232,9 +232,9 @@ const ProductDateSummary = ({ route, navigation }) => {
         return isTimeBetweenRange
     }
 
-    
-    const contactUsRedirection = () =>{
-        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
+
+    const contactUsRedirection = () => {
+        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20your%20service%20decoration');
     }
 
 
@@ -373,7 +373,7 @@ const ProductDateSummary = ({ route, navigation }) => {
                             </View>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
-                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {parseFloat(totalPrice * 0.3).toFixed(1)}</Text>
+                                <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {Math.round(totalPrice * 0.3)}</Text>
                             </View>
                             <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
                                 <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
@@ -415,7 +415,7 @@ const ProductDateSummary = ({ route, navigation }) => {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 12 }}>
                     <Text style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>Need more info?</Text>
-                    <TouchableOpacity activeOpacity={1}  onPress={contactUsRedirection}>
+                    <TouchableOpacity activeOpacity={1} onPress={contactUsRedirection}>
                         <View style={{ marginLeft: 5, backgroundColor: '#E8E8E8', borderRadius: 18, borderWidth: 1, borderColor: '#9252AA', justifyContent: 'center', alignItems: 'center', width: 96, height: 28 }}>
                             <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500' }}>Contact Us</Text>
                         </View>
@@ -429,10 +429,8 @@ const ProductDateSummary = ({ route, navigation }) => {
                         </View>
                         <View>
                             <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
-                                <Text>If cancellations are made -</Text>
-                                - In less than 24 hours before an Event: No amount refund
-                                - 24 hours in advance- 100% amount refund.
-                                The order cannot be edited after paying advance. Customer can cancel the order and replace the new order with required changes.
+                                <Text>Till the order is not assigned to service provider, 100% of the amount will be refunded, otherwise 50% of advance will be deducted as cancellation charges to compensate the service provider.</Text>
+                                <Text>The order cannot be edited after paying advance. Customer can cancel the order and replace the new order with required changes.</Text>
                             </Text>
                         </View>
                     </View>
@@ -466,7 +464,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginTop: 20,
         paddingLeft: 20,
-        paddingRight:30,
+        paddingRight: 30,
     },
     productContainer: {
         width: '100%',

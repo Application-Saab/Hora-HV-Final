@@ -393,7 +393,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     }
 
     const contactUsRedirection = () =>{
-        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
+        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20I%20have%20some%20queries%20for%20chef%20for%20party%20service');
     }
 
     const changeLocation = async () => {
@@ -514,7 +514,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
                         <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
-                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {totalPrice / 5}</Text>
+                        <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {Math.round(totalPrice / 5)}</Text>
                     </View>
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
                     <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
