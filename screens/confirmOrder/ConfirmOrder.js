@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 32, // Adjust margin
     height: 390, // Adjust height based on aspect ratio
     marginHorizontal: 16,
-    marginTop: 25,
+    marginTop: 100,
 
   },
   firstText: {

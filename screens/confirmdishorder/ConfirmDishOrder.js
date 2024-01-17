@@ -564,10 +564,10 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
                         </View>
                         <View>
-                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
-                                <Text>Till the order is not assigned to service provider, 100% of the amount will be refunded, otherwise 50% of advance will be deducted as cancellation charges to compensate the service provider.</Text>
-                               <Text>The order cannot be edited after paying advance. Customer can cancel the order and replace the new order with required changes.</Text>
-				</Text>
+                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
+    Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
+    The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
+</Text>
                         </View>
                     </View>
                 </View>

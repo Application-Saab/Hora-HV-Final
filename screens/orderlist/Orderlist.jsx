@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Linking, View, StyleSheet, ActivityIndicator ,Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, Linking, View, Dimensions ,StyleSheet, ActivityIndicator ,Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, ORDERLIST_ENDPOINT, GET_USER_DETAIL_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
@@ -16,7 +16,7 @@ const Orderlist = ({ navigation }) => {
     const handleOrderDetails = (e, a) => {
         navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a })
     }
-
+  
     useEffect(() => {
         const fetchOrderList = async () => {
             try {
@@ -36,7 +36,7 @@ const Orderlist = ({ navigation }) => {
                 });
                 const responseData = await response.json();
 
-                console.log("responseData.data.order", responseData.data.order)
+               // console.log("responseData.data.order", responseData.data.order)
                 if (responseData && responseData.data && responseData.data.order) {
                     const sortedOrders = responseData.data.order.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
                     setOrderData(sortedOrders);
@@ -270,7 +270,12 @@ const Orderlist = ({ navigation }) => {
                 :(
                     orderData.length === 0 && (
                         <View style={styles.noOrdersContainer}>
-                            <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" }}>You don't have any orders yet. Please place the order to make your party memorable</Text>
+                            <View style={{flexDirection:"row" , justifyContent:"center" , alignItems:"center"}}>
+                            <Image source={require('../../assets/no_order.png')} style={{ width: 70, height: 70, marginLeft:21 }} />
+                                </View>
+
+                            <Text style={{ fontWeight: '500', fontSize: 16, color: "#9252AA", textAlign:"center" }}>You don't have any orders yet.</Text>
+                            <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" , textAlign:"center" }}> Please place the order to make your party memorable</Text>
                             <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
                                 <TouchableHighlight
                                     onPress={() => navigation.navigate('Home')}
@@ -278,18 +283,8 @@ const Orderlist = ({ navigation }) => {
                                         styles.continueButton
                                     }
                                 >
-                                    <View style={styles.buttonContent}>
-                                        <Text
-                                            style={
-                                                styles.continueButtonLeftText
-                                            }
-                                        >
-                                            Continue
-                                        </Text>
-    
-    
-                                    </View>
-                                </TouchableHighlight>
+                                   <Text style={{textAlign:"center" ,  color:"#fff" , fontSize:16}}>Continue</Text>
+                               </TouchableHighlight>
     
                             </View>
                         </View>
@@ -302,16 +297,41 @@ const Orderlist = ({ navigation }) => {
     )
 }
 
+const windowHeight = Dimensions.get('window').height;
+console.log(windowHeight)
 const styles = StyleSheet.create({
     screenContainer: {
         flex: 1,
         flexDirection: 'column',
     },
+    continueButton: {
+        marginTop: 10,
+        backgroundColor: '#9252AA',
+        marginBottom: 15,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingLeft: 21,
+        paddingEnd: 20,
+        paddingVertical: 16,
+        borderRadius: 20,
+    },
     container: {
         paddingLeft: 20,
         paddingRight: 20,
         paddingTop: 20,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        height:windowHeight,
+        position:'relative',
+    },
+    noOrdersContainer:{
+        position:"absolute",
+        top:"30%",
+        left:0,
+        right:0,
+        marginHorizontal:'auto', 
+        paddingHorizontal:30,
+        textAlign:"center",
     },
     loaderContainer: {
         flex: 1,

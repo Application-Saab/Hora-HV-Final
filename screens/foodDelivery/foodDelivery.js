@@ -8,7 +8,7 @@ const handlePage = () => {
     Linking.openURL('whatsapp://send?phone=+918884221487');
 }
 
-const foodDelivery = ({ navigation }) => {
+const FoodDelivery = ({ navigation }) => {
     const screenHeight = Dimensions.get('window').height - 30;
 
     return (
@@ -69,4 +69,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default foodDelivery;
+export default FoodDelivery;

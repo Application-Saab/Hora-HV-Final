@@ -4,14 +4,14 @@ import { BASE_URL, USER_DETAILS_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
 
 
-const gifts = ({ navigation }) => {
+const Gifts = ({ navigation }) => {
    
 
     return (
         <ScrollView>
             <CustomHeader title={"Gifts"} navigation={navigation} />
             <View style={styles.container}>   
-            {'Coming Soon'} 
+            <Text>{'Coming Soon'} </Text>
             </View>
         </ScrollView>
     )
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
    
 });
 
-export default gifts
+export default Gifts

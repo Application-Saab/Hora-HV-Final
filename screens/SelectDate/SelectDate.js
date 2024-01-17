@@ -186,8 +186,8 @@ const SelectDate = ({ navigation, route }) => {
         );
     };
 
-    const renderPreparationText = ({ items
-    }) => {
+    const renderPreparationText = (items) => {
+      
         if (showAll) {
             return items.map((item, index) => (
                 <Text key={index} style={styles.item}>{`${index + 1}. ${item}`}</Text>
@@ -208,7 +208,7 @@ const SelectDate = ({ navigation, route }) => {
         setShowAll(!showAll);
     };
 
-    const LeftTabContent = ({ burnerCount, ApplianceList }) => {
+    const LeftTabContent = ({ burnerCount, ApplianceList , preparationTextList}) => {
         return (
             <View style={{ paddingHorizontal: 15, flexDirection: 'column', marginLeft: 16, marginEnd: 20, borderWidth: 1, elevation: 1, backgroundColor: 'white', borderBottomRightRadius: 15, borderBottomLeftRadius: 15, borderColor: 'white' }}>
                 <View style={{ flexDirection: 'column' }}>
@@ -257,8 +257,9 @@ const SelectDate = ({ navigation, route }) => {
 
                 </View>
 
+                   
                 {preparationTextList.length > 0 && (
-                    <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 }}>
+                    <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 , paddingBottom:15 ,  marginBottom:15}}>
                         <View style={styles.header}>
                             <Text style={{ color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Readiness Required*</Text>
                             <TouchableOpacity onPress={toggleShowAll} activeOpacity={1}>
@@ -275,7 +276,7 @@ const SelectDate = ({ navigation, route }) => {
         );
     };
 
-    const RightTabContent = ({ ingredientList }) => {
+    const RightTabContent = ({ ingredientList , preparationTextList }) => {
         return (
             <ScrollView>
                 <View style={{ paddingHorizontal: 15, flexDirection: 'column', marginLeft: 16, marginEnd: 20, borderWidth: 1, elevation: 1, backgroundColor: 'white', borderBottomRightRadius: 15, borderBottomLeftRadius: 15, borderColor: 'white', paddingBottom: 10 }}>
@@ -295,8 +296,8 @@ const SelectDate = ({ navigation, route }) => {
                         />
 
                     </View>
-
-                    {preparationTextList.length > 0 && (
+                        <Text>{preparationTextList}</Text>
+                    {/* {preparationTextList.length > 0 && (
                         <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 }}>
                             <View style={styles.header}>
                                 <Text style={{ color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Readiness Required*</Text>
@@ -308,7 +309,7 @@ const SelectDate = ({ navigation, route }) => {
                                 {renderPreparationText(preparationTextList)}
                             </View>
                         </View>
-                    )}
+                    )} */}
 
 
                 </View>
@@ -394,9 +395,12 @@ const SelectDate = ({ navigation, route }) => {
     };
 
     const preparationTextArray = getPreparationTextList()
+   
     const preparationTextList = {
         items: preparationTextArray
     };
+
+   
 
 
     const getTotalSpecialAppliances = () => {
@@ -419,10 +423,12 @@ const SelectDate = ({ navigation, route }) => {
         if (activeTab === 'left') {
             const totalBurnerCount = getTotalBurnerCount();
             const totalSpecialAppliancesList = getTotalSpecialAppliances();
-            return <LeftTabContent burnerCount={totalBurnerCount} ApplianceList={totalSpecialAppliancesList} />;
+            const totalPreparationTextList  = getPreparationTextList()
+            return <LeftTabContent burnerCount={totalBurnerCount} ApplianceList={totalSpecialAppliancesList} preparationTextList={totalPreparationTextList}/>;
         } else if (activeTab === 'right') {
             const totalIngredientsList = getTotalIngredients();
-            return <RightTabContent ingredientList={totalIngredientsList} />;
+            const totalPreparationTextList  = getPreparationTextList()
+            return <RightTabContent ingredientList={totalIngredientsList} preparationTextList={totalPreparationTextList}/>;
         }
     };
 

@@ -213,7 +213,7 @@ const ProductDateSummary = ({ route, navigation }) => {
 
 
     const onContinueClick = () => {
-        alert("confirm order click")
+      
     }
 
     const checkIsDateValid = () => {
@@ -298,11 +298,11 @@ const ProductDateSummary = ({ route, navigation }) => {
                     <Text style={{ color: '#000', fontSize: 10, fontWeight: '500', textAlign: 'center' }}>The decorator requires approximately 40-90 minutes to fulfill the service</Text>
                 </View>
 
-                <View style={{ flexDirection: 'row', marginTop: 10, textAlign: 'center' }}>
+                <View style={{ flexDirection: 'row', marginTop: 10, textAlign: 'center' , paddingLeft:0 }}>
 
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={1}>
 
-                        <View style={{ marginStart: 16, marginEnd: 8, flexDirection: 'column', paddingHorizontal: 17, backgroundColor: 'white', borderColor: isDateValid != null && isDateValid == false ? '#FF3636' : "#F6ECEC", borderRadius: 10, borderWidth: 1, paddingBottom: 9 }}>
+                        <View style={{ marginStart: 16, marginEnd: 29, flexDirection: 'column', paddingHorizontal: 17, backgroundColor: 'white', borderColor: isDateValid != null && isDateValid == false ? '#FF3636' : "#F6ECEC", borderRadius: 10, borderWidth: 1, paddingBottom: 9 }}>
                             <Text style={{ paddingTop: 4, color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Booking Date</Text>
                             <View style={{ flexDirection: 'row', marginTop: 1 }}>
 
@@ -364,7 +364,7 @@ const ProductDateSummary = ({ route, navigation }) => {
                 </View>
 
 
-                <View style={{ paddingLeft: 15, paddingRight: 12, marginTop: 10 }}>
+                <View style={{ paddingLeft: 11, paddingRight: 10, marginTop: 10 }}>
                     <View style={{ borderColor: "#F6ECEC", backgroundColor: "#fff", borderWidth: 1, borderRadius: 10 }}>
                         <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
@@ -375,9 +375,9 @@ const ProductDateSummary = ({ route, navigation }) => {
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {Math.round(totalPrice * 0.3)}</Text>
                             </View>
-                            <View style={{ padding: 7, flexDirection: 'row', borderRadius: 10, paddingRight: 11, marginTop: 15, borderRadius: 100, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
-                                <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
-                                <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to executor after order completion.</Text>
+                            <View style={{ padding: 7, flexDirection: 'row', borderRadius: 5,  marginTop: 15,  backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image source={require('../../assets/info.png')} style={{ height: 12, width: 12 }} />
+                                <Text style={{ fontSize: 9, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to executor after order completion.</Text>
                             </View>
                         </View>
                         <View style={styles.selectedProductsContainer}>
@@ -428,10 +428,10 @@ const ProductDateSummary = ({ route, navigation }) => {
 
                         </View>
                         <View>
-                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
-                                <Text>Till the order is not assigned to service provider, 100% of the amount will be refunded, otherwise 50% of advance will be deducted as cancellation charges to compensate the service provider.</Text>
-                                <Text>The order cannot be edited after paying advance. Customer can cancel the order and replace the new order with required changes.</Text>
-                            </Text>
+                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
+    Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
+    The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
+</Text>
                         </View>
                     </View>
                 </View>
