@@ -75,7 +75,9 @@ const ConfirmLocation = ({ navigation, route }) => {
     }
   };
 
-  
+  useEffect(()=>{
+    focusOnCurrentLocation();
+  },[])
 
   const focusOnCurrentLocation = () => {
     console.log(locationPermissionStatus);
@@ -113,7 +115,7 @@ const ConfirmLocation = ({ navigation, route }) => {
           );
       },
       (error) => console.log('Error getting current location:', error),
-      { enableHighAccuracy: true, timeout: 2000000, maximumAge: 10000000000000 }
+      { enableHighAccuracy: true, timeout: 20000000, maximumAge: 10000000000000 }
     );
   };
 
@@ -208,16 +210,17 @@ const ConfirmLocation = ({ navigation, route }) => {
 
       };
 
-
+      
       const token = await AsyncStorage.getItem('token')
 
+      
       const response = await axios.post(url, requestData, {
         headers: {
           'Content-Type': 'application/json',
           'authorization': token
         },
       });
-
+      
       if (response.status == API_SUCCESS_CODE) {
         navigation.goBack()
       }
@@ -333,12 +336,13 @@ const ConfirmLocation = ({ navigation, route }) => {
               onChangeText={(address) => ValidateAddress(address)}
             />
           </View>
-          <View style={{ ...styles.textInputContainer, marginTop: 12 }}>
+          <View style={{ ...styles.textInputContainer, marginTop: 12, backgroundColor:"#e5baf1" }}>
             <TextInput
               style={styles.textInput}
               placeholder="City"
               value={city}
               onChangeText={(address) => ValidateAddress(address)}
+              editable={false}
             />
           </View>
           <TouchableOpacity

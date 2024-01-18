@@ -122,7 +122,7 @@ const DecorationCatPage = ({ route, navigation }) => {
     return (
         <View style={styles.screenContainer}>
             <ScrollView>
-                <CustomHeader title={"Home"} navigation={navigation} />
+                <CustomHeader title={"Select Category"} navigation={navigation} />
 
                 <View style={styles.container}>
                     <View style={styles.decContainer}>

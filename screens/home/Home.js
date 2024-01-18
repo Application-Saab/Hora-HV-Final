@@ -2,8 +2,61 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, ImageBackground, TouchableHighlight, Pressable, Image, BackHandler, TouchableOpacity, ScrollView } from 'react-native';
 import CarouselComponent from '../dialog/CarouselComponent';
 import CustomHeader from '../../components/CustomeHeader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL, UPDATE_USER_DETAIL_ENDPOINT, GET_USER_DETAIL_ENDPOINT } from '../../utils/ApiConstants';
 
 const Home = ({ navigation }) => {
+
+  const [token, setToken] = useState('')
+  const fetchToken = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('token');
+      
+      if (storedToken) {
+        setToken(storedToken);
+      } else {
+        console.log('Token not found in AsyncStorage');
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+    }
+  };
+
+  // Function to fetch user details
+  const fetchUserAccount = async () => {
+  
+    try {
+      const response = await fetch(BASE_URL + GET_USER_DETAIL_ENDPOINT, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          authorization: token,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        
+        AsyncStorage.setItem("userID", userData.data._id);
+      } else {
+        const errorData = await response.json();
+        console.log(`Error fetching user account: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error fetching user account:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch token and user details when the component mounts
+    fetchToken();
+  }, []);
+
+  useEffect(() => {
+    // Fetch token and user details when the component mounts
+    fetchUserAccount();
+  }, [token]);
+
   const [service, setService] = useState([
     { id: '1', image: require('../../assets/decoration.png'), name: 'Decoration', openLink: 'DecorationPage', category: "decoration" },
     { id: '2', image: require('../../assets/chefforparty.png'), name: 'Chef for Party', openLink: 'CreateOrder', category: "chef" },
@@ -20,6 +73,7 @@ const Home = ({ navigation }) => {
 
   const [currentAddress, setCurrentAddress] = useState(null);
 
+  
   const bookNowData = [
      { id: '1', image: require('../../assets/homebanner1.png'), name: 'Decoration', text: "Book Decorations for your Events", openLink: 'DecorationPage', category: "decoration" },
     { id: '2', image: require('../../assets/homebanner2.png'), name: 'Chef for Party',text: "Chef for party - Food by Top Chef at just ₹80 / Person", openLink: 'CreateOrder', category: "chef" },

@@ -1,13 +1,16 @@
-// ProductDateSummary.js
 import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Linking , Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
+import axios from 'axios';
 import CustomHeader from '../../components/CustomeHeader';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
+import { BASE_URL,  GET_ADDRESS_LIST, API_SUCCESS_CODE, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PAYMENT, PAYMENT_STATUS } from '../../utils/ApiConstants';
+import { getCurrentPosition } from 'react-native-geolocation-service';
+import OrderWarning from '../dialog/OrderWarning';
 
 
 
@@ -28,6 +31,29 @@ const ProductDateSummary = ({ route, navigation }) => {
     const [currentAddress, setCurrentAddress] = useState('');
 
     const minimumDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const [completeAddress, setCompleteAddress] = useState([]);
+	const [add, setAdd] = useState('');
+    let [addId, setAddId] = useState('')
+    const [i, setI] = useState(0);
+	 let addressID;
+	 const [cityStatus, setCityStatus] = useState(0);
+    const [isWarningVisible, setWarningVisible] = useState(false);
+    const [isWarningVisibleForCity, setWarningVisibleForCity] = useState(false);
+    const [comments, setComments] = useState('');
+
+    const handleCommentsChange = (text) => {
+        setComments(text);
+      };
+      
+    const handleWarningClose = () => {
+        setWarningVisible(false);
+        setWarningVisibleForCity(false);
+								
+    };
+	const editAddress = (address) => {
+        bottomSheetRef.current.close();
+        navigation.navigate('ConfirmLocation', { 'data': address })
+    }
 
     const twoMinutesLater = new Date();
     twoMinutesLater.setMinutes(twoMinutesLater.getMinutes() + 2);
@@ -118,19 +144,22 @@ const ProductDateSummary = ({ route, navigation }) => {
 
     const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                Geocoder.from(latitude, longitude)
-                    .then((response) => {
-                        const address = response.results[0].formatted_address;
-                        setCurrentAddress(address);
-                    })
-                    .catch((error) => console.warn('Error fetching location address:', error));
-            },
-            (error) => console.log('Error getting current location:', error),
-            { enableHighAccuracy: true, timeout: 10000000, maximumAge: 10000000000000 }
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            Geocoder.from(latitude, longitude)
+              .then((response) => {
+                const address = response.results[0].formatted_address;
+                setCompleteAddress(response.results[0].address_components);
+                setAdd(address);
+                //setCurrentAddress(address);
+              })
+              .catch((error) => console.warn('Error fetching location address:', error));
+          },
+          (error) => console.log('Error getting current location:', error),
+          { enableHighAccuracy: true, timeout: 100000000000000000, maximumAge: 1000000000000000000000000 }
         );
-    };
+      };
 
     const fetchAddressesFromAPI = async () => {
         try {
@@ -161,61 +190,233 @@ const ProductDateSummary = ({ route, navigation }) => {
     };
 
     const handleSelectAddress = (address) => {
-        setCurrentAddress(address.address1);
+        setI(1);
+        setAdd(address.address2)
+
+        console.log(addresses[0].address2)
+
+        addresses.forEach(element => {
+            if (element.address1 ===  address.address2 || element.address2 === address.address2)
+            {
+                addressID = element._id;
+                setAddId(addressID);
+
+            
+            }
+        });
+
+        console.log(addId);
+        console.log(address.address2)
+        setCurrentAddress(address.address2);
         bottomSheetRef.current.close();
     };
+	
+	const handleConfirmOrder = async (merchantTransactionId) => {
+								
+        if (addId === "")
+        {
+            addId = addressID;
+        }
+        try {
+            
+            const message = await checkPaymentStatus(merchantTransactionId);
+            const items = selectedProducts.map(value => value._id);
+            const storedUserID = await AsyncStorage.getItem("userID");
+            
+            if (message === 'PAYMENT_SUCCESS') {
+                const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
+                const requestData = {
+                    "toId": "",
+                    "order_time": selectedTime.toLocaleTimeString(),
+                    "no_of_people": 0,
+                    "type": 1,
+                    "fromId": storedUserID,
+                    "is_discount": "0",
+                    "addressId": addId,
+                    "order_date": selectedDate.toDateString(),
+                    "no_of_burner": 0,
+                    "order_locality": "",
+                    "total_amount": totalPrice,
+                    "orderApplianceIds": [],
+                    "payable_amount": totalPrice,
+                    "is_gst": "0",
+                    "order_type": true,
+                    "items": items,
+                    "decoration_comment":comments
+                }
+                console.log(requestData)
+                const token = await AsyncStorage.getItem('token');
+    
+                const response = await axios.post(url, requestData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': token
+                    },
+                });
+    
+                if (response.status === API_SUCCESS_CODE) {
+                    navigation.navigate('ConfirmOrder');
+                }
+            }
+        } catch (error) {
+            console.log('Error Confirming Order:', error.message);
+        }
+        console.log(cat);
+    };
+    
+    const checkPaymentStatus = async (merchantTransactionId) => {
+        try {
+            const storedUserID = await AsyncStorage.getItem('userID');
+            const apiUrl = BASE_URL + PAYMENT_STATUS + '/' + merchantTransactionId;
+            
+    
+            const pollInterval = 5000; // 5 seconds (adjust as needed)
+            const pollingDuration = 300000; // 5 minutes
+    
+            const pollPaymentStatus = async () => {
+                const startTime = Date.now();
+    
+                while (Date.now() - startTime < pollingDuration) {
+                    try {
+                        const response = await axios.post(apiUrl, {}, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+    
+                        
+    
+                        if (response.data && response.data.message) {
+                            const message = response.data.message;
+                            console.log('API response message:', message);
+    
+                            if (message === 'PAYMENT_PENDING') {
+                                console.log('Payment is still pending. Polling again...');
+                                await new Promise(resolve => setTimeout(resolve, pollInterval));
+                            } else {
+                                console.log('Payment status:', message);
+                                return message;
+                            }
+                        } else {
+                            console.log('API response does not contain a message field');
+                        }
+    
+                    } catch (error) {
+                        console.error('API error:', error);
+                    }
+                }
+    
+                // Stop polling after the specified duration
+                console.log('Polling completed. Returning final result.');
+                return 'PAYMENT_POLLING_TIMEOUT';
+            };
+    
+            // Start polling and return the final result after polling completes
+            return await pollPaymentStatus();
+        } catch (error) {
+            console.error('Error checking payment status:', error);
+            throw error; // Rethrow the error for the caller to handle
+        }
+    };
+    
+    
 
+    function getRandomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+	  
+	  const onContinueClick = async () => {
+        if (i === 0)
+        {
+            setWarningVisible(true);
+        }
+        else
+        {
+        
+            
+            const apiUrl = BASE_URL + PAYMENT;
+        
+        const storedUserID = await AsyncStorage.getItem("userID");
+        console.log(storedUserID);
+        const phoneNumber = await AsyncStorage.getItem('mobileNumber')
+        console.log(phoneNumber)
+        const randomInteger = Math.floor(getRandomNumber(1,100));
 
-    const changeLocation = () => {
-        openBottomSheet()
+        let merchantTransactionId = storedUserID + randomInteger
+        const requestData = {
+        user_id: storedUserID,
+        price: Math.round(totalPrice*0.3),
+        phone: phoneNumber,
+        name: storedUserID,
+        merchantTransactionId: merchantTransactionId
+        };
+
+        
+    try {
+        const response = await axios.post(apiUrl, requestData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        let url = response.request.responseURL;
+  
+        handleConfirmOrder(merchantTransactionId);
+        Linking.openURL(url)
+        .then((supported) => {
+          if (!supported) {
+            console.log(`Cannot handle URL: ${url}`);
+          } else {
+            console.log(`Opened URL: ${url}`);
+          }
+        })
+  
+      } catch (error) {
+        // Handle errors
+        console.error('API error:', error);
+      }
+        }
+       
+        
+        
     }
+	 const contactUsedRedirection = () =>{
+        Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
+    }
+
+
+    const changeLocation = async () => {
+        try {
+          let address = await AsyncStorage.getItem("Address");
+      
+
+          const locality = completeAddress[4]?.long_name || "";
+          const city = completeAddress[5]?.long_name || "";
+          const state = completeAddress[7]?.long_name || "";
+          const pincode = completeAddress[9]?.long_name || "";
+
+          console.log(locality + city + state + pincode);
+          
+          
+          await Promise.all([
+            AsyncStorage.setItem("City", city),
+            AsyncStorage.setItem("State", state),
+            AsyncStorage.setItem("Pincode", pincode),
+            AsyncStorage.setItem("Locality", locality)
+          ]);
+								 
+          openBottomSheet();
+        } catch (error) {
+          console.error('Error fetching or setting data in AsyncStorage:', error);
+        }
+      };
 
     const addAddress = () => {
         bottomSheetRef.current.close();
         navigation.navigate('ConfirmLocation', { 'data': null })
     }
 
-    // const onContinueClick = async () => {
-    //     const apiUrl = BASE_URL + PAYMENT;
-
-    //     const requestData = {
-    //     user_id: '64a58d475fcdc03e14bfc136',
-    //     price: totalPrice / 5,
-    //     phone: 9120202020,
-    //     name: '',
-    //     };
-
-
-    // try {
-    //     const response = await axios.post(apiUrl, requestData, {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //     });
-
-    //     let url = response.request.responseURL;
-
-    //     Linking.openURL(url)
-    //     .then((supported) => {
-    //       if (!supported) {
-    //         console.log(`Cannot handle URL: ${url}`);
-    //       } else {
-    //         handleConfirmOrder();
-    //         console.log(`Opened URL: ${url}`);
-    //       }
-    //     })
-
-    //   } catch (error) {
-    //     // Handle errors
-    //     console.error('API error:', error);
-    //   }
-    // }
-
-
-    const onContinueClick = () => {
-      
-    }
-
+   
     const checkIsDateValid = () => {
         const currentTime = new Date();
         const selectedDateTime = new Date(selectedDate);
@@ -350,17 +551,49 @@ const ProductDateSummary = ({ route, navigation }) => {
                     <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', }}>
                         Serving location
                     </Text>
-                    <View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
+                    {currentAddress !== ""?<View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
                         <Text style={{ color: '#9252AA', fontWeight: '500', lineHeight: 18, fontSize: 13 }}>{currentAddress}</Text>
 
-                    </View>
+                    </View>:""}
                     <TouchableOpacity onPress={changeLocation} activeOpacity={1}>
-
-                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
-                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change location</Text>
-                        </View>
+                    {currentAddress === ""?<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Click here to add Location</Text>
+                        </View>:<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change Location</Text>
+                        </View>}
 
                     </TouchableOpacity>
+                    <OrderWarning visible={isWarningVisible} title={"Please select address"} buttonText={"OK!"}
+                    onClose={handleWarningClose} />
+                    <RBSheet
+                ref={bottomSheetRef}
+                closeOnDragDown={true}
+                height={500}
+                customStyles={{
+                    container: styles.bottomSheetContainer,
+                    wrapper: styles.bottomSheetWrapper,
+                    draggableIcon: styles.draggableIcon,
+                }}
+            >
+                <View style={{ flexDirection: 'column', marginBottom: 39, flex: 1 }}>
+                    <BottomSheetContent
+                        data={addresses}
+                        onSelectAddress={handleSelectAddress}
+
+                    />
+                </View>
+
+                <View style={{
+                    justifyContent: 'center',
+                    marginTop: 29,
+                    marginBottom: 26,
+                    alignItems: 'center',
+                }}>
+                    <TouchableOpacity onPress={() => addAddress()} style={styles.customButton} activeOpacity={1}>
+                        <Text style={styles.buttonText}> + Add Address</Text>
+                    </TouchableOpacity>
+                </View>
+            </RBSheet>
                 </View>
 
 
@@ -394,16 +627,16 @@ const ProductDateSummary = ({ route, navigation }) => {
                                         </View>
 
                                     </View>
-                                    <View>
-                                        <TextInput
-                                            editable
-                                            multiline
-                                            numberOfLines={5}
-                                            maxLength={100}
-                                            style={styles.textArea}
-                                            placeholder="Share the comments"
-                                        />
-                                    </View>
+                                    <ScrollView>
+                <TextInput
+                    editable
+                    multiline
+                    numberOfLines={5}
+                    maxLength={100}
+                    style={styles.textArea}
+                    placeholder="Share the comments"
+                />
+            </ScrollView>
                                 </View>
 
 
@@ -462,7 +695,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        marginTop: 20,
+        marginTop: 15,
         paddingLeft: 20,
         paddingRight: 30,
     },
@@ -493,12 +726,11 @@ const styles = StyleSheet.create({
     },
     textArea: {
         width: '100%',
-        height: 80,
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 10,
         paddingLeft: 8,
-        marginTop: 0,
+        marginTop: 10, // Adjust the margin if needed
         marginBottom: 20
     },
     bottomButtonContainer: {
@@ -525,6 +757,108 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 18,
     },
+    
+    separator1: { height: 1, width: 70, marginTop: 10, marginLeft: 5 },
+    separator2: { height: 1, width: 70, marginTop: 10, marginStart: -15 },
+    container: {
+        flex: 1,
+        backgroundColor: '#F3F2F2',
+        borderRadius: 8,
+        elevation: 1,
+        paddingHorizontal: 16,
+        marginHorizontal: 16,
+        paddingBottom: 1,
+        marginBottom: 3
+    },
+    headingText: {
+        flex: 1,
+        color: '#414141',
+        fontSize: 12,
+        fontWeight: '400',
+        justifyContent: 'space-between',
+        opacity: 0.8,
+        marginLeft: 10,
+    },
+    homeIcon: {
+        marginLeft: 25,
+        width: 24,
+        height: 24
+    },
+    bottomText: {
+        marginTop: 8,
+        marginLeft: 38,
+        color: '#414141',
+        fontWeight: '400',
+        fontSize: 10,
+        opacity: 0.8
+
+
+    },
+    parallelText: {
+        marginLeft: 16,
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#000'
+    },
+    multiLineText: {
+        marginTop: 6,
+        paddingHorizontal: 16,
+        color: '#414141',
+        fontWeight: '400',
+        fontSize: 11,
+        opacity: 0.8,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: '500',
+        fontSize: 18,
+    },
+    customButton: {
+        height: 57,
+        width: Dimensions.get('window').width * 0.8,
+        backgroundColor: '#9252AA',
+        marginHorizontal: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 20,
+    },
+    selectedContainer: {
+        backgroundColor: '#9252AA', // Selected background color
+        borderColor: '#9252AA', // Selected border color
+    },
+    selectedText: {
+        color: 'white', // Selected text color
+    },
+    bottomSheetContainer: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        padding: 12,
+        paddingTop: 12
+
+    },
+    bottomSheetWrapper: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    draggableIcon: {
+        backgroundColor: '#000',
+    },
+    editText: {
+        fontSize: 11,
+        fontWeight: '500',
+        marginLeft: 10
+    },
+    dishItemContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        borderRadius: 8,
+        borderColor: '#B8B8B8',
+        borderWidth: 1,
+        backgroundColor: '#FFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 4, // Add vertical margin
+    }
 });
 
 export default ProductDateSummary;

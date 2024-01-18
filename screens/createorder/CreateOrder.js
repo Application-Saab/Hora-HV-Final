@@ -398,6 +398,8 @@ const CreateOrder = ({ navigation }) => {
                 <Image style={styles.image3} source={require('../../assets/separator.png')} />
                 <Image style={styles.image4} source={require('../../assets/ConfirmOrderUnselected.png')} />
             </View>
+          
+            <ScrollView>
             <View style={styles.vegNonVegContainer}>
                 <View style={styles.boxvegContainer}>
 
@@ -433,7 +435,6 @@ const CreateOrder = ({ navigation }) => {
             <View style={{ flexDirection: 'row', marginTop: 4 }}>
                 <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
             </View>
-            <ScrollView>
                 {loading ? (
                     <View style={styles.loaderContainer}>
                     <Loader loading={loading} />

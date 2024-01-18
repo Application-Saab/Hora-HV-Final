@@ -5,7 +5,7 @@ import CustomHeader from '../../components/CustomeHeader';
 const ConfirmOrder = ({ navigation }) => {
 
   const handleOpenBottomSheet = () => {
-    navigation.navigate('AddAddress')
+    navigation.navigate('DrawerNavigator')
   }
 
   const trackorder = () => {
@@ -14,10 +14,10 @@ const ConfirmOrder = ({ navigation }) => {
 
   return (
     <View>
-      <CustomHeader title={"Confirm Order"} navigation={navigation} />
-      <View style={styles.container}>
+            <CustomHeader title={"Confirm Order"} navigation={navigation} />
 
-        <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <View style={styles.container}>
+        {/* <StatusBar translucent backgroundColor="transparent" barStyle="light-content" /> */}
         <Image source={require('../../assets/confirmorder_image.png')} style={styles.image} />
         <Text style={styles.firstText}>Your order is confirmed!</Text>
         <Text style={styles.multilineText}>
@@ -42,7 +42,6 @@ const ConfirmOrder = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -51,7 +50,7 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width - 32, // Adjust margin
     height: 390, // Adjust height based on aspect ratio
     marginHorizontal: 16,
-    marginTop: 100,
+    marginTop: 50,
 
   },
   firstText: {

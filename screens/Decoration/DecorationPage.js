@@ -15,13 +15,13 @@ const DecorationPage = ({ navigation }) => {
 
   const [decCat, setDecCat] = useState([
     { id: '1', image: require('../../assets/Birthday_dec_cat.jpg'), name: 'Birthday', category: "decoration" , subCategory:"Birthday"},
-    { id: '2', image: require('../../assets/first_night_cat_dec.jpg'), name: 'First Night', category: "decoration" },
-    { id: '3', image: require('../../assets/aniversary_Cat_Dec.jpg'), name: 'Anniversary', category: "decoration" },
-    { id: '4', image: require('../../assets/kids_birthday_decoration.jpg'), name: 'Kids Birthday', category: "decoration" },
-    { id: '5', image: require('../../assets/baby-shower-dec-cat.jpg'), name: 'Baby Shower', category: "decoration" },
+    { id: '2', image: require('../../assets/first_night_cat_dec.jpg'), name: 'First Night', category: "decoration", subCategory:"FirstNight" },
+    { id: '3', image: require('../../assets/aniversary_Cat_Dec.jpg'), name: 'Anniversary', category: "decoration" , subCategory:"Anniversary"},
+    { id: '4', image: require('../../assets/kids_birthday_decoration.jpg'), name: 'Kids Birthday', category: "decoration" , subCategory:"KidsBirthday"},
+    { id: '5', image: require('../../assets/baby-shower-dec-cat.jpg'), name: 'Baby Shower', category: "decoration" , subCategory:"BabyShower" },
     { id: '6', image: require('../../assets/welcome_baby_dec.jpg'), name: 'Welcome Baby', category: "decoration"  , subCategory:"WelcomeBaby"},
-    { id: '7', image: require('../../assets/preminumdecor.jpg'), name: 'premium Decoration', category: "decoration" },
-    { id: '8', image: require('../../assets/Balloon-B.jpeg'), name: 'Ballon Bouquets', category: "decoration" },
+    { id: '7', image: require('../../assets/preminumdecor.jpg'), name: 'premium Decoration', category: "decoration" , subCategory:"PremiumDecoration" },
+    { id: '8', image: require('../../assets/Balloon-B.jpeg'), name: 'Ballon Bouquets', category: "decoration"  , subCategory:"BallonBouquets"},
      { id: '12', image: require('../../assets/Balloon-B.jpeg'), name: 'Gift', category: "gift" }
 
   ]);

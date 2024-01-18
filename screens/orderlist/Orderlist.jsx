@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Linking, View, Dimensions ,StyleSheet, ActivityIndicator ,Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, Linking, View, Dimensions, StyleSheet, ActivityIndicator, Text, Image, TextInput, TouchableHighlight, Button, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, ORDERLIST_ENDPOINT, GET_USER_DETAIL_ENDPOINT } from '../../utils/ApiConstants';
 import CustomHeader from '../../components/CustomeHeader';
@@ -16,7 +16,11 @@ const Orderlist = ({ navigation }) => {
     const handleOrderDetails = (e, a) => {
         navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a })
     }
-  
+
+
+    /// order.type is 2 for chef
+    /// order.type is 1 for decoration
+    /// order.type is 3 for hospitality service
     useEffect(() => {
         const fetchOrderList = async () => {
             try {
@@ -36,7 +40,7 @@ const Orderlist = ({ navigation }) => {
                 });
                 const responseData = await response.json();
 
-               // console.log("responseData.data.order", responseData.data.order)
+                // console.log("responseData.data.order", responseData.data.order)
                 if (responseData && responseData.data && responseData.data.order) {
                     const sortedOrders = responseData.data.order.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
                     setOrderData(sortedOrders);
@@ -134,164 +138,205 @@ const Orderlist = ({ navigation }) => {
     return (
         <ScrollView style={styles.screenContainer}>
             <CustomHeader title={"Order History"} navigation={navigation} />
-         
+
             <View style={styles.container}>
-                {loading ?(
-                     <View style={styles.loaderContainer}>
-                     <Loader loading={loading} />
-                 </View>
-                ):
-                orderData.length > 0 ? (
-                    Object.keys(orderData).map((item, index) => {
-                        return (
-                            <View key={index}
-                                style={{
-                                    marginBottom: 10,
-                                    shadowColor: '#9f9e9e',
-                                    shadowOffset: { width: 0, height: 4 },
-                                    shadowOpacity: 3,
-                                    shadowRadius: 2,
-                                    elevation: 1,
-                                    borderTopLeftRadius: 20,
-                                    borderTopRightRadius: 20,
-                                    borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: 20
-                                }}
-                            >
-                                <View style={styles.sec1}>
-                                    <View style={{ display: "flex", flexDirection: "row" }}>
-                                        <Text style={{ paddingLeft: 10, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>Order Id</Text>
-                                        <Text style={{ paddingLeft: 9, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>
-                                            {getOrderId(orderData[item].order_id)}
-                                        </Text>
-                                    </View>
-                                    <View>
-                                        {
-                                            orderData[item].order_status === 3 || orderData[item].order_status === 2 ?
-                                                <Text style={styles.orderstatus3}>
-                                                    {getOrderStatus(orderData[item].order_status)}
-                                                </Text> : orderData[item].order_status === 0 ?
-                                                    <Text style={styles.orderstatus4}>
-                                                        {getOrderStatus(orderData[item].order_status)}
-                                                    </Text> :
-                                                    <Text style={styles.orderstatus}>
-                                                        {getOrderStatus(orderData[item].order_status)}
-                                                    </Text>
-                                        }
-                                    </View>
-                                </View>
-                                <View style={styles.sec}>
-                                    <View>
-                                        <View style={styles.ulclass1}>
-                                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none" }}>
-                                                <Image source={require('../../assets/date-time-icon.png')} style={{
-                                                    height: 13,
-                                                    width: 13
-                                                }} />
-
-                                                <Text style={{
-                                                    marginLeft: 8,
-                                                    color: 'rgba(65, 65, 65, 1)',
-                                                    fontWeight: '600'
-                                                }}>
-                                                    {getorderDate(orderData[item].order_date)}</Text>
-                                            </View>
-                                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none", paddingTop: 6, paddingBottom: 6 }}>
-
-                                                <Image source={require('../../assets/Time-Circle.png')} style={{
-                                                    height: 13,
-                                                    width: 13
-                                                }} />
-
-                                                <Text style={{
-                                                    marginLeft: 8,
-                                                    color: 'rgba(65, 65, 65, 1)',
-                                                    fontWeight: '600'
-                                                }}>
-                                                    {orderData[item].order_time}</Text>
-                                            </View>
-                                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none" }}>
-
-                                                <Image source={require('../../assets/User.png')} style={{
-                                                    height: 13,
-                                                    width: 13
-                                                }} />
-
-                                                <Text style={{
-                                                    marginLeft: 8,
-                                                    color: 'rgba(65, 65, 65, 1)',
-                                                    fontWeight: '600'
-                                                }}>
-                                                    {orderData[item].no_of_people} People</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                    <View >
-                                        <View style={styles.ulclass}>
-                                           
-                                            <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
-                                            <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" , paddingLeft:13 }}>Total Amount</Text>
-                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
-                                                    {"₹" + "" + orderData[item].payable_amount}</Text>
-                                            </View>
-                                          
-                                            <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
-                                            <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" }}>Balance Amount</Text>
-
-                                                <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
-                                                    {"₹" + "" + Math.round((orderData[item].payable_amount*4)/5)}</Text>
-                                            </View>
-                                        </View>
-                                      
-                                    </View>
-                                </View>
-                                <View style={styles.sec2}>
-                                    <View>
-                                        <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id, orderData[item].order_id)}>
-                                            <View><Text style={styles.buttonText}>View Details</Text></View>
-                                        </TouchableHighlight>
-                                    </View>
-
-                                    <View>
-                                        {getOrderStatus(orderData[item].order_status) === 'Booked' || getOrderStatus(orderData[item].order_status) === 'Accepted' || getOrderStatus(orderData[item].order_status) === 'In-progress' ? (
-                                            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={() => sendInvite(orderData[item])}>
-                                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                                                    <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
-                                                </View>
-                                            </TouchableHighlight>
-                                        ) : null}
-                                    </View>
-
-                                </View>
-                            </View>
-                        )
-                    })
-                )
-                :(
-                    orderData.length === 0 && (
-                        <View style={styles.noOrdersContainer}>
-                            <View style={{flexDirection:"row" , justifyContent:"center" , alignItems:"center"}}>
-                            <Image source={require('../../assets/no_order.png')} style={{ width: 70, height: 70, marginLeft:21 }} />
-                                </View>
-
-                            <Text style={{ fontWeight: '500', fontSize: 16, color: "#9252AA", textAlign:"center" }}>You don't have any orders yet.</Text>
-                            <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA" , textAlign:"center" }}> Please place the order to make your party memorable</Text>
-                            <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
-                                <TouchableHighlight
-                                    onPress={() => navigation.navigate('Home')}
-                                    style={
-                                        styles.continueButton
-                                    }
+                {loading ? (
+                    <View style={styles.loaderContainer}>
+                        <Loader loading={loading} />
+                    </View>
+                ) :
+                    orderData.length > 0 ? (
+                        Object.keys(orderData).map((item, index) => {
+                            return (
+                                <View key={index}
+                                    style={{
+                                        marginBottom: 10,
+                                        shadowColor: '#9f9e9e',
+                                        shadowOffset: { width: 0, height: 4 },
+                                        shadowOpacity: 3,
+                                        shadowRadius: 2,
+                                        elevation: 1,
+                                        borderTopLeftRadius: 20,
+                                        borderTopRightRadius: 20,
+                                        borderBottomLeftRadius: 10,
+                                        borderBottomRightRadius: 20
+                                    }}
                                 >
-                                   <Text style={{textAlign:"center" ,  color:"#fff" , fontSize:16}}>Continue</Text>
-                               </TouchableHighlight>
-    
-                            </View>
-                        </View>
+                                    <View style={styles.sec1}>
+                                        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                                            <View style={{ display: "flex", flexDirection: "row" }}>
+                                                <Text style={{ paddingLeft: 10, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>Order Id</Text>
+                                                <Text style={{ paddingLeft: 9, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>
+                                                    {getOrderId(orderData[item].order_id)}
+                                                </Text>
+                                            </View>
+                                            <View>
+                                                {
+                                                    orderData[item].order_status === 3 || orderData[item].order_status === 2 ?
+                                                        <Text style={styles.orderstatus3}>
+                                                            {getOrderStatus(orderData[item].order_status)}
+                                                        </Text> : orderData[item].order_status === 0 ?
+                                                            <Text style={styles.orderstatus4}>
+                                                                {getOrderStatus(orderData[item].order_status)}
+                                                            </Text> :
+                                                            <Text style={styles.orderstatus}>
+                                                                {getOrderStatus(orderData[item].order_status)}
+                                                            </Text>
+                                                }
+                                            </View>
+                                        </View>
+                                        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                                            <View style={{ display: "flex", flexDirection: "row" }}>
+                                                <Text style={{ paddingLeft: 10, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>OTP</Text>
+                                                <Text style={{ paddingLeft: 9, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>
+                                                    {orderData[item].otp}
+                                                </Text>
+
+                                            </View>
+                                            <View>
+
+                                                {orderData[item].type === 2 ? <Text style={{ paddingLeft: 9, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>
+                                                    {"Chef for Party"}
+                                                </Text> :
+                                                    <Text style={{ paddingLeft: 9, color: "rgba(146, 82, 170, 1)", fontWeight: '700', fontSize: 11 }}>
+                                                        {"Decoration"}
+                                                    </Text>
+                                                }
+                                            </View>
+                                        </View>
+
+
+                                    </View>
+
+
+                                    <View style={styles.sec}>
+                                        <View>
+                                            <View style={styles.ulclass1}>
+                                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none" }}>
+                                                    <Image source={require('../../assets/date-time-icon.png')} style={{
+                                                        height: 13,
+                                                        width: 13
+                                                    }} />
+
+                                                    <Text style={{
+                                                        marginLeft: 8,
+                                                        color: 'rgba(65, 65, 65, 1)',
+                                                        fontWeight: '600'
+                                                    }}>
+                                                        {getorderDate(orderData[item].order_date)}</Text>
+                                                </View>
+                                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none", paddingTop: 6, paddingBottom: 6 }}>
+
+                                                    <Image source={require('../../assets/Time-Circle.png')} style={{
+                                                        height: 13,
+                                                        width: 13
+                                                    }} />
+
+                                                    <Text style={{
+                                                        marginLeft: 8,
+                                                        color: 'rgba(65, 65, 65, 1)',
+                                                        fontWeight: '600'
+                                                    }}>
+                                                        {orderData[item].order_time}</Text>
+
+                                                </View>
+                                                {orderData[item].type === 2 ?
+                                                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", listStyle: "none" }}>
+
+                                                        <Image source={require('../../assets/User.png')} style={{
+                                                            height: 13,
+                                                            width: 13
+                                                        }} />
+
+                                                        <Text style={{
+                                                            marginLeft: 8,
+                                                            color: 'rgba(65, 65, 65, 1)',
+                                                            fontWeight: '600'
+                                                        }}>
+                                                            {orderData[item].no_of_people} People</Text>
+                                                    </View>
+                                                    : null
+                                                }
+
+                                            </View>
+                                        </View>
+                                        <View >
+                                            <View style={styles.ulclass}>
+
+                                                <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
+                                                    <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", paddingLeft: 13 }}>Total Amount</Text>
+                                                    <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
+                                                        {"₹" + "" + orderData[item].payable_amount}</Text>
+                                                </View>
+
+                                                <View style={{ textAlign: "right", listStyle: "none", paddingTop: 4 }}>
+                                                    <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600" }}>Balance Amount</Text>
+                                                    {orderData[item].type === 2 ?
+                                                        <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
+                                                            {"₹" + "" + Math.round((orderData[item].payable_amount * 4) / 5)}
+                                                        </Text>
+                                                        :
+                                                        <Text style={{ color: "rgba(146, 82, 170, 1)", fontSize: 12, fontWeight: "600", textAlign: "right" }}>
+                                                            {"₹" + "" + Math.round((orderData[item].payable_amount * 0.7))}
+                                                        </Text>
+                                                    }
+                                                </View>
+                                            </View>
+
+                                        </View>
+                                    </View>
+                                    <View style={styles.sec2}>
+                                        <View>
+                                            <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id, orderData[item].order_id)}>
+                                                <View><Text style={styles.buttonText}>View Details</Text></View>
+                                            </TouchableHighlight>
+                                        </View>
+
+                                        <View>
+    {orderData[item].type !== 1 && ( // Check if type is not equal to 1
+        getOrderStatus(orderData[item].order_status) === 'Booked' ||
+        getOrderStatus(orderData[item].order_status) === 'Accepted' ||
+        getOrderStatus(orderData[item].order_status) === 'In-progress' ? (
+            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={() => sendInvite(orderData[item])}>
+                <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                    <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
+                </View>
+            </TouchableHighlight>
+        ) : null
+    )}
+</View>
+
+
+                                    </View>
+                                </View>
+                            )
+                        })
                     )
-                )
+                        : (
+                            orderData.length === 0 && (
+                                <View style={styles.noOrdersContainer}>
+                                    <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                                        <Image source={require('../../assets/no_order.png')} style={{ width: 70, height: 70, marginLeft: 21 }} />
+                                    </View>
+
+                                    <Text style={{ fontWeight: '500', fontSize: 16, color: "#9252AA", textAlign: "center" }}>You don't have any orders yet.</Text>
+                                    <Text style={{ fontWeight: '500', fontSize: 14, color: "#9252AA", textAlign: "center" }}> Please place the order to make your party memorable</Text>
+                                    <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
+                                        <TouchableHighlight
+                                            onPress={() => navigation.navigate('Home')}
+                                            style={
+                                                styles.continueButton
+                                            }
+                                        >
+                                            <Text style={{ textAlign: "center", color: "#fff", fontSize: 16 }}>Continue</Text>
+                                        </TouchableHighlight>
+
+                                    </View>
+                                </View>
+                            )
+                        )
                 }
-               
+
             </View>
         </ScrollView>
     )
@@ -321,23 +366,23 @@ const styles = StyleSheet.create({
         paddingRight: 20,
         paddingTop: 20,
         backgroundColor: 'white',
-        height:windowHeight,
-        position:'relative',
+        // height: windowHeight,
+        position: 'relative',
     },
-    noOrdersContainer:{
-        position:"absolute",
-        top:"30%",
-        left:0,
-        right:0,
-        marginHorizontal:'auto', 
-        paddingHorizontal:30,
-        textAlign:"center",
+    noOrdersContainer: {
+        position: "absolute",
+        top: "30%",
+        left: 0,
+        right: 0,
+        marginHorizontal: 'auto',
+        paddingHorizontal: 30,
+        textAlign: "center",
     },
     loaderContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor:"red",
+        backgroundColor: "red",
     },
     sec: {
         display: "flex",
@@ -362,15 +407,14 @@ const styles = StyleSheet.create({
     },
     sec1: {
         display: "flex",
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: "center",
         borderTopEndRadius: 20,
         borderTopStartRadius: 20,
-        paddingTop: 6,
+        paddingTop: 10,
         paddingBottom: 6,
-        paddingRight: 6,
-        paddingLeft: 6,
+        paddingRight: 12,
+        paddingLeft: 9,
         backgroundColor: "#E7E7E7",
         color: "#9252AA",
         fontWeight: "bold"
@@ -420,7 +464,7 @@ const styles = StyleSheet.create({
         paddingTop: 5,
         paddingLeft: 0,
         paddingRight: 0,
-        textAlign:"right",
+        textAlign: "right",
     },
     ulclass1: {
         marginTop: 8,
