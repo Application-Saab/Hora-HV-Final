@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
     view1: { flexDirection: 'row', backgroundColor: '#EFF0F3',elevation:2,width:Dimensions.get('window').width},
     text1: { color: '#676767', fontSize: 12, fontWeight: '400', paddingVertical:5 ,marginStart:8},
     image1: { width: 16, height: 16, marginLeft: 16, marginTop: 5,marginBottom:5},
-    view2: { flexDirection: 'row',marginStart:16 ,marginTop:4},
+    view2: { flexDirection: 'row',marginStart:16 ,marginTop:14 , paddingBottom:10},
     order: {height:24,width:24,marginLeft:16},
     time: {height:24,width:24,marginLeft:24},
     dish:{height:24,width:24,marginLeft:15},

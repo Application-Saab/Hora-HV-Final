@@ -7,10 +7,13 @@ import OrderDetailsMenu from '../../components/OrderDetailsMenu';
 import OrderDetailsIngre from '../../components/OrderDetailsIngre';
 import CustomHeader from '../../components/CustomeHeader';
 import OrderDetailsAppli from '../../components/OrderDetailsAppli';
-import { BASE_URL, ORDER_DETAILS_ENDPOINT, ORDER_CANCEL } from '../../utils/ApiConstants';
+import { BASE_URL, ORDER_DETAILS_ENDPOINT, ORDER_CANCEL , GET_DECORATION_DETAILS} from '../../utils/ApiConstants';
 // import Share from 'react-native-share';
 
 
+    /// order.type is 2 for chef
+    /// order.type is 1 for decoration
+    /// order.type is 3 for hospitality service
 const OrderDetails = ({ navigation, route }) => {
     const [orderId, setOrderId] = useState('')
     const [orderDetail, setOrderDetail] = useState({})
@@ -18,8 +21,8 @@ const OrderDetails = ({ navigation, route }) => {
     const [OrderAppl, setOrderAppl] = useState([]);
     const [orderIngredients, setOrderIngredients] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
-   
-
+     const orderType = route.params.orderType
+    console.log("orderType===" + orderType)
 
     const handleShareMenu = () => {
         console.log("ShareMenuWithGuest")
@@ -108,24 +111,49 @@ const OrderDetails = ({ navigation, route }) => {
     //     }
     //   };
 
+    if(orderType === 2){
+        console.log("orderType2 chef")
+        useEffect(() => {
+            async function fetchOrderDetails() {
+                try {
+                    const response = await fetch(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId);
+                    const responseData = await response.json();
+                   
+                    setOrderDetail(responseData.data)
+                    setOrderMenu(responseData.data.selecteditems)
+                    setOrderAppl(responseData.data.orderApplianceIds)
+                    setOrderIngredients(responseData.data.ingredientUsed)
+                }
+                catch (error) {
+                    console.log(error)
+                }
+            }
+            fetchOrderDetails()
+            
+        }, [])
+    }
 
-    useEffect(() => {
-        async function fetchOrderDetails() {
-            try {
-                const response = await fetch(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId);
-                const responseData = await response.json();
-               
-                setOrderDetail(responseData.data)
-                setOrderMenu(responseData.data.selecteditems)
-                setOrderAppl(responseData.data.orderApplianceIds)
-                setOrderIngredients(responseData.data.ingredientUsed)
+    if(orderType === 1){
+        useEffect(() => {
+            console.log("orderType1 decoration")
+            async function fetchDecorationOrderDetails() {
+                console.log("orderurl===" + BASE_URL + GET_DECORATION_DETAILS + '/' + route.params?.orderId)
+                try {
+                    const response = await fetch(BASE_URL + GET_DECORATION_DETAILS + '/' + route.params?.orderId);
+                    const responseData = await response.json();
+                    console.log("responseData" , responseData.data)
+                    setOrderDetail(responseData.data)
+                }
+                catch (error) {
+                    console.log(error)
+                }
             }
-            catch (error) {
-                console.log(error)
-            }
-        }
-        fetchOrderDetails()
-    }, [])
+            fetchDecorationOrderDetails()
+        }, []) 
+    }
+   
+
+    
 
 
 
@@ -161,11 +189,21 @@ const OrderDetails = ({ navigation, route }) => {
             {/* <Text style={{ color: "red" }}>{'aaaa'}{orderDetail.preperationtext}</Text> */}
 
             <View style={styles.container}>
-                <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} />
+                <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} orderType={orderType}/>
+               
+
+                {orderType === 2 ?
                 <View style={styles.tabSec}>
+                      {console.log("orderType here===" + orderType)}
                     <Tabs onSelectTab={handleTabChange} />
-                    {selectedTab === 1 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail}/>}
+                    {selectedTab === 2 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail}/>}
                 </View>
+                :
+                <View>
+                    <Text>{"decoration "}</Text>
+                </View>  
+                }
+               
                 {/* <View>
                     {(orderDetail.order_status === "Booked" || orderDetail.order_status === "Accepted") &&
                         orderDetail.order_status !== "In-progress" ? (

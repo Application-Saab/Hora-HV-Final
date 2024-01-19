@@ -40,6 +40,7 @@ const SelectDate = ({ navigation, route }) => {
 
     const isAppliancesSelected = selectedTab === 'Appliances';
     const isIngredientsSelected = selectedTab === 'Ingredients';
+	let count = 0;
 
     useEffect(() =>{
         AsyncStorage.getItem("selectedDate").then((sDate) => {
@@ -162,8 +163,6 @@ const SelectDate = ({ navigation, route }) => {
 
     const RenderIngredients = ({ item }) => {
 
-        item.qty = item.qty * peopleCount;
-
         if (item.qty >= 1000) {
             item.qty = item.qty / 1000;
             if (item.unit === 'g')
@@ -186,8 +185,8 @@ const SelectDate = ({ navigation, route }) => {
         );
     };
 
-    const renderPreparationText = (items) => {
-      
+    const renderPreparationText = ({ items
+    }) => {
         if (showAll) {
             return items.map((item, index) => (
                 <Text key={index} style={styles.item}>{`${index + 1}. ${item}`}</Text>
@@ -208,7 +207,7 @@ const SelectDate = ({ navigation, route }) => {
         setShowAll(!showAll);
     };
 
-    const LeftTabContent = ({ burnerCount, ApplianceList , preparationTextList}) => {
+    const LeftTabContent = ({ burnerCount, ApplianceList }) => {
         return (
             <View style={{ paddingHorizontal: 15, flexDirection: 'column', marginLeft: 16, marginEnd: 20, borderWidth: 1, elevation: 1, backgroundColor: 'white', borderBottomRightRadius: 15, borderBottomLeftRadius: 15, borderColor: 'white' }}>
                 <View style={{ flexDirection: 'column' }}>
@@ -257,9 +256,8 @@ const SelectDate = ({ navigation, route }) => {
 
                 </View>
 
-                   
                 {preparationTextList.length > 0 && (
-                    <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 , paddingBottom:15 ,  marginBottom:15}}>
+                    <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 }}>
                         <View style={styles.header}>
                             <Text style={{ color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Readiness Required*</Text>
                             <TouchableOpacity onPress={toggleShowAll} activeOpacity={1}>
@@ -276,7 +274,7 @@ const SelectDate = ({ navigation, route }) => {
         );
     };
 
-    const RightTabContent = ({ ingredientList , preparationTextList }) => {
+    const RightTabContent = ({ ingredientList }) => {
         return (
             <ScrollView>
                 <View style={{ paddingHorizontal: 15, flexDirection: 'column', marginLeft: 16, marginEnd: 20, borderWidth: 1, elevation: 1, backgroundColor: 'white', borderBottomRightRadius: 15, borderBottomLeftRadius: 15, borderColor: 'white', paddingBottom: 10 }}>
@@ -296,8 +294,8 @@ const SelectDate = ({ navigation, route }) => {
                         />
 
                     </View>
-                        <Text>{preparationTextList}</Text>
-                    {/* {preparationTextList.length > 0 && (
+
+                    {preparationTextList.length > 0 && (
                         <View style={{ flexDirection: 'column', backgroundColor: '#F9E9FF', borderRadius: 15, paddingHorizontal: 10 }}>
                             <View style={styles.header}>
                                 <Text style={{ color: '#9252AA', fontWeight: '500', fontSize: 10 }}>Readiness Required*</Text>
@@ -309,7 +307,7 @@ const SelectDate = ({ navigation, route }) => {
                                 {renderPreparationText(preparationTextList)}
                             </View>
                         </View>
-                    )} */}
+                    )}
 
 
                 </View>
@@ -334,10 +332,17 @@ const SelectDate = ({ navigation, route }) => {
                         };
                     }
                     totalIngredients[ingredient._id].qty += parseInt(ingredient.qty);
-                    if (ingredient.unit === 'gram')
+                    if (ingredient.unit === 'gram' || ingredient.unit === 'Gram')
                         totalIngredients[ingredient._id].unit = 'g';
                 });
             }
+			if (count === 0){
+        Object.values(totalIngredients).map(item => {
+            
+                item.qty = item.qty * peopleCount;
+                count = 1
+            
+        })}
         }
 
       
@@ -395,12 +400,9 @@ const SelectDate = ({ navigation, route }) => {
     };
 
     const preparationTextArray = getPreparationTextList()
-   
     const preparationTextList = {
         items: preparationTextArray
     };
-
-   
 
 
     const getTotalSpecialAppliances = () => {
@@ -423,12 +425,10 @@ const SelectDate = ({ navigation, route }) => {
         if (activeTab === 'left') {
             const totalBurnerCount = getTotalBurnerCount();
             const totalSpecialAppliancesList = getTotalSpecialAppliances();
-            const totalPreparationTextList  = getPreparationTextList()
-            return <LeftTabContent burnerCount={totalBurnerCount} ApplianceList={totalSpecialAppliancesList} preparationTextList={totalPreparationTextList}/>;
+            return <LeftTabContent burnerCount={totalBurnerCount} ApplianceList={totalSpecialAppliancesList} />;
         } else if (activeTab === 'right') {
             const totalIngredientsList = getTotalIngredients();
-            const totalPreparationTextList  = getPreparationTextList()
-            return <RightTabContent ingredientList={totalIngredientsList} preparationTextList={totalPreparationTextList}/>;
+            return <RightTabContent ingredientList={totalIngredientsList} />;
         }
     };
 

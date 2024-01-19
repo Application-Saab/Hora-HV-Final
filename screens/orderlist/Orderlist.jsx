@@ -13,8 +13,8 @@ const Orderlist = ({ navigation }) => {
     const [invitedate, setInviteDate] = useState('')
     const [token, setToken] = useState('');
     const [loading, setLoading] = useState(true);
-    const handleOrderDetails = (e, a) => {
-        navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a })
+    const handleOrderDetails = (e, a , t) => {
+        navigation.navigate('OrderDetails', { 'apiOrderId': e, 'orderId': a  ,  'orderType': t})
     }
 
 
@@ -139,7 +139,7 @@ const Orderlist = ({ navigation }) => {
         <ScrollView style={styles.screenContainer}>
             <CustomHeader title={"Order History"} navigation={navigation} />
 
-            <View style={styles.container}>
+            <View style={orderData.length === 0 ? styles.noOrderTopContainer : styles.container}>
                 {loading ? (
                     <View style={styles.loaderContainer}>
                         <Loader loading={loading} />
@@ -287,7 +287,7 @@ const Orderlist = ({ navigation }) => {
                                     </View>
                                     <View style={styles.sec2}>
                                         <View>
-                                            <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id, orderData[item].order_id)}>
+                                            <TouchableHighlight style={styles.button} underlayColor="#FF7940" onPress={() => handleOrderDetails(orderData[item]._id, orderData[item].order_id , orderData[item].type)}>
                                                 <View><Text style={styles.buttonText}>View Details</Text></View>
                                             </TouchableHighlight>
                                         </View>
@@ -366,7 +366,14 @@ const styles = StyleSheet.create({
         paddingRight: 20,
         paddingTop: 20,
         backgroundColor: 'white',
-        // height: windowHeight,
+        position: 'relative',
+    },
+    noOrderTopContainer:{
+        height: windowHeight,
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingTop: 20,
+        backgroundColor: 'white',
         position: 'relative',
     },
     noOrdersContainer: {

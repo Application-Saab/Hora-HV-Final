@@ -4,12 +4,13 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomStatusBar from '../../components/CustomStatusBar';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
+import { BASE_URL, GET_CUISINE_ENDPOINT, GET_ADDRESS_LIST, API_SUCCESS_CODE, GET_MEAL_DISH_ENDPOINT, CONFIRM_ORDER_ENDPOINT, GET_ORDER_CITY_CHECK } from '../../utils/ApiConstants';
 import Geocoder from 'react-native-geocoding';
 import CustomHeader from '../../components/CustomeHeader';
 import { PAYMENT, PAYMENT_STATUS } from '../../utils/ApiConstants';
 import Geolocation from '@react-native-community/geolocation';
 import { getCurrentPosition } from 'react-native-geolocation-service';
+import OrderWarning from '../dialog/OrderWarning';
 
 const ConfirmDishOrder = ({ navigation, route }) => {
 
@@ -24,8 +25,18 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     const [showAllItems, setShowAllItems] = useState(false);
     const [count, setCount] = useState(0);
     const [add, setAdd] = useState('');
-    const [addId, setAddId] = useState('')
+    let [addId, setAddId] = useState('')
+    const [i, setI] = useState(0);
+    let addressID;
     let cat = []
+    const [cityStatus, setCityStatus] = useState(0);
+    const [isWarningVisible, setWarningVisible] = useState(false);
+    const [isWarningVisibleForCity, setWarningVisibleForCity] = useState(false);
+
+    const handleWarningClose = () => {
+        setWarningVisible(false);
+        // setWarningVisibleForCity(false);
+    };
 
     const selectedMealList = Object.values(selectedDishData).map(dish => {
         return {
@@ -48,8 +59,11 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const dishPrice = selectedMealList.reduce((total, dish) => total + dish.price, 0);
     const priceForPeople = peopleCount * 49
-    const totalPrice = dishPrice + priceForPeople
-
+    let totalPrice = dishPrice + priceForPeople
+    if (selectedMealList.length > 7){
+        console.log("more than 650")
+        totalPrice += 650
+    }
 
     const AddressItem = ({ address, selected, onSelect }) => (
         <TouchableOpacity onPress={onSelect}>
@@ -89,7 +103,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                             {address.title}
                         </Text>
                         <Text numberOfLines={2} style={[styles.multiLineText, selected && styles.selectedText]}>
-                            {address.address1}
+                            {address.address2}
                         </Text>
                     </View>
                 </View>
@@ -132,7 +146,8 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         Object.values(selectedDishData).map((item) => cat.push(item.cuisineId[0]));
     }, []);
 
-    const getCurrentLocation = () => {
+
+   const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
@@ -142,7 +157,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                 const address = response.results[0].formatted_address;
                 setCompleteAddress(response.results[0].address_components);
                 setAdd(address);
-                setCurrentAddress(address);
+                //setCurrentAddress(address);
               })
               .catch((error) => console.warn('Error fetching location address:', error));
           },
@@ -159,8 +174,9 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                 page: '1'
             };
             const token = await AsyncStorage.getItem('token')
+            console.log(token);
 
-            console.warn(token)
+							   
             
             const response = await axios.post(url, requestData, {
                 headers: {
@@ -170,14 +186,14 @@ const ConfirmDishOrder = ({ navigation, route }) => {
             });
             
             
-            if (response.status == API_SUCCESS_CODE) {
+            if (response.status === API_SUCCESS_CODE) {
                 setAddresses(response.data.data.address)
-                
-                response.data.data.address.forEach(element => {
-                    if (element.address1 ===  add || element.address2 === add)
-                        
-                        setAddId(element._id)
-                });
+				
+															   
+																			  
+						
+											 
+				   
             }
         } catch (error) {
             console.log('Error Fetching Data:', error.message);
@@ -190,19 +206,26 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     };
 
     const handleSelectAddress = (address) => {
+        setI(1);
         setAdd(address.address2)
+
+        console.log(addresses[0].address2)
+
         addresses.forEach(element => {
-            if (element.address1 ===  add || element.address2 === add)
-                
-                setAddId(element._id)
+            if (element.address1 ===  address.address2 || element.address2 === address.address2)
+            {
+                addressID = element._id;
+                setAddId(addressID);
+
+            
+            }
         });
+
         console.log(addId);
         console.log(address.address2)
         setCurrentAddress(address.address2);
         bottomSheetRef.current.close();
     };
-
-
 
 
     const renderDishItem = ({ item }) => {
@@ -221,15 +244,14 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     }
 
+
     const handleConfirmOrder = async (merchantTransactionId) => {
         Object.values(selectedDishData).map((item) => cat.push(item.cuisineId[0]));
-        console.log(currentAddress)
-        addresses.forEach(element => {
-            if (element.address1 ===  add || element.address2 === add)
-                setAddId(element._id)
-        });
-
-        console.log(addId);
+		 if (addId === "")
+        {
+            addId = addressID;
+        }
+        
         try {
             
             const message = await checkPaymentStatus(merchantTransactionId);
@@ -341,7 +363,17 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const onContinueClick = async () => {
         
-        const apiUrl = BASE_URL + PAYMENT;
+        console.log("City" + cityStatus)
+        if (i === 0)
+        {
+            setWarningVisible(true);
+        }
+        // else if(cityStatus === 0){
+        //     setWarningVisibleForCity(true);
+        // }
+        else
+        {
+            const apiUrl = BASE_URL + PAYMENT;
         
         const storedUserID = await AsyncStorage.getItem("userID");
         const phoneNumber = await AsyncStorage.removeItem('mobileNumber')
@@ -351,7 +383,7 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         let merchantTransactionId = storedUserID + randomInteger
         const requestData = {
         user_id: storedUserID,
-        price: totalPrice / 5,
+        price: Math.round(totalPrice / 5),
         phone: phoneNumber,
         name: '',
         merchantTransactionId: merchantTransactionId
@@ -381,7 +413,14 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         // Handle errors
         console.error('API error:', error);
       }
+        }
+       
+        
+        
     }
+
+
+
     const addMore = () => {
         navigation.navigate('CreateOrder')
     }
@@ -392,34 +431,26 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         navigation.navigate("SelectDate")
     }
 
-    const contactUsRedirection = () =>{
+    const contactUsRedirection = () => {
         Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20I%20have%20some%20queries%20for%20chef%20for%20party%20service');
     }
 
-    const changeLocation = async () => {
+   const changeLocation = async () => {
         try {
           let address = await AsyncStorage.getItem("Address");
-      
           const locality = completeAddress[4]?.long_name || "";
           const city = completeAddress[5]?.long_name || "";
           const state = completeAddress[7]?.long_name || "";
           const pincode = completeAddress[9]?.long_name || "";
-      
-          // Set multiple items using Promise.all
+          console.log(locality + city + state + pincode);
           await Promise.all([
             AsyncStorage.setItem("City", city),
             AsyncStorage.setItem("State", state),
             AsyncStorage.setItem("Pincode", pincode),
             AsyncStorage.setItem("Locality", locality)
           ]);
-      
-          setAdd(address)
-          
-          address = address + locality + city + state + pincode;
-          setCurrentAddress(address);
-          openBottomSheet();
-        } catch (error) {
-          console.error('Error fetching or setting data in AsyncStorage:', error);
+	   openBottomSheet();
+        } catch (error) {  
         }
       };
 
@@ -469,17 +500,17 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', }}>
                         Cooking location
                     </Text>
-                    <View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
+                    {currentAddress !== ""?<View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
                         <Text style={{ color: '#9252AA', fontWeight: '500', lineHeight: 18, fontSize: 13 }}>{currentAddress}</Text>
 
-                    </View>
+                    </View>:""}
                     <TouchableOpacity onPress={changeLocation} activeOpacity={1}>
-
-                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
-                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change location</Text>
-                        </View>
-
-                    </TouchableOpacity>
+                    {currentAddress === ""?<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Click here to add Location</Text>
+                        </View>:<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                            <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change Location</Text>
+                        </View>}
+                        </TouchableOpacity>
                 </View>
                 <View style={{ marginHorizontal: 16, flexDirection: 'column', width: Dimensions.get('window').width * 0.9, padding: 13, borderRadius: 6, borderColor: '#E6E6E6', borderWidth: 1, marginTop: 6, paddingEnd: 10 }}>
                     <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', lineHeight: 26 }}>Order summary</Text>
@@ -505,7 +536,12 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                             </View>
                         </View>
                     </View>
-                    <Image style={{ width: 316, height: 1, marginTop: 23 }} source={require('../../assets/Rectangleline.png')}></Image>
+
+                    <View>
+
+                        <Text style={{ color: "#9252AA", fontWeight: '500', fontSize: 10, lineHeight: 20, marginTop: 6, paddingLeft: 13 }}>Note: Additional charge of 700 applies for more than 7 dishes</Text>
+                    </View>
+                    <Image style={{ width: 316, height: 1, marginTop: 10 }} source={require('../../assets/Rectangleline.png')}></Image>
 
                     <Image style={{ width: 316, height: 1, marginTop: 3 }} source={require('../../assets/Rectangleline.png')}></Image>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
@@ -521,7 +557,10 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                         <Image source={require('../../assets/info.png')} style={{ height: 16, width: 16 }} />
                         <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to chef after order completion.</Text>
                     </View>
+
+
                 </View>
+
 
 
 
@@ -564,10 +603,10 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
                         </View>
                         <View>
-                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
-    Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
-    The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
-</Text>
+                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
+                                Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
+                                The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
+                            </Text>
                         </View>
                     </View>
                 </View>
@@ -580,6 +619,12 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                     </View>
 
                 </TouchableOpacity>
+                {/* <View>
+                <OrderWarning visible={isWarningVisible} title={"Please select address"} buttonText={"OK!"}
+                    onClose={handleWarningClose} />
+                <OrderWarning visible={isWarningVisibleForCity} title={"Sorry, we are not in your city!! We will notify you as soon we enter into the city."} buttonText={"OK!"}
+                    onClose={handleWarningClose} />
+            </View> */}
             </View>
             <RBSheet
                 ref={bottomSheetRef}

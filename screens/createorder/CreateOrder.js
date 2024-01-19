@@ -384,6 +384,9 @@ const CreateOrder = ({ navigation }) => {
 
     const handleToggleVeg = () => {
     }
+
+      const isCategoryExpanded = (categoryId) => expandedCategories.includes(categoryId);
+
     return (
         <View style={styles.screenContainer}>
             <CustomHeader title={"Create Order"} navigation={navigation} />
@@ -396,8 +399,11 @@ const CreateOrder = ({ navigation }) => {
                 <Image style={styles.image3} source={require('../../assets/separator.png')} />
                 <Image style={styles.image5} source={require('../../assets/SelectDateAndTime.png')} />
                 <Image style={styles.image3} source={require('../../assets/separator.png')} />
-                <Image style={styles.image4} source={require('../../assets/ConfirmOrderUnselected.png')} />
-            </View>
+                <View>
+                    <Image style={styles.image4} source={require('../../assets/ConfirmOrderUnselected.png')} />
+                    <Text style={{ fontSize: 10, fontFamily: '600', color: '#827F84' }}>Confirm Order</Text>
+                </View>           
+                 </View>
           
             <ScrollView>
             <View style={styles.vegNonVegContainer}>
@@ -470,7 +476,6 @@ const CreateOrder = ({ navigation }) => {
                                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                                             <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
                                                 <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All Dishes</Text>
-
                                             </TouchableOpacity>
                                             <Image style={{ width: 9, height: 9, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image>
                                         </View>
@@ -552,7 +557,7 @@ const CreateOrder = ({ navigation }) => {
                 <OrderWarning visible={isWarningVisibleForDishCount} title={"Maximum 12 dishes can be prepared at home!!!"} buttonText={"OK"}
                     onClose={handleWarningClose} />
 
-                <OrderWarning visible={isWarningVisibleForCuisineCount} title={"Only 3 Cuisines can be selected!!!"} buttonText={"OK"}
+                <OrderWarning visible={isWarningVisibleForCuisineCount} title={"Maximum 3 Cuisines can be selected!"} buttonText={"OK"}
                     onClose={handleWarningClose} />
             </View>
         </View>

@@ -24,9 +24,8 @@ const ConfirmOrder = ({ navigation }) => {
           Your chef will contact 5 hours before the schedules time. Have a great fest!
         </Text>
 
-        <Text style={styles.normalText}>Need help? Call us.</Text>
         <View style={{
-          flex: 1,
+          marginTop:10,
           justifyContent: 'center',
           alignItems: 'center',
         }}>
