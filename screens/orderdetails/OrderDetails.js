@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Button , Linking , Dimensions} from 'react-native';
+import { StyleSheet, Text, View, Image, Button, Linking, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OrderDetailsSection from '../../components/orderDetailsSection';
-import { ScrollView, TextInput, TouchableOpacity ,TouchableHighlight, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import { ScrollView, TextInput, TouchableOpacity, TouchableHighlight, ImageBackground, KeyboardAvoidingView } from 'react-native';
 import OrderDetailsMenu from '../../components/OrderDetailsMenu';
 import OrderDetailsIngre from '../../components/OrderDetailsIngre';
 import CustomHeader from '../../components/CustomeHeader';
 import OrderDetailsAppli from '../../components/OrderDetailsAppli';
-import { BASE_URL, ORDER_DETAILS_ENDPOINT, ORDER_CANCEL , GET_DECORATION_DETAILS} from '../../utils/ApiConstants';
+import { BASE_URL, ORDER_DETAILS_ENDPOINT, ORDER_CANCEL, GET_DECORATION_DETAILS } from '../../utils/ApiConstants';
 // import Share from 'react-native-share';
 
 
-    /// order.type is 2 for chef
-    /// order.type is 1 for decoration
-    /// order.type is 3 for hospitality service
+/// order.type is 2 for chef
+/// order.type is 1 for decoration
+/// order.type is 3 for hospitality service
 const OrderDetails = ({ navigation, route }) => {
     const [orderId, setOrderId] = useState('')
     const [orderDetail, setOrderDetail] = useState({})
@@ -21,8 +21,9 @@ const OrderDetails = ({ navigation, route }) => {
     const [OrderAppl, setOrderAppl] = useState([]);
     const [orderIngredients, setOrderIngredients] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
-     const orderType = route.params.orderType
-    console.log("orderType===" + orderType)
+    const [decorationItems, setDecorationItems] = useState([])
+    const orderType = route.params.orderType
+
 
     const handleShareMenu = () => {
         console.log("ShareMenuWithGuest")
@@ -89,21 +90,21 @@ const OrderDetails = ({ navigation, route }) => {
     //     message = message + dishes.order_date.slice(0, 10);
 
     //     message = message + ' ' + dishes.order_time;
-      
+
     //     dishes.selecteditems.forEach((dish,index) => {
     //       message += '\n' + (index+1) + '. ' + dish.name;
     //     });
 
     //     if (dishes.addressId != null)
     //     {message = message + '\n At ' + dishes.addressId.address1 + ' ' + dishes.addressId.address2 +   `\nhttps://play.google.com/store/apps/details?id=com.hora`;}
-      
+
     //     // Add the rest of your message here
     //     // ...
-      
+
     //     const shareOptions = {
     //       message: message,
     //     };
-      
+
     //     try {
     //       const ShareResponse = Share.open(shareOptions);
     //     } catch (error) {
@@ -111,14 +112,14 @@ const OrderDetails = ({ navigation, route }) => {
     //     }
     //   };
 
-    if(orderType === 2){
+    if (orderType === 2) {
         console.log("orderType2 chef")
         useEffect(() => {
             async function fetchOrderDetails() {
                 try {
                     const response = await fetch(BASE_URL + ORDER_DETAILS_ENDPOINT + '/v1/' + route.params?.apiOrderId);
                     const responseData = await response.json();
-                   
+
                     setOrderDetail(responseData.data)
                     setOrderMenu(responseData.data.selecteditems)
                     setOrderAppl(responseData.data.orderApplianceIds)
@@ -129,38 +130,53 @@ const OrderDetails = ({ navigation, route }) => {
                 }
             }
             fetchOrderDetails()
-            
+
         }, [])
     }
-
-    if(orderType === 1){
+    else if (orderType === 1) {
         useEffect(() => {
             console.log("orderType1 decoration")
             async function fetchDecorationOrderDetails() {
                 console.log("orderurl===" + BASE_URL + GET_DECORATION_DETAILS + '/' + route.params?.orderId)
                 try {
-                    const response = await fetch(BASE_URL + GET_DECORATION_DETAILS + '/' + route.params?.orderId);
+                    const response = await fetch(BASE_URL + GET_DECORATION_DETAILS + '/' + 296);
                     const responseData = await response.json();
-                    console.log("responseData" , responseData.data)
-                    setOrderDetail(responseData.data)
+                    console.log("responseData11", responseData.data.items[0].decoration)
+                    setOrderDetail(responseData.data._doc)
+                    setDecorationItems(responseData.data.items[0].decoration)
                 }
                 catch (error) {
                     console.log(error)
                 }
             }
             fetchDecorationOrderDetails()
-        }, []) 
+        }, [])
     }
-   
+    else {
+        console.log("no order type")
+    }
 
-    
+
+    const getItemInclusion = (inclusion) => {
+        const htmlString = inclusion[0];
+        const withoutDivTags = htmlString.replace(/<\/?div>/g, '');
+        const statements = withoutDivTags.split('<div>');
+        const bulletedList = statements
+            .filter(statement => statement.trim() !== '')
+            .map(statement => `- ${statement.trim()}`);
+        const combinedString = bulletedList.join(' ');
+        const finalList = combinedString.split(/--|-/);
+        const filteredList = finalList.filter(item => item.trim() !== '');
+        return filteredList.map((item, index) => `${index + 1}: ${item.trim()}\n`);
+    }
+
 
 
 
     async function cancelOrder() {
         try {
             const token = await AsyncStorage.getItem("token");
-           
+
             const response = await fetch(BASE_URL + ORDER_CANCEL, {
                 method: 'POST',
                 headers: {
@@ -174,85 +190,98 @@ const OrderDetails = ({ navigation, route }) => {
             }); // Replace with your API endpoint for updating user profile
 
             // Handle success response
-       
+
             alert('Order cancelled successfully');
         } catch (error) {
             // Handle error response
             console.log('Error updating profile:', error);
         }
     }
-   
     return (
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <CustomHeader title={"Order Details"} navigation={navigation} />
-            {/* <Text style={{ color: "red" }}>{'aaaa'}{orderDetail.preperationtext}</Text> */}
-
             <View style={styles.container}>
-                <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} orderType={orderType}/>
-               
 
-                {orderType === 2 ?
-                <View style={styles.tabSec}>
-                      {console.log("orderType here===" + orderType)}
-                    <Tabs onSelectTab={handleTabChange} />
-                    {selectedTab === 2 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail}/>}
-                </View>
-                :
+                <OrderDetailsSection OrderDetail={orderDetail} orderId={route.params?.orderId} orderType={orderType} />
                 <View>
-                    <Text>{"decoration "}</Text>
-                </View>  
-                }
-               
-                {/* <View>
-                    {(orderDetail.order_status === "Booked" || orderDetail.order_status === "Accepted") &&
-                        orderDetail.order_status !== "In-progress" ? (
-                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={sendInvite}>
-                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                                <View><Text style={styles.ratingbuttonText}>Send Invite</Text></View>
-                            </View>
-                        </TouchableHighlight>
-                    ) : null}
+                    {orderType === 2 ? (
+                        <View style={styles.tabSec}>
+                            {console.log("orderType here===" + orderType)}
+                            <Tabs onSelectTab={handleTabChange} />
+                            {selectedTab === 1 ? <OrderDetailsMenu OrderMenu={orderMenu} /> : selectedTab === 2 ? <OrderDetailsAppli OrderAppl={OrderAppl} /> : <OrderDetailsIngre OrderMenu={orderMenu} OrderDetail={orderDetail} />}
+                        </View>
+                    ) : (
+                        <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
+                            <View style={styles.selectedProductsContainer}>
+                                {decorationItems.map(product => (
+                                    <View>
+                                        <View key={product.id} style={styles.productContainer}>
+                                            <View>
+                                                <Image source={{ uri: `https://horaservices.com/api/uploads/${product.featured_image}` }} style={styles.productImage} />
 
-                </View> */}
-                <View>
-               
-                <View>
-                    {orderDetail.order_status === 0 || orderDetail.order_status === 1 ||
-                        orderDetail.order_status === 2 ? (
-                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={cancelOrder}>
-                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                                <View><Text style={styles.ratingbuttonText} onPress={cancelOrder}>Cancel Order</Text></View>
-                            </View>
-                        </TouchableHighlight>
-                        
-                    ) : null}
+                                            </View>
+                                            <View style={{ width: '50%' }}>
+                                                <Text style={styles.productName}>{product.name}</Text>
+                                                <Text style={styles.productPrice}>₹{product.price}</Text>
+                                                <Text>{getItemInclusion(product.inclusion)}</Text>
+                                            </View>
 
-                </View>
-                    {orderDetail.order_status === 4 ?
-                        <View style={styles.cancelorderbox}>
-                            <View>
-                                <Text style={styles.cancelorderboxtext1}>We Regret to inform you that your order has been canceled! we are working hard to make your experience better and hustle free
-                                </Text>
-                            </View>
-                            <View>
-                                <Text style={styles.cancelorderboxtext2} onPress={contactUsRedirection}>Contact us for more help!</Text>
+                                        </View>
+
+                                    </View>
+
+
+                                ))}
                             </View>
                         </View>
-                        :
-                        ''
-                    }
-                
-                    {orderDetail.order_status === 3 ?
-                      
-                        <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={contactUsRedirection}>
-                            <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                                <View><Text style={styles.ratingbuttonText}>Share you feedback with us</Text></View>
+                    )}
+                </View>
+
+
+
+                <View>
+                    <View>
+                        {orderDetail.order_status === 0 || orderDetail.order_status === 1 ||
+                            orderDetail.order_status === 2 ? (
+                            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={cancelOrder}>
+                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                                    <View><Text style={styles.ratingbuttonText} onPress={cancelOrder}>Cancel Order</Text></View>
+                                </View>
+                            </TouchableHighlight>
+
+                        ) : null}
+
+                    </View>
+                    <View>
+                        {orderDetail.order_status === 4 ?
+                            <View style={styles.cancelorderbox}>
+                                <View>
+                                    <Text style={styles.cancelorderboxtext1}>We Regret to inform you that your order has been canceled! we are working hard to make your experience better and hustle free
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text style={styles.cancelorderboxtext2} onPress={contactUsRedirection}>Contact us for more help!</Text>
+                                </View>
                             </View>
-                        </TouchableHighlight>
-                        :
-                        ''
-                    }
+                            :
+                            ''
+                        }
+                    </View>
+
+
+                    <View>
+                        {orderDetail.order_status === 3 ?
+
+                            <TouchableHighlight style={styles.ratingbutton} underlayColor="#E56352" onPress={contactUsRedirection}>
+                                <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                                    <View><Text style={styles.ratingbuttonText}>Share Your Feedback With Us</Text></View>
+                                </View>
+                            </TouchableHighlight>
+                            :
+                            ''
+                        }
+                    </View>
                 </View>
             </View>
         </ScrollView>
@@ -334,7 +363,7 @@ const styles = StyleSheet.create({
     cancelorderboxtext1: {
         fontWeight: "500",
         marginBottom: 0,
-        color:'black'
+        color: 'black'
     },
     cancelorderboxtext2: {
         fontWeight: "500",
@@ -375,6 +404,37 @@ const styles = StyleSheet.create({
     },
     inactiveTabText: {
         color: '#969696',
+    },
+    selectedProductsContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginTop: 15
+    },
+    productContainer: {
+        width: '100%',
+        marginBottom: 10,
+        alignItems: 'left',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    productImage: {
+        width: 120,
+        height: 120,
+        borderRadius: 10,
+    },
+    productName: {
+        fontSize: 12,
+        fontWeight: '900',
+        marginTop: 10,
+    },
+    productId: {
+        fontSize: 14,
+        color: '#555',
+    },
+    productPrice: {
+        fontSize: 12,
+        color: '#555',
     },
 })
 

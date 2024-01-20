@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Linking , Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { StyleSheet, ScrollView, Text, TextInput, View, FlatList, Linking, Dimensions, Image, TouchableOpacity, TouchableHighlight } from 'react-native';
 import axios from 'axios';
 import CustomHeader from '../../components/CustomeHeader';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { BASE_URL,  GET_ADDRESS_LIST, API_SUCCESS_CODE, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
+import { BASE_URL, GET_ADDRESS_LIST, API_SUCCESS_CODE, CONFIRM_ORDER_ENDPOINT } from '../../utils/ApiConstants';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -32,25 +32,25 @@ const ProductDateSummary = ({ route, navigation }) => {
 
     const minimumDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
     const [completeAddress, setCompleteAddress] = useState([]);
-	const [add, setAdd] = useState('');
+    const [add, setAdd] = useState('');
     let [addId, setAddId] = useState('')
     const [i, setI] = useState(0);
-	 let addressID;
-	 const [cityStatus, setCityStatus] = useState(0);
+    let addressID;
+    const [cityStatus, setCityStatus] = useState(0);
     const [isWarningVisible, setWarningVisible] = useState(false);
     const [isWarningVisibleForCity, setWarningVisibleForCity] = useState(false);
     const [comments, setComments] = useState('');
 
     const handleCommentsChange = (text) => {
         setComments(text);
-      };
-      
+    };
+
     const handleWarningClose = () => {
         setWarningVisible(false);
         setWarningVisibleForCity(false);
-								
+
     };
-	const editAddress = (address) => {
+    const editAddress = (address) => {
         bottomSheetRef.current.close();
         navigation.navigate('ConfirmLocation', { 'data': address })
     }
@@ -144,22 +144,22 @@ const ProductDateSummary = ({ route, navigation }) => {
 
     const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            
-            Geocoder.from(latitude, longitude)
-              .then((response) => {
-                const address = response.results[0].formatted_address;
-                setCompleteAddress(response.results[0].address_components);
-                setAdd(address);
-                //setCurrentAddress(address);
-              })
-              .catch((error) => console.warn('Error fetching location address:', error));
-          },
-          (error) => console.log('Error getting current location:', error),
-          { enableHighAccuracy: true, timeout: 100000000000000000, maximumAge: 1000000000000000000000000 }
+            (position) => {
+                const { latitude, longitude } = position.coords;
+
+                Geocoder.from(latitude, longitude)
+                    .then((response) => {
+                        const address = response.results[0].formatted_address;
+                        setCompleteAddress(response.results[0].address_components);
+                        setAdd(address);
+                        //setCurrentAddress(address);
+                    })
+                    .catch((error) => console.warn('Error fetching location address:', error));
+            },
+            (error) => console.log('Error getting current location:', error),
+            { enableHighAccuracy: true, timeout: 100000000000000000, maximumAge: 1000000000000000000000000 }
         );
-      };
+    };
 
     const fetchAddressesFromAPI = async () => {
         try {
@@ -196,12 +196,11 @@ const ProductDateSummary = ({ route, navigation }) => {
         console.log(addresses[0].address2)
 
         addresses.forEach(element => {
-            if (element.address1 ===  address.address2 || element.address2 === address.address2)
-            {
+            if (element.address1 === address.address2 || element.address2 === address.address2) {
                 addressID = element._id;
                 setAddId(addressID);
 
-            
+
             }
         });
 
@@ -210,19 +209,18 @@ const ProductDateSummary = ({ route, navigation }) => {
         setCurrentAddress(address.address2);
         bottomSheetRef.current.close();
     };
-	
-	const handleConfirmOrder = async (merchantTransactionId) => {
-								
-        if (addId === "")
-        {
+
+    const handleConfirmOrder = async (merchantTransactionId) => {
+
+        if (addId === "") {
             addId = addressID;
         }
         try {
-            
+
             const message = await checkPaymentStatus(merchantTransactionId);
             const items = selectedProducts.map(value => value._id);
             const storedUserID = await AsyncStorage.getItem("userID");
-            
+
             if (message === 'PAYMENT_SUCCESS') {
                 const url = BASE_URL + CONFIRM_ORDER_ENDPOINT;
                 const requestData = {
@@ -242,18 +240,18 @@ const ProductDateSummary = ({ route, navigation }) => {
                     "is_gst": "0",
                     "order_type": true,
                     "items": items,
-                    "decoration_comment":comments
+                    "decoration_comment": comments
                 }
                 console.log(requestData)
                 const token = await AsyncStorage.getItem('token');
-    
+
                 const response = await axios.post(url, requestData, {
                     headers: {
                         'Content-Type': 'application/json',
                         'authorization': token
                     },
                 });
-    
+
                 if (response.status === API_SUCCESS_CODE) {
                     navigation.navigate('ConfirmOrder');
                 }
@@ -263,19 +261,19 @@ const ProductDateSummary = ({ route, navigation }) => {
         }
         console.log(cat);
     };
-    
+
     const checkPaymentStatus = async (merchantTransactionId) => {
         try {
             const storedUserID = await AsyncStorage.getItem('userID');
             const apiUrl = BASE_URL + PAYMENT_STATUS + '/' + merchantTransactionId;
-            
-    
+
+
             const pollInterval = 5000; // 5 seconds (adjust as needed)
             const pollingDuration = 300000; // 5 minutes
-    
+
             const pollPaymentStatus = async () => {
                 const startTime = Date.now();
-    
+
                 while (Date.now() - startTime < pollingDuration) {
                     try {
                         const response = await axios.post(apiUrl, {}, {
@@ -283,13 +281,13 @@ const ProductDateSummary = ({ route, navigation }) => {
                                 'Content-Type': 'application/json',
                             },
                         });
-    
-                        
-    
+
+
+
                         if (response.data && response.data.message) {
                             const message = response.data.message;
                             console.log('API response message:', message);
-    
+
                             if (message === 'PAYMENT_PENDING') {
                                 console.log('Payment is still pending. Polling again...');
                                 await new Promise(resolve => setTimeout(resolve, pollInterval));
@@ -300,17 +298,17 @@ const ProductDateSummary = ({ route, navigation }) => {
                         } else {
                             console.log('API response does not contain a message field');
                         }
-    
+
                     } catch (error) {
                         console.error('API error:', error);
                     }
                 }
-    
+
                 // Stop polling after the specified duration
                 console.log('Polling completed. Returning final result.');
                 return 'PAYMENT_POLLING_TIMEOUT';
             };
-    
+
             // Start polling and return the final result after polling completes
             return await pollPaymentStatus();
         } catch (error) {
@@ -318,105 +316,103 @@ const ProductDateSummary = ({ route, navigation }) => {
             throw error; // Rethrow the error for the caller to handle
         }
     };
-    
-    
+
+
 
     function getRandomNumber(min, max) {
         return Math.random() * (max - min) + min;
-      }
-	  
-	  const onContinueClick = async () => {
-        if (i === 0)
-        {
+    }
+
+    const onContinueClick = async () => {
+        if (i === 0) {
             setWarningVisible(true);
         }
-        else
-        {
-        
-            
+        else {
+
+
             const apiUrl = BASE_URL + PAYMENT;
-        
-        const storedUserID = await AsyncStorage.getItem("userID");
-        console.log(storedUserID);
-        const phoneNumber = await AsyncStorage.getItem('mobileNumber')
-        console.log(phoneNumber)
-        const randomInteger = Math.floor(getRandomNumber(1,100));
 
-        let merchantTransactionId = storedUserID + randomInteger
-        const requestData = {
-        user_id: storedUserID,
-        price: Math.round(totalPrice*0.3),
-        phone: phoneNumber,
-        name: storedUserID,
-        merchantTransactionId: merchantTransactionId
-        };
+            const storedUserID = await AsyncStorage.getItem("userID");
+            console.log(storedUserID);
+            const phoneNumber = await AsyncStorage.getItem('mobileNumber')
+            console.log(phoneNumber)
+            const randomInteger = Math.floor(getRandomNumber(1, 100));
 
-        
-    try {
-        const response = await axios.post(apiUrl, requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-  
-        let url = response.request.responseURL;
-  
-        handleConfirmOrder(merchantTransactionId);
-        Linking.openURL(url)
-        .then((supported) => {
-          if (!supported) {
-            console.log(`Cannot handle URL: ${url}`);
-          } else {
-            console.log(`Opened URL: ${url}`);
-          }
-        })
-  
-      } catch (error) {
-        // Handle errors
-        console.error('API error:', error);
-      }
+            let merchantTransactionId = storedUserID + randomInteger
+            const requestData = {
+                user_id: storedUserID,
+                price: Math.round(totalPrice * 0.3),
+                phone: phoneNumber,
+                name: storedUserID,
+                merchantTransactionId: merchantTransactionId
+            };
+
+
+            try {
+                const response = await axios.post(apiUrl, requestData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                let url = response.request.responseURL;
+
+                handleConfirmOrder(merchantTransactionId);
+                Linking.openURL(url)
+                    .then((supported) => {
+                        if (!supported) {
+                            console.log(`Cannot handle URL: ${url}`);
+                        } else {
+                            console.log(`Opened URL: ${url}`);
+                        }
+                    })
+
+            } catch (error) {
+                // Handle errors
+                console.error('API error:', error);
+            }
         }
-       
-        
-        
+
+
+
     }
-	 const contactUsedRedirection = () =>{
+    const contactUsedRedirection = () => {
         Linking.openURL('whatsapp://send?phone=+918884221487&text=Hello%20wanted%20to%20know%20about%20fooddelivery!');
     }
 
 
     const changeLocation = async () => {
         try {
-          let address = await AsyncStorage.getItem("Address");
-      
+            let address = await AsyncStorage.getItem("Address");
 
-          const locality = completeAddress[4]?.long_name || "";
-          const city = completeAddress[5]?.long_name || "";
-          const state = completeAddress[7]?.long_name || "";
-          const pincode = completeAddress[9]?.long_name || "";
 
-          console.log(locality + city + state + pincode);
-          
-          
-          await Promise.all([
-            AsyncStorage.setItem("City", city),
-            AsyncStorage.setItem("State", state),
-            AsyncStorage.setItem("Pincode", pincode),
-            AsyncStorage.setItem("Locality", locality)
-          ]);
-								 
-          openBottomSheet();
+            const locality = completeAddress[4]?.long_name || "";
+            const city = completeAddress[5]?.long_name || "";
+            const state = completeAddress[7]?.long_name || "";
+            const pincode = completeAddress[9]?.long_name || "";
+
+            console.log(locality + city + state + pincode);
+
+
+            await Promise.all([
+                AsyncStorage.setItem("City", city),
+                AsyncStorage.setItem("State", state),
+                AsyncStorage.setItem("Pincode", pincode),
+                AsyncStorage.setItem("Locality", locality)
+            ]);
+
+            openBottomSheet();
         } catch (error) {
-          console.error('Error fetching or setting data in AsyncStorage:', error);
+            console.error('Error fetching or setting data in AsyncStorage:', error);
         }
-      };
+    };
 
     const addAddress = () => {
         bottomSheetRef.current.close();
         navigation.navigate('ConfirmLocation', { 'data': null })
     }
 
-   
+
     const checkIsDateValid = () => {
         const currentTime = new Date();
         const selectedDateTime = new Date(selectedDate);
@@ -499,7 +495,7 @@ const ProductDateSummary = ({ route, navigation }) => {
                     <Text style={{ color: '#000', fontSize: 10, fontWeight: '500', textAlign: 'center' }}>The decorator requires approximately 40-90 minutes to fulfill the service</Text>
                 </View>
 
-                <View style={{ flexDirection: 'row', marginTop: 10, textAlign: 'center' , paddingLeft:0 }}>
+                <View style={{ flexDirection: 'row', marginTop: 10, textAlign: 'center', paddingLeft: 0 }}>
 
                     <TouchableOpacity onPress={() => setShowDatePicker(true)} activeOpacity={1}>
 
@@ -551,49 +547,49 @@ const ProductDateSummary = ({ route, navigation }) => {
                     <Text style={{ color: '#333', fontSize: 13, fontWeight: '700', }}>
                         Serving location
                     </Text>
-                    {currentAddress !== ""?<View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
+                    {currentAddress !== "" ? <View style={{ marginTop: 5, paddingStart: 11, paddingVertical: 6, backgroundColor: 'rgba(211, 75, 233, 0.10)', borderRadius: 4, borderWidth: 1, borderColor: '#FFE1E6', paddingEnd: 20 }}>
                         <Text style={{ color: '#9252AA', fontWeight: '500', lineHeight: 18, fontSize: 13 }}>{currentAddress}</Text>
 
-                    </View>:""}
+                    </View> : ""}
                     <TouchableOpacity onPress={changeLocation} activeOpacity={1}>
-                    {currentAddress === ""?<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                        {currentAddress === "" ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
                             <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Click here to add Location</Text>
-                        </View>:<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
+                        </View> : <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 6 }}>
                             <Text style={{ color: '#9252AA', fontSize: 13, fontWeight: '500', lineHeight: 18 }} >Change Location</Text>
                         </View>}
 
                     </TouchableOpacity>
                     <OrderWarning visible={isWarningVisible} title={"Please select address"} buttonText={"OK!"}
-                    onClose={handleWarningClose} />
+                        onClose={handleWarningClose} />
                     <RBSheet
-                ref={bottomSheetRef}
-                closeOnDragDown={true}
-                height={500}
-                customStyles={{
-                    container: styles.bottomSheetContainer,
-                    wrapper: styles.bottomSheetWrapper,
-                    draggableIcon: styles.draggableIcon,
-                }}
-            >
-                <View style={{ flexDirection: 'column', marginBottom: 39, flex: 1 }}>
-                    <BottomSheetContent
-                        data={addresses}
-                        onSelectAddress={handleSelectAddress}
+                        ref={bottomSheetRef}
+                        closeOnDragDown={true}
+                        height={500}
+                        customStyles={{
+                            container: styles.bottomSheetContainer,
+                            wrapper: styles.bottomSheetWrapper,
+                            draggableIcon: styles.draggableIcon,
+                        }}
+                    >
+                        <View style={{ flexDirection: 'column', marginBottom: 39, flex: 1 }}>
+                            <BottomSheetContent
+                                data={addresses}
+                                onSelectAddress={handleSelectAddress}
 
-                    />
-                </View>
+                            />
+                        </View>
 
-                <View style={{
-                    justifyContent: 'center',
-                    marginTop: 29,
-                    marginBottom: 26,
-                    alignItems: 'center',
-                }}>
-                    <TouchableOpacity onPress={() => addAddress()} style={styles.customButton} activeOpacity={1}>
-                        <Text style={styles.buttonText}> + Add Address</Text>
-                    </TouchableOpacity>
-                </View>
-            </RBSheet>
+                        <View style={{
+                            justifyContent: 'center',
+                            marginTop: 29,
+                            marginBottom: 26,
+                            alignItems: 'center',
+                        }}>
+                            <TouchableOpacity onPress={() => addAddress()} style={styles.customButton} activeOpacity={1}>
+                                <Text style={styles.buttonText}> + Add Address</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </RBSheet>
                 </View>
 
 
@@ -608,7 +604,7 @@ const ProductDateSummary = ({ route, navigation }) => {
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>Advance payment</Text>
                                 <Text style={{ color: "#9252AA", fontWeight: '600', fontSize: 16, lineHeight: 20 }}>₹ {Math.round(totalPrice * 0.3)}</Text>
                             </View>
-                            <View style={{ padding: 7, flexDirection: 'row', borderRadius: 5,  marginTop: 15,  backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{ padding: 7, flexDirection: 'row', borderRadius: 5, marginTop: 15, backgroundColor: 'rgba(211, 75, 233, 0.10)', justifyContent: 'center', alignItems: 'center' }}>
                                 <Image source={require('../../assets/info.png')} style={{ height: 12, width: 12 }} />
                                 <Text style={{ fontSize: 9, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>Balance payment is to be paid to executor after order completion.</Text>
                             </View>
@@ -628,15 +624,15 @@ const ProductDateSummary = ({ route, navigation }) => {
 
                                     </View>
                                     <ScrollView>
-                <TextInput
-                    editable
-                    multiline
-                    numberOfLines={5}
-                    maxLength={100}
-                    style={styles.textArea}
-                    placeholder="Share the comments"
-                />
-            </ScrollView>
+                                        <TextInput
+                                            editable
+                                            multiline
+                                            numberOfLines={5}
+                                            maxLength={100}
+                                            style={styles.textArea}
+                                            placeholder="Share the comments"
+                                        />
+                                    </ScrollView>
                                 </View>
 
 
@@ -661,10 +657,10 @@ const ProductDateSummary = ({ route, navigation }) => {
 
                         </View>
                         <View>
-                        <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
-    Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
-    The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
-</Text>
+                            <Text style={{ fontSize: 10, color: '#9252AA', fontWeight: '400', marginLeft: 4, lineHeight: 15 }}>
+                                Till the order is not assigned to the service provider, 100% of the amount will be refunded, otherwise 50% of the advance will be deducted as cancellation charges to compensate the service provider.{'\n'}
+                                The order cannot be edited after paying the advance. Customers can cancel the order and replace it with a new order with the required changes.
+                            </Text>
                         </View>
                     </View>
                 </View>
@@ -757,7 +753,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 18,
     },
-    
+
     separator1: { height: 1, width: 70, marginTop: 10, marginLeft: 5 },
     separator2: { height: 1, width: 70, marginTop: 10, marginStart: -15 },
     container: {

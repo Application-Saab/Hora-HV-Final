@@ -67,6 +67,7 @@ const OrderDetailsSection = ({ OrderDetail, apiOrderId, orderId, orderType }) =>
                     {"OrderId:"}{'  '}{getOrderId(orderId)}
                 </Text>
                 <Text style={styles.orderstausclass}>{getOrderStatus(OrderDetail.order_status)}</Text>
+            
             </View>
             <View style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 12, paddingRight: 12 }}>
                 <Text>
@@ -82,21 +83,11 @@ const OrderDetailsSection = ({ OrderDetail, apiOrderId, orderId, orderType }) =>
                     }} />
 
                 </Text>
+              
+                    <Text style={styles.orderheadings}>{getOrderD(OrderDetail.order_date)}</Text>         
 
-                {orderType === 1 ? (
-                    <Text style={styles.orderheadings}>{getOrderD(OrderDetail._doc.order_date)}</Text>
-                ) : orderType === 2 ? (
-                    <Text style={styles.orderheadings}>{getOrderD(OrderDetail.order_date)}</Text>
-                ) : orderType === 3 ? (
-                    // Add hospitality
-                    null
-                ) : (
-                    //  default 
-                    null
-                )}
+            </View> 
 
-
-            </View>
             <View style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 12, paddingRight: 12 }}>
                 <Text>
                     <Image source={require('../assets/time-icon.png')} style={{
@@ -110,20 +101,10 @@ const OrderDetailsSection = ({ OrderDetail, apiOrderId, orderId, orderType }) =>
                         marginBottom: 0
                     }} />
                 </Text>
-                {orderType === 1 ? (
-                    <Text style={styles.orderheadings}>{getOrderD(OrderDetail._doc.order_time)}</Text>
-                ) : orderType === 2 ? (
-                    <Text style={styles.orderheadings}>{getOrderD(OrderDetail.order_time)}</Text>
-                ) : orderType === 3 ? (
-                    // Add your third condition here
-                    // Example: <Text style={styles.orderheadings}>{getOrderD(OrderDetail.some_other_property)}</Text>
-                    null
-                ) : (
-                    // Add a default case here, or render null if you don't want anything to be rendered for other values
-                    null
-                )}
+                <Text style={styles.orderheadings}>{OrderDetail.order_time}</Text>
+              
             </View>
-            {orderType !== 1 ?
+            {orderType === 2 ?
                 <View style={{ paddingTop: 12, paddingBottom: 12, paddingLeft: 12, paddingRight: 12 }}>
                     <Text><Image source={require('../assets/icon3.png')} style={{
                         height: 13,
@@ -138,7 +119,7 @@ const OrderDetailsSection = ({ OrderDetail, apiOrderId, orderId, orderType }) =>
                     </Text>
                     <Text style={styles.orderheadings}>{OrderDetail.no_of_people} {"People"}</Text>
                 </View>
-                : null}
+                : null} 
         </View>
     )
 

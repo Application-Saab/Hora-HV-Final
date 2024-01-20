@@ -47,9 +47,9 @@ const ConfirmDishOrder = ({ navigation, route }) => {
         };
     });
 
-    const onViewAllClick = () => {
-        setShowAllItems(!showAllItems);
-    }
+    // const onViewAllClick = () => {
+    //     setShowAllItems(!showAllItems);
+    // }
 
 
     const editAddress = (address) => {
@@ -61,8 +61,8 @@ const ConfirmDishOrder = ({ navigation, route }) => {
     const priceForPeople = peopleCount * 49
     let totalPrice = dishPrice + priceForPeople
     if (selectedMealList.length > 7){
-        console.log("more than 650")
-        totalPrice += 650
+        console.log("more than 7 dish")
+        totalPrice += 700
     }
 
     const AddressItem = ({ address, selected, onSelect }) => (
@@ -230,15 +230,13 @@ const ConfirmDishOrder = ({ navigation, route }) => {
 
     const renderDishItem = ({ item }) => {
         return (
-            <View style={{ flexDirection: 'row', marginRight: 5, width: 140, borderRadius: 8, borderColor: '#B8B8B8', borderWidth: 1, backgroundColor: '#FFF', paddingBottom: 5 }}>
+            <View style={{ flexDirection: 'row', marginRight: 5, width: 150, borderRadius: 8, borderColor: '#B8B8B8', borderWidth: 1, backgroundColor: '#FFF', paddingBottom: 5 }}>
                 <Image source={{ uri: `https://horaservices.com/api/uploads/${item.image}` }}
-                    style={{ width: 41, height: 42, borderRadius: 20, marginBottom: 9, marginTop: 9, marginStart: 6 }} />
-                <View style={{ flexDirection: 'column', alignContent: 'flex-end' }}>
-                    <Text numberOfLines={2} style={{ alignItems: 'flex-end', width: "60%", marginLeft: 7, color: '#414141', fontSize: 11, fontWeight: '500', opacity: 0.9, marginTop: 10 }}>{item.name}</Text>
+                    style={{ width: 41, height: 42, borderRadius: 20, marginBottom: 9, marginTop: 9, marginStart: 9 }} />
+                <View style={{ flexDirection: 'column', alignContent: 'flex-end' , paddingRight:7 }}>
+                    <Text  style={{ alignItems: 'flex-end', width: "70%", marginLeft: 7, color: '#414141', fontSize: 11, fontWeight: '500', opacity: 0.9, marginTop: 10 }}>{item.name}</Text>
                     <Text style={{ width: 45, marginTop: 2, color: '#9252AA', fontSize: 11, fontWeight: '700', textAlign: 'center' }}>₹ {item.price}</Text>
                 </View>
-
-
             </View>
         )
 
@@ -568,18 +566,26 @@ const ConfirmDishOrder = ({ navigation, route }) => {
                 <View style={{ justifyContent: 'space-between', marginTop: 5, borderRadius: 6, backgroundColor: '#E8E8E8', borderColor: '#D8D8D8', borderWidth: 1, width: Dimensions.get('window').width, paddingBottom: 10 }}>
                     <View style={{ marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
                         <Text style={{ padding: 4, color: '#000', fontSize: 13, fontWeight: '600' }}>Dishes selected</Text>
+
+
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <TouchableOpacity onPress={onViewAllClick}>
+                            {/* <TouchableOpacity onPress={onViewAllClick}> */}
+                            {/* <TouchableOpacity>
                                 <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All</Text>
 
                             </TouchableOpacity>
                             <Image style={{ width: 9, height: 9, marginLeft: 5 }} source={require('../../assets/viewAll.png')}></Image>
+                         */}
+                        
                         </View>
+
+                        
                     </View>
 
                     <View style={{ marginTop: 10, marginHorizontal: 15, flexDirection: 'row', flex: 1 }} >
                         <FlatList
-                            data={showAllItems ? selectedMealList : selectedMealList.slice(0, 3)}
+                            // data={showAllItems ? selectedMealList : selectedMealList.slice(0, 3)}
+                            data={selectedMealList}
                             keyExtractor={(item) => item._id}
                             renderItem={renderDishItem}
                             numColumns={2}

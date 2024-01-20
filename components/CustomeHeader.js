@@ -84,8 +84,9 @@ const CustomHeader = ({ title, navigation }) => {
   };
 
   return (
-    
-    <LinearGradient
+    <>
+    <View style={{height:33, backgroundColor:"black" }}></View>
+      <LinearGradient
       colors={['#6730B2', '#EE7464']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
@@ -126,6 +127,8 @@ const CustomHeader = ({ title, navigation }) => {
 
 
     </LinearGradient>
+    </>
+  
 
   );
 };

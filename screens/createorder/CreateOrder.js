@@ -28,9 +28,10 @@ const CreateOrder = ({ navigation }) => {
     const [isVegSelected, setIsVegSelected] = useState(true);
     const [isDishSelected, setIsDishSelected] = useState(false);
     const [isPopupVisible, setPopupVisible] = useState(false);
-    const [loading , setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)
     const [isWarningVisibleForDishCount, setWarningVisibleForDishCount] = useState(false);
     const [isWarningVisibleForCuisineCount, setWarningVisibleForCuisineCount] = useState(false);
+    const [isViewAllExpanded, setIsViewAllExpanded] = useState(false);
 
     const handleWarningClose = () => {
         setWarningVisibleForDishCount(false);
@@ -44,7 +45,7 @@ const CreateOrder = ({ navigation }) => {
     useEffect(() => {
         const fetchCuisineData = async () => {
             try {
-               
+
                 const url = BASE_URL + GET_CUISINE_ENDPOINT;
                 const requestData = {
                     type: "cuisine"
@@ -61,7 +62,7 @@ const CreateOrder = ({ navigation }) => {
             } catch (error) {
                 console.log('Error Fetching Data:', error.message);
             }
-           
+
         };
         fetchCuisineData();
     }, []);
@@ -78,7 +79,7 @@ const CreateOrder = ({ navigation }) => {
 
         return (
             <View style={{ marginBottom: 4, flexDirection: 'row', paddingEnd: 5, paddingBottom: 4, justifyContent: "space-between", alignItems: "center" }}>
-                 {item[1] !== 'Decoration' ?
+                {item[1] !== 'Decoration' ?
                     <TouchableOpacity
                         style={[styles.button, isSelected && styles.selectedButton]}
                         onPress={() => handleCuisinePress(item[0])}
@@ -332,24 +333,24 @@ const CreateOrder = ({ navigation }) => {
                         <View style={{ flexDirection: 'row', marginTop: 3 }}>
                             <Image source={require('../../assets/plus.png')} style={{ width: 25, height: 25 }} />
                             <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400', marginLeft: 10, marginTop: 4 }}>
-                                {dishDetail.special_appliance_id && dishDetail.special_appliance_id.length > 0 ? 
-                                <View>
-                                    {
-                                        dishDetail.special_appliance_id.map((appliance, index) => (
-                                            <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{appliance.name}</Text>
-                                                {index < dishDetail.special_appliance_id.length - 1 && <Text>, </Text>}
-                                            </View>
-                                        ))
-                                    }
-                                </View>
-                                : "NA" }
-                                </Text>
+                                {dishDetail.special_appliance_id && dishDetail.special_appliance_id.length > 0 ?
+                                    <View>
+                                        {
+                                            dishDetail.special_appliance_id.map((appliance, index) => (
+                                                <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{appliance.name}</Text>
+                                                    {index < dishDetail.special_appliance_id.length - 1 && <Text>, </Text>}
+                                                </View>
+                                            ))
+                                        }
+                                    </View>
+                                    : "NA"}
+                            </Text>
                         </View>
                     </View>
                     <View style={{ marginTop: 4, flexDirection: 'column', backgroundColor: '#F7F2F9', padding: 10, width: 343, borderWidth: 1, borderRadius: 5, borderColor: '#9252AA' }}>
                         <Text style={{ color: '#9C9B9B', fontSize: 11, fontWeight: '700' }}>Advance Preparations required</Text>
-                        <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{dishDetail.preperationtext?dishDetail.preperationtext:"NA"}</Text>
+                        <Text style={{ color: '#4B4B4B', fontSize: 12, fontWeight: '400' }}>{dishDetail.preperationtext ? dishDetail.preperationtext : "NA"}</Text>
                     </View>
                 </View>
             </View>
@@ -363,6 +364,7 @@ const CreateOrder = ({ navigation }) => {
 
     };
     const handleViewAll = (categoryId) => {
+        setIsViewAllExpanded(!isViewAllExpanded);
         setExpandedCategories((prevExpanded) =>
             prevExpanded.includes(categoryId)
                 ? prevExpanded.filter((id) => id !== categoryId)
@@ -385,7 +387,7 @@ const CreateOrder = ({ navigation }) => {
     const handleToggleVeg = () => {
     }
 
-      const isCategoryExpanded = (categoryId) => expandedCategories.includes(categoryId);
+    const isCategoryExpanded = (categoryId) => expandedCategories.includes(categoryId);
 
     return (
         <View style={styles.screenContainer}>
@@ -402,119 +404,130 @@ const CreateOrder = ({ navigation }) => {
                 <View>
                     <Image style={styles.image4} source={require('../../assets/ConfirmOrderUnselected.png')} />
                     <Text style={{ fontSize: 10, fontFamily: '600', color: '#827F84' }}>Confirm Order</Text>
-                </View>           
-                 </View>
-          
+                </View>
+            </View>
+
             <ScrollView>
-            <View style={styles.vegNonVegContainer}>
-                <View style={styles.boxvegContainer}>
+                <View style={styles.vegNonVegContainer}>
+                    <View style={styles.boxvegContainer}>
 
-                    <View style={{}}>
-                        <Switch
-                            value={isVegSelected}
-                            onValueChange={handleToggleVeg}
-                            trackColor={{ true: '#8DE080', false: '#D4DBDE' }}
-                            thumbColor={'white'}
-                            style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 18, marginStart: 10, marginVertical: 3 }}
-                        />
-                    </View>
+                        <View style={{}}>
+                            <Switch
+                                value={isVegSelected}
+                                onValueChange={handleToggleVeg}
+                                trackColor={{ true: '#8DE080', false: '#D4DBDE' }}
+                                thumbColor={'white'}
+                                style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 32, height: 18, marginStart: 10, marginVertical: 3 }}
+                            />
+                        </View>
 
-                    <View style={{ marginLeft: 7, marginRight: 12 }}>
-                        <Text style={{ fontWeight: '500', fontSize: 9, color: '#000' }}>Veg only</Text>
+                        <View style={{ marginLeft: 7, marginRight: 12 }}>
+                            <Text style={{ fontWeight: '500', fontSize: 9, color: '#000' }}>Veg only</Text>
+                        </View>
+                    </View>
+                    <View style={styles.boxnonvegContainer}>
+                        <View>
+                            <Switch
+                                value={isNonVegSelected}
+                                onValueChange={handleToggleNonVeg}
+                                trackColor={{ true: '#D33030', false: '#D4DBDE' }}
+                                thumbColor={isNonVegSelected ? 'white' : 'white'}
+                                style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 40, height: 10, marginStart: 10, marginVertical: 3 }}
+                            />
+                        </View>
+                        <View style={{ marginRight: 8, width: 40 }}>
+                            <Text style={{ fontWeight: '500', fontSize: 9, color: "#9252AA" }}>Non-Veg</Text>
+                        </View>
                     </View>
                 </View>
-                <View style={styles.boxnonvegContainer}>
-                    <View>
-                        <Switch
-                            value={isNonVegSelected}
-                            onValueChange={handleToggleNonVeg}
-                            trackColor={{ true: '#D33030', false: '#D4DBDE' }}
-                            thumbColor={isNonVegSelected ? 'white' : 'white'}
-                            style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }], width: 40, height: 10, marginStart: 10, marginVertical: 3 }}
-                        />
-                    </View>
-                    <View style={{ marginRight: 8, width: 40 }}>
-                        <Text style={{ fontWeight: '500', fontSize: 9, color: "#9252AA" }}>Non-Veg</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={{ flexDirection: 'row', marginTop: 4 }}>
-                <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
-            </View>
-                {loading ? (
-                    <View style={styles.loaderContainer}>
-                    <Loader loading={loading} />
-                </View>
-                ) 
-                : (
-                    <View>
-                         <View style={{ marginLeft: 20, marginRight: 20, justifyContent: "flex-start", flexGrow: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '900', color: 'black', marginTop: 5 }}>
-                        Select Cuisines
-                    </Text>
-                    <FlatList
-                        data={cuisines}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item}
-                        numColumns={4}
-                        contentContainerStyle={styles.cuisineContainer}
-                    />
-                </View>
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row', marginTop: 4 }}>
                     <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
                 </View>
-
-                <View style={{ paddingHorizontal: 12 }}>
-                    <FlatList
-                        data={mealList}
-                        keyExtractor={(item) => item.mealObject._id}
-                        renderItem={({ item }) => (
-                            <View style={{ marginVertical: 5 }}>
-                                {item.dish.length > 0 && (
-                                    <View style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', lineHeight: 15, paddingTop: 15 }}>{item.mealObject.name} ({item.dish.length})</Text>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                            <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
-                                                <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 11, marginLeft: 10 }}>View All Dishes</Text>
-                                            </TouchableOpacity>
-                                            <Image style={{ width: 9, height: 9, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image>
-                                        </View>
-
-                                    </View>
-                                )}
-
-                                {expandedCategories.includes(item.mealObject._id) ? (
-                                    // Show all dishes if this category is expanded
-                                    <FlatList
-                                        data={item.dish}
-                                        keyExtractor={(dish) => dish._id}
-                                        renderItem={renderDishItem}
-                                        numColumns={3} // Set numColumns to 3 for the grid layout
-                                        contentContainerStyle={styles.dishContainer}
-                                        columnWrapperStyle={styles.dishColumnWrapper}
-                                    />
-                                ) : (
-                                    // Show only the first 3 dishes if this category is collapsed
-                                    <FlatList
-                                        data={item.dish.slice(0, 3)}
-                                        keyExtractor={(dish) => dish._id}
-                                        renderItem={renderDishItem}
-                                        numColumns={3}
-                                        contentContainerStyle={styles.dishContainer}
-                                        columnWrapperStyle={styles.dishColumnWrapper}
-                                    />
-                                )}
-
-
-                            </View>
-
-                        )}
-                    />
-                </View>
+                {loading ? (
+                    <View style={styles.loaderContainer}>
+                        <Loader loading={loading} />
                     </View>
                 )
+                    : (
+                        <View>
+                            <View style={{ marginLeft: 20, marginRight: 20, justifyContent: "flex-start", flexGrow: 1 }}>
+                                <Text style={{ fontSize: 14, fontWeight: '900', color: 'black', marginTop: 5 }}>
+                                    Select Cuisines
+                                </Text>
+                                <FlatList
+                                    data={cuisines}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item) => item}
+                                    numColumns={4}
+                                    contentContainerStyle={styles.cuisineContainer}
+                                />
+                            </View>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Image style={styles.verticalSeparator} source={require('../../assets/verticalSeparator.png')}></Image>
+                            </View>
+
+                            <View style={{ paddingHorizontal: 12 }}>
+                                <FlatList
+                                    data={mealList}
+                                    keyExtractor={(item) => item.mealObject._id}
+                                    renderItem={({ item }) => (
+                                        <View style={{ marginVertical: 5 }}>
+                                            {item.dish.length > 0 && (
+                                                <View style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', lineHeight: 15, paddingTop: 15 }}>{item.mealObject.name} ({item.dish.length})</Text>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                        <TouchableOpacity onPress={() => handleViewAll(item.mealObject._id)} activeOpacity={1}>
+                                                            <Text style={{ color: '#9252AA', fontWeight: '400', textDecorationLine: 'underline', fontSize: 12, marginLeft: 10 }}>View All</Text>
+                                                        </TouchableOpacity>
+                                                        {/* <Image style={{ width: 12, height: 12, marginLeft: 8 }} source={require('../../assets/viewAll.png')} activeOpacity={1}></Image> */}
+
+                                                        <Image
+                                                            style={{
+                                                                width: 15,
+                                                                height: 15,
+                                                                marginLeft: 8,
+                                                                transform: [{ rotate: expandedCategories.includes(item.mealObject._id) ? '90deg' : '0deg' }],
+                                                            }}
+                                                            source={require('../../assets/viewAll.png')}
+                                                            activeOpacity={1}
+                                                        />
+                                                    </View>
+
+                                                </View>
+                                            )}
+
+                                            {expandedCategories.includes(item.mealObject._id) ? (
+                                                // Show all dishes if this category is expanded
+                                                <FlatList
+                                                    data={item.dish}
+                                                    keyExtractor={(dish) => dish._id}
+                                                    renderItem={renderDishItem}
+                                                    numColumns={3} // Set numColumns to 3 for the grid layout
+                                                    contentContainerStyle={styles.dishContainer}
+                                                    columnWrapperStyle={styles.dishColumnWrapper}
+                                                />
+                                            ) : (
+                                                // Show only the first 3 dishes if this category is collapsed
+                                                <FlatList
+                                                    data={item.dish.slice(0, 3)}
+                                                    keyExtractor={(dish) => dish._id}
+                                                    renderItem={renderDishItem}
+                                                    numColumns={3}
+                                                    contentContainerStyle={styles.dishContainer}
+                                                    columnWrapperStyle={styles.dishColumnWrapper}
+                                                />
+                                            )}
+
+
+                                        </View>
+
+                                    )}
+                                />
+                            </View>
+                        </View>
+                    )
                 }
-               
+
             </ScrollView>
 
             <View style={{ paddingHorizontal: 16, paddingTop: 5, justifyContent: 'space-between' }}>
